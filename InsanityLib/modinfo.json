@@ -1,0 +1,13 @@
+{
+    "type": "code",
+    "modid": "insanitylib",
+    "name": "InsanityLib",
+    "authors": [
+        "TheInsanityGod"
+    ],
+    "description": "Library with shared code for my other mods",
+    "version": "1.0.0",
+    "dependencies": {
+        "game": ""
+    }
+}

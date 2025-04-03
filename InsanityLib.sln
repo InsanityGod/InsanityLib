@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35521.163
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsanityLib", "InsanityLib\InsanityLib.csproj", "{26D49782-8E1A-442C-84E9-F4754B4BCF08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CakeBuild", "ZZCakeBuild\CakeBuild.csproj", "{FB91CADF-70CF-4D96-B4B7-CEBE225C6CEE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{26D49782-8E1A-442C-84E9-F4754B4BCF08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26D49782-8E1A-442C-84E9-F4754B4BCF08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26D49782-8E1A-442C-84E9-F4754B4BCF08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26D49782-8E1A-442C-84E9-F4754B4BCF08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB91CADF-70CF-4D96-B4B7-CEBE225C6CEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB91CADF-70CF-4D96-B4B7-CEBE225C6CEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB91CADF-70CF-4D96-B4B7-CEBE225C6CEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB91CADF-70CF-4D96-B4B7-CEBE225C6CEE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
