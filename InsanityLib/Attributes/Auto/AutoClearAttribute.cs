@@ -15,7 +15,7 @@ namespace InsanityLib.Attributes.Auto
     public class AutoClearAttribute : Attribute
     {
         //Auto bind this logic to dispose method
-        [DisposalLogic(int.MinValue)]
+        [DisposalLogic(Priority = int.MinValue)]
         internal static void ClearAll(ILogger logger)
         {
             foreach ((var member, _) in ReflectionUtil.FindAllMembers<AutoClearAttribute>())

@@ -30,9 +30,9 @@ namespace InsanityLib.Attributes.Auto.Command
         public string Name { get; set; }
 
         /// <summary>
-        /// What command to place this under (split with /)
+        /// The path this command should be registered under
         /// </summary>
-        public string MainCommand { get; set; }
+        public string Path { get; set; }
 
         /// <summary>
         /// The privelege required to run this

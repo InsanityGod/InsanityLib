@@ -72,7 +72,7 @@ namespace InsanityLib.Commands
                 switch (parameterProviders[i])
                 {
                     case EParamProvider.ServiceProvider:
-                        parameters[i] = provider.GetService(param.ParameterType);
+                        parameters[i] = provider.GetService(param.ParameterType); //TODO allow for overiding with attribute
                         break;
 
                     case EParamProvider.ArgumentParser:

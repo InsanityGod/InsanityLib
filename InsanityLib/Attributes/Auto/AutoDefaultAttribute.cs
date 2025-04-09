@@ -23,8 +23,8 @@ namespace InsanityLib.Attributes.Auto
         }
 
         //Auto bind this logic to dispose method
-        [DisposalLogic(int.MinValue)]
-        internal static void ClearAll(ILogger logger)
+        [DisposalLogic(Priority = int.MinValue)]
+        internal static void DefaultAll(ILogger logger)
         {
             foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<AutoDefaultValueAttribute>())
             {

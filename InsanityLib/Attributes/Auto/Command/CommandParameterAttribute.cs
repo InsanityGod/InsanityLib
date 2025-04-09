@@ -36,22 +36,22 @@ namespace InsanityLib.Attributes.Auto.Command
             else if(paramType == typeof(int))
             {
                 var rangeAttr = param.GetCustomAttribute<RangeAttribute>();
-                return new IntArgParser(argName, (int)(rangeAttr.Minimum ?? int.MinValue), (int)(rangeAttr.Maximum ?? int.MaxValue), param.HasDefaultValue ? (int)param.DefaultValue : 0, true);
+                return new IntArgParser(argName, Convert.ToInt32(rangeAttr.Minimum ?? int.MinValue), Convert.ToInt32(rangeAttr.Maximum ?? int.MaxValue), param.HasDefaultValue ? (int)param.DefaultValue : 0, true);
             }
             else if(paramType == typeof(long))
             {
                 var rangeAttr = param.GetCustomAttribute<RangeAttribute>();
-                return new LongArgParser(argName, (long)(rangeAttr.Minimum ?? long.MinValue), (long)(rangeAttr.Maximum ?? long.MaxValue), param.HasDefaultValue ? (long)param.DefaultValue : 0, true);
+                return new LongArgParser(argName, Convert.ToInt64(rangeAttr.Minimum ?? long.MinValue), Convert.ToInt64(rangeAttr.Maximum ?? long.MaxValue), param.HasDefaultValue ? (long)param.DefaultValue : 0, true);
             }
             else if(paramType == typeof(float))
             {
                 var rangeAttr = param.GetCustomAttribute<RangeAttribute>();
-                return new FloatArgParser(argName, (float)(rangeAttr.Minimum ?? float.MinValue), (float)(rangeAttr.Maximum ?? float.MaxValue), true);
+                return new FloatArgParser(argName, Convert.ToSingle(rangeAttr.Minimum ?? float.MinValue), Convert.ToSingle(rangeAttr.Maximum ?? float.MaxValue), true);
             }
             else if(paramType == typeof(double))
             {
                 var rangeAttr = param.GetCustomAttribute<RangeAttribute>();
-                return new DoubleArgParser(argName, (double)(rangeAttr.Minimum ?? double.MinValue), (double)(rangeAttr.Maximum ?? double.MaxValue), true);
+                return new DoubleArgParser(argName, Convert.ToDouble(rangeAttr.Minimum ?? double.MinValue), Convert.ToDouble(rangeAttr.Maximum ?? double.MaxValue), true);
             }
             else if(paramType == typeof(string)) return new WordArgParser(argName, true); //TODO maybe something for longer text
             else if(typeof(Block).IsAssignableFrom(paramType))
@@ -69,8 +69,8 @@ namespace InsanityLib.Attributes.Auto.Command
             {
                  if(Source == EParamSource.Specify) return new WorldPositionArgParser(argName, provider.GetService<ICoreAPI>(), true);
             }
+            else if(paramType.IsEnum) return new WordRangeArgParser(argName, true, Enum.GetNames(paramType));
 
-            //TODO enum parser using WordArgParser
             return null;
         }
 

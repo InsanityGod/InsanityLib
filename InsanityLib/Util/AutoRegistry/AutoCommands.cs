@@ -18,7 +18,7 @@ namespace InsanityLib.Util.AutoRegistry
                     if(member is not MethodBase method) throw new InvalidOperationException($"member '{member}' was not a method despite being marked as AutoCommandAttribute");
                     attr.SetDefaultValues(method, api);
                     if((attr.Side & api.Side) == 0) continue;
-                    var parentCommand = GetParentCommand(api, attr.MainCommand);
+                    var parentCommand = GetParentCommand(api, attr.Path);
                     
                     var command = parentCommand != null ? parentCommand.GetOrCreateChildStub(attr.Name) : GetOrCreateStub(api, attr.Name);
                     attr.ConfigureCommand(command, api.GetServiceContainer(), method);

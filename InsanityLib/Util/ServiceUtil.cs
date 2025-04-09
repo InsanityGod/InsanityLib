@@ -11,6 +11,8 @@ namespace InsanityLib.Util
     public static class ServiceUtil
     {
         public static void Register<T>(this IServiceContainer container, T instance) => container.AddService(typeof(T), instance);
+        
+        public static void Register<T>(this IServiceContainer container) where T : class => container.AddService(typeof(T), container.AutoCreate<T>());
 
         public static IServiceContainer GetServiceContainer(this ICoreAPI api) => api.ModLoader.GetModSystem<InsanityLibModSystem>().ServiceContainer;
 

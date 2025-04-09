@@ -1,9 +1,11 @@
 ﻿using InsanityLib.Algorithm;
 using InsanityLib.Attributes.Auto.Command;
 using InsanityLib.Enums.Auto.Commands;
+using InsanityLib.Util.AutoRegistry;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,5 +43,15 @@ namespace InsanityLib.Commands
             var handling = EnumHandling.PassThrough;
             beh?.OnBlockPlaced(world, pos, ref handling);
         }
+        
+        #if DEBUG
+        
+        [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Block")]
+        public static void AutoGuiForBlock(ICoreClientAPI api, [CommandParameter(Source = EParamSource.CallerTarget)] Block block) => api.OpenAutoGui(block);
+
+        [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Item")]
+        public static void AutoGuiForItem(ICoreClientAPI api, [CommandParameter(Source = EParamSource.Caller)] Item item) => api.OpenAutoGui(item);
+        
+        #endif
     }
 }
