@@ -42,7 +42,7 @@ namespace InsanityLib.UI.Composers
                             break;
 
                         case PropertyInfo property:
-                            if (property.CanRead && property.GetIndexParameters().Length == 0)
+                            if (property.CanGetValue())
                             {
                                 var propValue = property.GetValue(value);
                                 if (recursiveProtection.EnsureUnique(propValue))

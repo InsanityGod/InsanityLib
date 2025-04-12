@@ -1,4 +1,5 @@
-﻿using InsanityLib.Interfaces;
+﻿using HarmonyLib;
+using InsanityLib.Interfaces;
 using InsanityLib.Interfaces.UI;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;

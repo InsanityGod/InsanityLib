@@ -39,9 +39,8 @@ namespace InsanityLib.UI
         public Vec2d Curor => Context.Curor;
 
         private readonly IServiceProvider ServiceProvider;
+        
         public object GetService(Type serviceType) => serviceType == typeof(IDialogContext) || serviceType == typeof(MemberContext) ? this : ServiceProvider.GetService(serviceType);
-
-
 
     }
 }

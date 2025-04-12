@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Attributes.Auto;
+using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Attributes.Auto.Harmony;
 using InsanityLib.Config;
 using InsanityLib.Constants;
@@ -13,7 +14,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 
-[assembly:AutoPatcher("insanitylib")]
+[assembly: AutoPatcher("insanitylib")]
 namespace InsanityLib
 {
     public class InsanityLibModSystem : ModSystem, IServiceProvider
@@ -37,7 +38,7 @@ namespace InsanityLib
             ServiceContainer.Register(api.World);
             ServiceContainer.Register(api.Logger);
             
-            AutoConfigAttribute.LoadAll(ServiceContainer);
+            AutoConfig.LoadAll(ServiceContainer);
         }
 
         public override void Start(ICoreAPI api)

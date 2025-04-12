@@ -23,7 +23,7 @@ namespace InsanityLib.Util.AutoRegistry
         {
             var logger = provider.GetService<ILogger>();
             Composers ??= AccessTools.AllTypes()
-                .Where(type => typeof(IAutoGuiComposer).IsAssignableFrom(type))
+                .Where(type =>  !type.IsInterface && !type.IsAbstract && typeof(IAutoGuiComposer).IsAssignableFrom(type))
                 .Select(type =>
                 {
                     var result = type.AutoCreate(provider, true);

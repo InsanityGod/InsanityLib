@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -51,6 +52,16 @@ namespace InsanityLib.Util
         {
             if(string.IsNullOrWhiteSpace(str)) return null;
             return str.Contains(':') ? (AssetLocation)str : new AssetLocation(null, str);
+        }
+
+        public static string EnsureFileExtension(this string str, string extension)
+        {
+            if (string.IsNullOrWhiteSpace(str) || string.IsNullOrWhiteSpace(extension)) return str;
+            if (!extension.StartsWith('.')) extension = '.' + extension;
+
+            string currentExtension = Path.GetExtension(str);
+            if (string.IsNullOrEmpty(currentExtension)) return str + extension;
+            return string.Concat(str.AsSpan(0, str.Length - currentExtension.Length), extension);
         }
     }
 }

@@ -3,6 +3,7 @@ using InsanityLib.Attributes.Auto;
 using InsanityLib.Interfaces.UI;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
@@ -23,6 +24,16 @@ namespace InsanityLib.Util
         // Backing field name pattern: "<PropertyName>k__BackingField"
         public static bool IsBackingField(this MemberInfo field) => field.Name.StartsWith('<') && field.Name.Contains("k__BackingField");
         
+        public static bool IsComplexClassType(this Type type) => !type.IsValueType && type != typeof(string) && type != typeof(Delegate);
+
+        public static bool IsStatic(this MemberInfo info) => info switch
+        {
+            PropertyInfo property => (property.GetMethod ?? property.SetMethod).IsStatic,
+            FieldInfo field => field.IsStatic,
+            MethodBase method => method.IsStatic,
+            _ => false,
+        };
+
         public static object GetValue(this MemberInfo memberInfo, object instance = null) => memberInfo switch
         {
             PropertyInfo property => property.GetValue(instance),
@@ -30,6 +41,29 @@ namespace InsanityLib.Util
             _ => null,
         };
 
+        public static bool CanGetValue(this MemberInfo memberInfo) => memberInfo switch
+        {
+            PropertyInfo property => property.CanRead && property.GetIndexParameters().Length == 0,
+            FieldInfo => true,
+            _ => false,
+        };
+
+        public static object GetAutoValue(this MemberInfo memberInfo, IServiceProvider provider, object instance = null) => memberInfo switch
+        {
+            PropertyInfo property => property.GetValue(instance),
+            FieldInfo field => field.GetValue(instance),
+            MethodBase method => method.AutoInvoke(provider, instance),
+            _ => null,
+        };
+
+        public static bool CanGetAutoValue(this MemberInfo memberInfo, IServiceProvider provider, object instance = null) => memberInfo switch
+        {
+            PropertyInfo property => property.CanRead && property.GetIndexParameters().Length == 0,
+            FieldInfo => true,
+            MethodBase method => method.CanAutoInvoke(provider),
+            _ => false,
+        };
+        
         public static void SetValue(this MemberInfo memberInfo, object value, object instance = null)
         {
             switch (memberInfo)
@@ -42,6 +76,12 @@ namespace InsanityLib.Util
                     break;
             }
         }
+        public static bool CanSetValue(this MemberInfo memberInfo) => memberInfo switch
+        {
+            PropertyInfo property => property.CanWrite && property.GetIndexParameters().Length == 0,
+            FieldInfo => true,
+            _ => false,
+        };
 
         /// <summary>
         /// The primary type of this member (whatever type this member provides access to)
@@ -58,6 +98,13 @@ namespace InsanityLib.Util
             .SelectMany(type => type.GetMembers(flags ?? AccessTools.all))
             .Select(member => (member, member.GetCustomAttribute<T>()))
             .Where(pair => pair.Item2 != null);
+
+        public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
+            .GetMembers(flags ?? AccessTools.all)
+            .Select(member => (member, member.GetCustomAttribute<T>()))
+            .Where(pair => pair.Item2 != null);
+
+        //TODO extra method to find all matches on instance instead
 
         public static object Invoke<T>(this T method, object instance = null, object[] parameters = null) where T : MemberInfo => method switch
         {
@@ -83,6 +130,33 @@ namespace InsanityLib.Util
             Delegate del => del.DynamicInvoke(del.Method.GetAutoParameters(provider)),
             _ => throw new InvalidOperationException("Not a callable object"),
         };
+
+        public static bool TryAutoSetDefaultValue(this MemberInfo member, object instance, IServiceProvider provider)
+        {
+            if(!member.CanSetValue()) return false;
+
+            try
+            {
+                var defaultAttr = member.GetCustomAttribute<DefaultValueAttribute>();
+                member.SetAutoDefaultValue(defaultAttr, instance, provider);
+                return true;
+            }
+            catch { /* fail silently */ }
+
+            return false;
+        }
+
+        public static void SetAutoDefaultValue(this MemberInfo member, DefaultValueAttribute defaultAttr, object instance, IServiceProvider provider)
+        {
+            if(defaultAttr != null)
+            {
+                var value = defaultAttr is AutoDefaultValueAttribute autoDefaultAttr
+                    ? autoDefaultAttr.GetAutoDefaultValue(provider, instance)
+                    : defaultAttr.Value;
+                
+                member.SetValue(value.AutoConvert(member.GetPrimaryType()), instance);
+            }
+        }
 
         public static T AutoCreate<T>(this IServiceProvider provider, bool returnNullOnFailure = true) where T : class => (T)typeof(T).AutoCreate(provider, returnNullOnFailure);
 
@@ -127,6 +201,12 @@ namespace InsanityLib.Util
             return bestConstructor.Invoke(bestParameters);
         }
 
+        /// <summary>
+        /// Retrieves the parameters for a method, automatically resolving them from the provided service provider.
+        /// </summary>
+        /// <param name="method">The method for which to get the parameters.</param>
+        /// <param name="provider">The service provider used to resolve the parameters.</param>
+        /// <returns>An array of resolved parameters.</returns>
         public static object[] GetAutoParameters(this MethodBase method, IServiceProvider provider)
         {
             var parameterInfo = method.GetParameters();
@@ -137,15 +217,24 @@ namespace InsanityLib.Util
                 var info = parameterInfo[i];
                 //TODO allow for manually filling in gaps
                 parameters[i] = provider.GetService(info.ParameterType);
-                if(info.HasDefaultValue) parameters[i] ??= info.DefaultValue;
+                if (info.HasDefaultValue) parameters[i] ??= info.DefaultValue;
             }
 
             return parameters;
         }
 
+        /// <summary>
+        /// Helper method to check if an object is null (only usefull if you need a prediction delegate)
+        /// </summary>
+        /// <returns>True if the object is not null else false.</returns>
         public static bool IsNotNull(this object value) => value != null;
 
-
+        /// <summary>
+        /// Finds the best match for a type in a list of objects.
+        /// </summary>
+        /// <param name="type">The type you are searching for.</param>
+        /// <param name="objects">The objects to search through.</param>
+        /// <returns>The best matching object, or null if no match is found.</returns>
         public static object FindMatch(this Type type, IEnumerable<object> objects)
         {
             object bestMatch = null;

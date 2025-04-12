@@ -1,11 +1,6 @@
-﻿using InsanityLib.Attributes.Auto;
+﻿using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Enums.Auto.Commands;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InsanityLib.Config
 {
