@@ -1,20 +1,17 @@
-﻿using HarmonyLib;
+﻿using AutoConfigLib;
+using AutoConfigLib.Auto;
+using HarmonyLib;
 using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Constants;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Util.AutoRegistry
 {
     public static class AutoConfig
     {
+        //TODO something for syncing config values from server to client
 
         internal static void LoadAll(IServiceProvider provider)
         {
@@ -25,14 +22,12 @@ namespace InsanityLib.Util.AutoRegistry
             {
                 try
                 {
-                    if (member is FieldInfo field && (!field.IsStatic || !field.FieldType.IsClass)) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
-                    if (member is PropertyInfo property && (!(property.GetSetMethod(true)?.IsStatic ?? false) || !property.PropertyType.IsClass)) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
+                    if(!(member is FieldInfo || member is PropertyInfo) || !member.IsStatic() || !member.GetPrimaryType().IsComplexClassType()) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
 
                     var value = member.GetValue();
                     if (value != null) continue;
                     var configType = member.GetPrimaryType();
 
-                    //TODO test AutoConfigLib compatibility
                     try
                     {
                         value = loadModConfig.MakeGenericMethod(configType)
@@ -59,12 +54,24 @@ namespace InsanityLib.Util.AutoRegistry
                         }
                         throw;
                     }
+                    finally
+                    {
+                        if(value != null && api.ModLoader.IsModEnabled("autoconfiglib")) RegisterToAutoConfigLib(api, value, attr.Path);
+                    }
                 }
                 catch (Exception ex)
                 {
                     provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedDefaultTemplate, nameof(AutoConfigAttribute), attr.Path, ex);
                 }
             }
+        }
+
+        private static void RegisterToAutoConfigLib(ICoreAPI api, object instance, string path)
+        {
+            AccessTools.Method(typeof(AutoConfigGenerator), nameof(AutoConfigGenerator.RegisterOrCollectConfigFile))
+                .MakeGenericMethod(instance.GetType())
+                .Invoke(null, new object[] { api, path, instance });
+            //TODO move config collection functionality to instanity lib
         }
 
         private static void ValidateAndFix(IServiceProvider provider, Type configType, ref object configInstance, AutoConfigAttribute configAttr)

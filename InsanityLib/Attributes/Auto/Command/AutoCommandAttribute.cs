@@ -60,6 +60,8 @@ namespace InsanityLib.Attributes.Auto.Command
             //TODO prettify
             //TODO description
             //TODO other attributes
+
+            //TODO validator attributes!
         }
 
         public void ConfigureCommand(IChatCommand command, IServiceProvider provider, MethodBase method)
@@ -95,6 +97,19 @@ namespace InsanityLib.Attributes.Auto.Command
 
             var context = new AutoCommand(provider, method, argSources);
             command.HandleWith(context.RunCommand);
+
+            //Handle Description and the likes
+
+            var doc = method.GetDocumentationContext();
+
+            var descriptionStr = doc.GetDescription();
+            if(!string.IsNullOrEmpty(descriptionStr)) command.WithDescription(descriptionStr);
+
+            var exmaplesStrings = doc.GetExamples();
+            if (exmaplesStrings.Length > 0) command.WithExamples(exmaplesStrings);
+
+            var returnStr = doc.GetReturn();
+            if(!string.IsNullOrEmpty(returnStr)) command.WithAdditionalInformation($"Returns: {returnStr}");
         }
     }
 }

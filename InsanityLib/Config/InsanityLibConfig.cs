@@ -6,7 +6,6 @@ namespace InsanityLib.Config
 {
     public class InsanityLibConfig
     {
-        //TODO AutoConfig attribute
         [AutoConfig("InsanityLibConfig.json")]
         public static InsanityLibConfig Instance { get; set; }
 

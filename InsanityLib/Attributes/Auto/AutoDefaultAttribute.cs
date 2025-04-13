@@ -21,18 +21,14 @@ namespace InsanityLib.Attributes.Auto
         /// If provided an instance of this type will be created to set the value. <br />
         /// If <see cref="AutoMethodName"/> is also set, this will be used as the class to search for the method on.
         /// </summary>
-        public readonly Type AutoType;
+        public Type AutoType { get; init; }
 
         /// <summary>
         /// If provided, this method will be used to set the value. <br />
         /// If <see cref="AutoType"/> is also set, this will be used as the methodname to search for on the type.
         /// </summary>
-        public readonly string AutoMethodName;
-        public AutoDefaultValueAttribute(object value = null, Type defaultInstanceType = null, string autoMethodName = null) : base(value)
-        {
-            AutoType = defaultInstanceType;
-            AutoMethodName = autoMethodName;
-        }
+        public string AutoMethodName { get; init; }
+        public AutoDefaultValueAttribute(object value = null) : base(value) { }
 
         [DisposalLogic(Priority = int.MinValue)]
         internal static void DefaultAll(IServiceContainer serviceContainer)
@@ -62,6 +58,10 @@ namespace InsanityLib.Attributes.Auto
                 
                 //TODO use instance to fill in potential gap in method arguments
                 return method.AutoInvoke(provider, (method.DeclaringType?.IsInstanceOfType(instance) ?? false) ? instance : null);
+            }
+            if(AutoType != null)
+            {
+                return AutoType.AutoCreate(provider, false);
             }
 
             return Value;

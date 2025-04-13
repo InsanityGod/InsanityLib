@@ -72,7 +72,7 @@ namespace InsanityLib.Commands
                 switch (parameterProviders[i])
                 {
                     case EParamProvider.ServiceProvider:
-                        parameters[i] = provider.GetService(param.ParameterType); //TODO allow for overiding with attribute
+                        parameters[i] = provider.GetService(param.ParameterType);
                         break;
 
                     case EParamProvider.ArgumentParser:
@@ -80,7 +80,7 @@ namespace InsanityLib.Commands
                         break;
 
                     case EParamProvider.Custom:
-                        //TODO make more extensible framework for this
+                        //TODO make a more extensible framework for this
 
                         if (param.ParameterType == typeof(IPlayer)) parameters[i] = attr.Source switch
                         {

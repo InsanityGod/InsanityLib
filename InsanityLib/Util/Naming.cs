@@ -14,7 +14,8 @@ namespace InsanityLib.Util
 {
     public static class Naming
     {
-        internal static readonly char[] ReadableSplitIdentifiers = new char[] { '-', '_', ':' };
+        public static readonly char[] TrimCharacters = new char[] { ' ', '\n', '\r', '\t' };
+        public static readonly char[] ReadableSplitIdentifiers = new char[] { '-', '_', ':' };
 
         public static string ToHumanReadable(this string str)
         {

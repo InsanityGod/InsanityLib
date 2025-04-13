@@ -82,9 +82,9 @@ namespace InsanityLib.Util
 
             foreach (var member in obj.GetType().GetMembers(AccessTools.all & ~BindingFlags.Static))
             {
-                if(!member.CanGetValue() || !member.GetPrimaryType().IsComplexClassType()) continue;
+                if(!member.CanGetValue()) continue;
                 var value = member.GetValue(obj);
-                if(value == null || nestedContext.ScannedObjects.Contains(value)) continue;
+                if(value == null || !value.GetType().IsComplexClassType() ||nestedContext.ScannedObjects.Contains(value)) continue;
 
                 NestedValidate(value, nestedContext, $"{path}/{member.Name}");
             }

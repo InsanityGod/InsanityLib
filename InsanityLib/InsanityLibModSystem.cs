@@ -19,7 +19,7 @@ namespace InsanityLib
 {
     public class InsanityLibModSystem : ModSystem, IServiceProvider
     {
-        [AutoDefaultValue(defaultInstanceType:typeof(ServiceContainer))]
+        [AutoDefaultValue(AutoType = typeof(ServiceContainer))]
         public static IServiceContainer GlobalServiceContainer { get; private set; } = new ServiceContainer(); //TODO write a custom service container
 
         public IServiceContainer ServiceContainer { get; private set; }
@@ -45,12 +45,8 @@ namespace InsanityLib
         {
             api.RegisterAutoCommands();
             api.AutoPatch();
-        }
 
-        public override void StartServerSide(ICoreServerAPI api)
-        {
-            
-            //TODO
+            DocumentationUtil.ClearCache();
         }
 
         public override void StartClientSide(ICoreClientAPI api)
@@ -61,11 +57,12 @@ namespace InsanityLib
                 api.Input.RegisterHotKey("insanitylib:toggleAutoGui", "AutoGuiTest", GlKeys.Home, HotkeyType.GUIOrOtherControls);
                 api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => api.OpenAutoGui(InsanityLibConfig.Instance);
             #endif
-            //TODO
-            //TODO local player in service collection
         }
 
 
-        public override void Dispose() => DisposalLogicAttribute.DisposeAll(ServiceContainer);
+        public override void Dispose()
+        {
+            DisposalLogicAttribute.DisposeAll(ServiceContainer);
+        }
     }
 }

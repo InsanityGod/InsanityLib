@@ -18,13 +18,9 @@ namespace InsanityLib.Attributes.Auto.Config
     {
         public object ExpectedValue { get; }
 
-        public EConfigVersionUpgradeMode UpgradeMode { get; }
+        public EConfigVersionUpgradeMode UpgradeMode { get; init; } = EConfigVersionUpgradeMode.MergeIntoNew;
 
-        public VersionIdentifierAttribute(object expectedValue, EConfigVersionUpgradeMode upgradeMode = EConfigVersionUpgradeMode.MergeIntoNew)
-        {
-            ExpectedValue = expectedValue;
-            UpgradeMode = upgradeMode;
-        }
+        public VersionIdentifierAttribute(object expectedValue) => ExpectedValue = expectedValue;
 
         /// <summary>
         /// Validates the current member value against the expected value.
