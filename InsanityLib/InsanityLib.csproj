@@ -12,6 +12,36 @@
       <HintPath>..\..\AutoConfigLib\AutoConfigLib\bin\Debug\Mods\mod\AutoConfigLib.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Nat">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\Mono.Nat.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Backports">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\MonoMod.Backports.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Core">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\MonoMod.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Iced">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\MonoMod.Iced.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.ILHelpers">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\MonoMod.ILHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>C:\Users\krizz\AppData\Roaming\Vintagestory\Lib\MonoMod.Utils.dll</HintPath>
+    </Reference>
     <Reference Include="VintagestoryAPI">
       <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
       <Private>false</Private>

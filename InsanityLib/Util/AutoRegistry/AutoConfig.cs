@@ -5,33 +5,27 @@ using InsanityLib.Attributes.Auto;
 using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Config;
 using InsanityLib.Constants;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Server;
 using Vintagestory.Common;
 
 namespace InsanityLib.Util.AutoRegistry
 {
     public static class AutoConfig
     {
-        //TODO something for syncing config values from server to client
-        [AutoClear] //TODO move config tracking code to this library
+        [AutoClear] //TODO move config tracking code to this library from AutoConfigLib
         private static Dictionary<string, object> LoadedConfigs { get; } = new();
 
-        private static object GetFromAutoConfigLibCache(string path) => AutoConfigGenerator.FoundConfigsByPath.TryGetValue(path, out var value) ? value.PrimaryValue : null;
-
-        private static bool TryAssignFromCache(ICoreAPI api, string path, MemberInfo member)
+        private static bool TryAssignFromCache(string path, MemberInfo member)
         {
-            if(!LoadedConfigs.TryGetValue(path, out var value) && api.ModLoader.IsModEnabled("autoconfiglib")) value = GetFromAutoConfigLibCache(path);
-
-            if(value != null)
-            {
-                member.SetValue(value);
-                return true;
-            }
-
-            return false;
+            if(!LoadedConfigs.TryGetValue(path, out var value)) return false;
+            member.SetValue(value);
+            return true;
         }
 
 
@@ -47,25 +41,33 @@ namespace InsanityLib.Util.AutoRegistry
                     if(!(member is FieldInfo || member is PropertyInfo) || !member.IsStatic() || !member.GetPrimaryType().IsComplexClassType()) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
 
                     var value = member.GetValue();
-                    if (value != null || TryAssignFromCache(api, attr.Path, member)) continue;
+                    if (value != null || TryAssignFromCache(attr.Path, member)) continue;
                     var configType = member.GetPrimaryType();
 
                     try
                     {
-                        value = loadModConfig.MakeGenericMethod(configType)
-                            .Invoke(api, new object[] { attr.Path });
-
-                        if(value != null) ValidateAndFix(provider, configType, ref value, attr);
-
-                        if (value == null && attr.CreateIfNotExist)
+                        if(attr.ServerSync && api is ICoreClientAPI clientApi && !clientApi.IsSinglePlayer)
                         {
-                            value = configType.AutoCreate(provider, false);
-
-                            storeModConfig.MakeGenericMethod(configType)
-                                .Invoke(api, new object[] { value, attr.Path });
+                            var json = clientApi.World.Config.GetOrAddTreeAttribute("insanitylib").GetString(attr.Path);
+                            value = JsonConvert.DeserializeObject(json, configType) ?? throw new InvalidOperationException($"Config is configured to be synced from server but no config was sent for '{attr.Path}'");
                         }
+                        else
+                        {
+                            value = loadModConfig.MakeGenericMethod(configType)
+                                .Invoke(api, new object[] { attr.Path });
 
-                        if (value != null) member.SetValue(value);
+                            if(value != null) ValidateAndFix(provider, configType, ref value, attr);
+
+                            if (value == null && attr.CreateIfNotExist)
+                            {
+                                value = configType.AutoCreate(provider, false);
+
+                                storeModConfig.MakeGenericMethod(configType)
+                                    .Invoke(api, new object[] { value, attr.Path });
+                            }
+
+                            if (value != null) member.SetValue(value);
+                        }
                     }
                     catch
                     {
@@ -78,7 +80,18 @@ namespace InsanityLib.Util.AutoRegistry
                     }
                     finally
                     {
-                        if(value != null && api.ModLoader.IsModEnabled("autoconfiglib")) RegisterToAutoConfigLib(api, value, attr.Path);
+                        if(value != null)
+                        {
+                            LoadedConfigs.Add(attr.Path, value);
+                            if(api.ModLoader.IsModEnabled("autoconfiglib")) RegisterToAutoConfigLib(api, value, attr.Path);
+                        }
+
+                        if (attr.ServerSync && api is ICoreServerAPI serverAPI) //Register even if playing singleplayer, since opening to LAN is a thing
+                        {
+                            //TODO use this same mechanism to allow for localizing configs to be world specific
+                            var json = JsonConvert.SerializeObject(value, Formatting.None);
+                            serverAPI.World.Config.GetOrAddTreeAttribute("insanitylib").SetString(attr.Path, json);
+                        }
                     }
                 }
                 catch (Exception ex)

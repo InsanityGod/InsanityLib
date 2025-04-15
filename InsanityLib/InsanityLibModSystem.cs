@@ -1,17 +1,12 @@
 ﻿using InsanityLib.Attributes.Auto;
-using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Attributes.Auto.Harmony;
 using InsanityLib.Config;
-using InsanityLib.Constants;
-using InsanityLib.UI;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using System;
 using System.ComponentModel.Design;
-using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 
 [assembly: AutoPatcher("insanitylib")]

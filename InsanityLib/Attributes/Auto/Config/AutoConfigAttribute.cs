@@ -17,15 +17,12 @@ namespace InsanityLib.Attributes.Auto.Config
     {
         public string Path { get; set; }
 
-        public bool DefaultOnError { get; set; }
+        public bool DefaultOnError { get; init; } = true;
 
-        public bool CreateIfNotExist { get; set; }
+        public bool CreateIfNotExist { get; init; } = true;
 
-        public AutoConfigAttribute(string path, bool defaultOnError = true, bool createIfNotExist = true)
-        {
-            Path = path.EnsureFileExtension("json");
-            DefaultOnError = defaultOnError;
-            CreateIfNotExist = createIfNotExist;
-        }
+        public bool ServerSync { get; init; }
+
+        public AutoConfigAttribute(string path) => Path = path.EnsureFileExtension("json");
     }
 }
