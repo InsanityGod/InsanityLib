@@ -46,6 +46,7 @@ namespace InsanityLib
             api.RegisterAutoCommands();
             api.AutoPatch();
 
+            //Clear documentation cache build up by auto registration code
             DocumentationUtil.ClearCache();
         }
 
@@ -53,12 +54,11 @@ namespace InsanityLib
         {
             ServiceContainer.CollectAutoGuiComposers();
 
-            #if DEBUG
+            #if DEBUG //TODO Cleanup once finished creating/testing AutoGui
                 api.Input.RegisterHotKey("insanitylib:toggleAutoGui", "AutoGuiTest", GlKeys.Home, HotkeyType.GUIOrOtherControls);
-                api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => api.OpenAutoGui(InsanityLibConfig.Instance);
+                api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => api.AutoGui(InsanityLibConfig.Instance).TryOpen();
             #endif
         }
-
 
         public override void Dispose()
         {

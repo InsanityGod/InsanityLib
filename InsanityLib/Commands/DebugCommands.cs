@@ -58,13 +58,13 @@ namespace InsanityLib.Commands
         /// Opens an AutoGui for the target block.
         /// </summary>
         [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Block")]
-        public static void AutoGuiForBlock(ICoreClientAPI api, [CommandParameter(Source = EParamSource.CallerTarget)] Block block) => api.OpenAutoGui(block);
+        public static void AutoGuiForBlock(ICoreClientAPI api, [CommandParameter(Source = EParamSource.CallerTarget)] [Required(ErrorMessage = "Not targeting a block")] Block block) => api.AutoGui(block).TryOpen();
 
         /// <summary>
         /// Opens an AutoGui for the target item.
         /// </summary>
         [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Item")]
-        public static void AutoGuiForItem(ICoreClientAPI api, [CommandParameter(Source = EParamSource.Caller)] Item item) => api.OpenAutoGui(item);
+        public static void AutoGuiForItem(ICoreClientAPI api, [CommandParameter(Source = EParamSource.Caller)] CollectibleObject collectible) => api.AutoGui(collectible).TryOpen();
         
         #endif
     }

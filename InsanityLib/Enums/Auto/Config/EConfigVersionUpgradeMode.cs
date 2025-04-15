@@ -9,15 +9,17 @@ namespace InsanityLib.Enums.Auto.Config
     public enum EConfigVersionUpgradeMode
     {
         /// <summary>
-        /// Merge the current value into a new instance of the config object
+        /// Merge the current value into a new instance of the config object.
         /// </summary>
         MergeIntoNew,
+
         /// <summary>
-        /// Throw an exception if the version is not valid
+        /// Throw an exception if the version is not valid.
         /// </summary>
         Throw,
+
         /// <summary>
-        /// Log a warning if the version is not valid
+        /// Log a warning if the version is not valid.
         /// </summary>
         Warning
     }

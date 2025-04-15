@@ -6,14 +6,14 @@ namespace InsanityLib.Config
 {
     public class InsanityLibConfig
     {
-        [AutoConfig("InsanityLibConfig.json")]
-        public static InsanityLibConfig Instance { get; set; }
+        [AutoConfig("InsanityLibConfig.json")] public static InsanityLibConfig Instance { get; set; }
+
 
         [DefaultValue("InsanityLib/Logs/Debug.log")]
         public string DebugLogPath { get; set; } = "InsanityLib/Logs/Debug.log";
 
         [DefaultValue("Labeled Chest")]
-        public string DefaultLabelName { get; set; } = "labeled Chest";
+        public string DefaultLabelName { get; set; } = "labeled Chest"; //TODO simplify so even this `= "labeled chest"` is no longer needed
 
         [DefaultValue("Lemons")]
         public string speciality { get; set; } = null;

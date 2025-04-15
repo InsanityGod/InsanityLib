@@ -15,7 +15,9 @@ namespace InsanityLib.UI
     public class MemberContext : IDialogContext
     {
         public IDialogContext Context { get; }
-        public MemberContext(IServiceProvider serviceProvider, object targetObject)
+
+        public string Path { get; init; }
+        public MemberContext(IServiceProvider serviceProvider, MemberInfo member, object targetObject)
         {
             TargetObject = targetObject ?? throw new ArgumentNullException(nameof(targetObject));
             ServiceProvider = serviceProvider;
@@ -27,6 +29,7 @@ namespace InsanityLib.UI
             if(Context != null)
             {
                 IsEditable &= Context.IsEditable;
+                Path = $"{Context.Path}/{member?.Name ?? targetType.Name}";
             }
         }
 
@@ -36,7 +39,7 @@ namespace InsanityLib.UI
 
         public ElementBounds ParentBounds { get; }
 
-        public Vec2d Curor => Context.Curor;
+        public Vec2d Cursor => Context.Cursor;
 
         private readonly IServiceProvider ServiceProvider;
         

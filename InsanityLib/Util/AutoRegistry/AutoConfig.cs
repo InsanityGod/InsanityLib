@@ -1,17 +1,39 @@
 ﻿using AutoConfigLib;
 using AutoConfigLib.Auto;
 using HarmonyLib;
+using InsanityLib.Attributes.Auto;
 using InsanityLib.Attributes.Auto.Config;
+using InsanityLib.Config;
 using InsanityLib.Constants;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Vintagestory.API.Common;
+using Vintagestory.Common;
 
 namespace InsanityLib.Util.AutoRegistry
 {
     public static class AutoConfig
     {
         //TODO something for syncing config values from server to client
+        [AutoClear] //TODO move config tracking code to this library
+        private static Dictionary<string, object> LoadedConfigs { get; } = new();
+
+        private static object GetFromAutoConfigLibCache(string path) => AutoConfigGenerator.FoundConfigsByPath.TryGetValue(path, out var value) ? value.PrimaryValue : null;
+
+        private static bool TryAssignFromCache(ICoreAPI api, string path, MemberInfo member)
+        {
+            if(!LoadedConfigs.TryGetValue(path, out var value) && api.ModLoader.IsModEnabled("autoconfiglib")) value = GetFromAutoConfigLibCache(path);
+
+            if(value != null)
+            {
+                member.SetValue(value);
+                return true;
+            }
+
+            return false;
+        }
+
 
         internal static void LoadAll(IServiceProvider provider)
         {
@@ -25,7 +47,7 @@ namespace InsanityLib.Util.AutoRegistry
                     if(!(member is FieldInfo || member is PropertyInfo) || !member.IsStatic() || !member.GetPrimaryType().IsComplexClassType()) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
 
                     var value = member.GetValue();
-                    if (value != null) continue;
+                    if (value != null || TryAssignFromCache(api, attr.Path, member)) continue;
                     var configType = member.GetPrimaryType();
 
                     try
@@ -65,13 +87,12 @@ namespace InsanityLib.Util.AutoRegistry
                 }
             }
         }
-
+        
         private static void RegisterToAutoConfigLib(ICoreAPI api, object instance, string path)
         {
             AccessTools.Method(typeof(AutoConfigGenerator), nameof(AutoConfigGenerator.RegisterOrCollectConfigFile))
                 .MakeGenericMethod(instance.GetType())
                 .Invoke(null, new object[] { api, path, instance });
-            //TODO move config collection functionality to instanity lib
         }
 
         private static void ValidateAndFix(IServiceProvider provider, Type configType, ref object configInstance, AutoConfigAttribute configAttr)

@@ -6,6 +6,7 @@ using InsanityLib.Util.AutoRegistry;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
@@ -23,8 +24,11 @@ namespace InsanityLib.UI
 
         public bool IsEditable { get; }
 
-        public AutoGuiDialog(ICoreClientAPI capi, object target, bool editable = true, bool disposeOnClose = true) : base(capi)
+        public string Path => Identifier;
+        public string Identifier { get; init; }
+        public AutoGuiDialog(ICoreClientAPI capi, object target, string identifier = null, bool editable = true, bool disposeOnClose = true) : base(capi)
         {
+            Identifier = identifier ?? $"AutoGui-{Guid.NewGuid()}";
             TargetObject = target ?? throw new ArgumentNullException(nameof(target));
             IsEditable = editable;
             DisposeOnClose = disposeOnClose;
@@ -47,16 +51,17 @@ namespace InsanityLib.UI
             fixedPaddingY = GuiStyle.DialogToScreenPadding
         };
 
-        public Vec2d Curor { get; } = new Vec2d(0, 0);
+        public Vec2d Cursor { get; } = new Vec2d(0, 0);
 
         public void Compose(ICoreClientAPI api)
         {
             SingleComposer = capi.Gui
-                .CreateCompo("AutoDialog", ElementStdBounds.AutosizedMainDialog)
+                .CreateCompo(Identifier, ElementStdBounds.AutosizedMainDialog)
                 .AddShadedDialogBG(ElementBounds.Fill)
                 .AddDialogTitleBar(TargetObject.GetType().GetHumanReadableName(), Close)
                 .BeginChildElements(ParentBounds)
-                .AddAutoComposed(this, null, TargetObject)
+                    .AddAutoComposed(this, null, TargetObject)
+                .EndChildElements()
                 .Compose(false);
 
             recursionPrevention.Clear();

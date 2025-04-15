@@ -23,7 +23,7 @@ namespace InsanityLib.Attributes.Auto.Config
         public VersionIdentifierAttribute(object expectedValue) => ExpectedValue = expectedValue;
 
         /// <summary>
-        /// Validates the current member value against the expected value.
+        /// Validates the current member value against the expected value.<br/>
         /// If the value is not valid, it will attempt to fix it based on the upgrade mode.
         /// </summary>
         /// <exception cref="InvalidOperationException">When attribute is applied to member of which value can not be auto aquired</exception>

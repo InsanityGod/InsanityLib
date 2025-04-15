@@ -9,7 +9,7 @@ namespace InsanityLib.Util.AutoRegistry
 {
     public static class AutoCommands
     {
-        public static void RegisterAutoCommands(this ICoreAPI api)
+        internal static void RegisterAutoCommands(this ICoreAPI api)
         {
             foreach((var member, var attr) in ReflectionUtil.FindAllMembers<AutoCommandAttribute>())
             {

@@ -85,13 +85,13 @@ namespace InsanityLib.Commands
                         if (param.ParameterType == typeof(IPlayer)) parameters[i] = attr.Source switch
                         {
                             EParamSource.Caller => Context.Caller.Player,
-                            EParamSource.CallerTarget => Context.Caller.Entity?.GetTargetEntity(),
+                            EParamSource.CallerTarget => Context.Caller.Entity?.GetTargetEntity()?.Entity is EntityPlayer player ? player.Player : null,
                             _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
                         };
-                        else if (param.ParameterType == typeof(Entity)) parameters[i] = attr.Source switch
+                        else if (typeof(Entity).IsAssignableFrom(param.ParameterType)) parameters[i] = attr.Source switch
                         {
-                            EParamSource.Caller => Context.Caller.Entity,
-                            EParamSource.CallerTarget => Context.Caller.Entity?.GetTargetEntity(),
+                            EParamSource.Caller => Context.Caller.Entity.As(param.ParameterType),
+                            EParamSource.CallerTarget => Context.Caller.Entity?.GetTargetEntity().As(param.ParameterType),
                             _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
                         };
                         else if (param.ParameterType == typeof(ItemSlot)) parameters[i] = attr.Source switch
@@ -104,21 +104,13 @@ namespace InsanityLib.Commands
                             EParamSource.Caller => (Context.Caller.Entity as EntityAgent)?.ActiveHandItemSlot.Itemstack,
                             _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
                         };
-                        else if (param.ParameterType == typeof(Item)) parameters[i] = attr.Source switch
+                        else if (typeof(Item).IsAssignableFrom(param.ParameterType)) parameters[i] = attr.Source switch
                         {
-                            EParamSource.Caller => (Context.Caller.Entity as EntityAgent)?.ActiveHandItemSlot.Itemstack?.Item,
+                            EParamSource.Caller => (Context.Caller.Entity as EntityAgent)?.ActiveHandItemSlot.Itemstack?.Item.As(param.ParameterType),
                             _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
                         };
-                        else if (typeof(Block).IsAssignableFrom(param.ParameterType))
-                        {
-                            var block = GetBlock(attr, param);
-                            if (param.ParameterType.IsInstanceOfType(block)) parameters[i] = block;
-                        }
-                        else if (typeof(CollectibleObject).IsAssignableFrom(param.ParameterType))
-                        {
-                            var collectible = GetCollectible(attr, param);
-                            if (param.ParameterType.IsInstanceOfType(collectible)) parameters[i] = collectible;
-                        }
+                        else if (typeof(Block).IsAssignableFrom(param.ParameterType)) parameters[i] = GetBlock(attr, param).As(param.ParameterType);
+                        else if (typeof(CollectibleObject).IsAssignableFrom(param.ParameterType)) parameters[i] = GetCollectible(attr, param).As(param.ParameterType);
                         else if (param.ParameterType == typeof(BlockPos)) parameters[i] = attr.Source switch
                         {
                             EParamSource.Caller => Context.Caller.Pos?.AsBlockPos,
@@ -126,11 +118,8 @@ namespace InsanityLib.Commands
                             _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
                         };
                         else if (typeof(BlockBehavior).IsAssignableFrom(param.ParameterType)) parameters[i] = GetBlock(attr, param)?.BlockBehaviors.SingleOrDefault(param.ParameterType.IsInstanceOfType);
-                        else if (typeof(BlockEntity).IsAssignableFrom(param.ParameterType))
-                        {
-                            var blockEntity = GetBlockEntity(attr, param);
-                            if (param.ParameterType.IsInstanceOfType(blockEntity)) parameters[i] = blockEntity;
-                        }
+                        //TODO maybe an IEnumerableBlockBehavior?
+                        else if (typeof(BlockEntity).IsAssignableFrom(param.ParameterType)) parameters[i] = GetBlockEntity(attr, param).As(param.ParameterType);
                         else if (typeof(BlockEntityBehavior).IsAssignableFrom(param.ParameterType)) parameters[i] = GetBlockEntity(attr, param)?.Behaviors.SingleOrDefault(param.ParameterType.IsInstanceOfType);
 
                         break;

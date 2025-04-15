@@ -17,7 +17,7 @@ namespace InsanityLib.Util.AutoRegistry
     public static class AutoUI
     {
         [AutoDefaultValue]
-        internal static IAutoGuiComposer[] Composers;
+        private static IAutoGuiComposer[] Composers;
         
         internal static void CollectAutoGuiComposers(this IServiceProvider provider)
         {
@@ -50,18 +50,22 @@ namespace InsanityLib.Util.AutoRegistry
             return composer;
         }
 
-        public static bool OpenAutoGui(this ICoreClientAPI api, object obj, bool editable = true, bool disposeOnClose = true)
+        /// <summary>
+        /// Opens a new AutoGuiDialog with the given object.<br/>
+        /// WARNING: this functionality is not finished yet
+        /// </summary>
+        public static AutoGuiDialog AutoGui(this ICoreClientAPI api, object obj, string identifier = null, bool editable = true, bool disposeOnClose = true)
         {
             try
             {
-                var dialog = new AutoGuiDialog(api, obj, editable, disposeOnClose);
+                var dialog = new AutoGuiDialog(api, obj, identifier, editable, disposeOnClose);
                 dialog.Compose(api);
-                return dialog.TryOpen();
+                return dialog;
             }
             catch(Exception ex)
             {
-                api.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(OpenAutoGui), obj, ex);
-                return false;
+                api.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(AutoGui), obj, ex);
+                return null;
             }
         }
     }

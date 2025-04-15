@@ -2,6 +2,7 @@
 using InsanityLib.Contexts.Documentation;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -51,6 +52,7 @@ namespace InsanityLib.Util
             return context;
         }
 
+        //TODO figure out what to do with the Localizable attribute
         public static AssemblyDocumentationContext GetDocumentationContext(this Type type) => type == null || type.Assembly == null ? null : type.Assembly.GetDocumentationContext();
         public static MemberDocumentationContext GetDocumentationContext(this MemberInfo member)
         {

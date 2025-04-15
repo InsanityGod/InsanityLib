@@ -13,6 +13,11 @@ namespace InsanityLib.Interfaces.UI
 
         public bool IsEditable { get; }
 
+        public string Path { get; }
+
+        public string ExtendPath<T>(MemberInfo member) => ExtendPath(member, typeof(T));
+        public string ExtendPath(MemberInfo member, Type type) => $"{Path}/{member?.Name ?? type.Name}";
+
         public bool IsMemberEditable(MemberInfo member)
         {
             if(!IsEditable || member == null || member.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly == true) return false;
@@ -28,7 +33,7 @@ namespace InsanityLib.Interfaces.UI
             return member is FieldInfo;
         }
 
-        public Vec2d Curor { get; }
+        public Vec2d Cursor { get; }
 
     }
 }

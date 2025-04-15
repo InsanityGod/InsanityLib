@@ -14,7 +14,7 @@ namespace InsanityLib.Util.AutoRegistry
 {
     public static class AutoHarmony
     {
-        public static void AutoPatch(this ICoreAPI api)
+        internal static void AutoPatch(this ICoreAPI api)
         {
             var logger = api.GetService<ILogger>();
             
@@ -50,7 +50,7 @@ namespace InsanityLib.Util.AutoRegistry
 
 
         [DisposalLogic]
-        public static void AutoHarmonyDisposal(ICoreAPI api)
+        private static void AutoHarmonyDisposal(ICoreAPI api)
         {
             var logger = api.GetService<ILogger>();
             AutoPatcherAttribute attr = null;

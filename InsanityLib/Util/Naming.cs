@@ -42,13 +42,17 @@ namespace InsanityLib.Util
             return newText.ToString();
         }
 
-        public static string GetHumanReadableName(this MemberInfo type)
+        public static string GetHumanReadableName(this MemberInfo member)
         {
-            var displayNameAttr = type.GetCustomAttribute<DisplayNameAttribute>();
+            var displayNameAttr = member.GetCustomAttribute<DisplayNameAttribute>();
             if(displayNameAttr != null) return Lang.Get(displayNameAttr.DisplayName);
-            return type.Name.ToHumanReadable();
+            return member.Name.ToHumanReadable();
         }
 
+        /// <summary>
+        /// Converts a string to an AssetLocation in a way that does not automatically add the default domain <br/>
+        /// Meaning that if you parse it back it will be the same as the input string
+        /// </summary>
         public static AssetLocation ToAssetLocation(this string str)
         {
             if(string.IsNullOrWhiteSpace(str)) return null;

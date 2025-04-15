@@ -21,9 +21,10 @@ namespace InsanityLib.UI.Composers
 
         public void ComposeObject(GuiComposer composer, IServiceProvider provider, MemberInfo member, object value)
         {
+            if(provider is MemberContext) return;//TODO skipping sub complex classes for now
             //TODO do something with member
             if(value == null) return;
-            var memberContext = new MemberContext(provider, value);
+            var memberContext = new MemberContext(provider, member, value);
             var recursiveProtection = provider.GetService<IRecursivePrevention>();
             //TODO Class context for setting/getting values
             var members = value.GetType()
@@ -67,9 +68,25 @@ namespace InsanityLib.UI.Composers
                 }
                 catch
                 {
-
+                    //TODO
                 }
             }
+
+            var descriptors = members.Select(member => DescriptorContext.GetDescriptorPath(memberContext, member))
+                .Select(key => (Key: key, Element: composer.GetElement(key)))
+                .Where(pair => pair.Element != null)
+                .ToList();
+            var xAllignment = descriptors.Max(pair => pair.Element.Bounds.fixedX + pair.Element.Bounds.fixedWidth);
+            foreach (var descriptor in descriptors)
+            {
+                var matchingContent = composer.GetElement(descriptor.Key.Replace("/@Descriptor", string.Empty));
+                if (matchingContent != null)//BlockSoil/RemapToLiquidsLayer
+                {
+                    matchingContent.Bounds.fixedX = xAllignment;
+                }
+            }
+
+            //TODO allign descriptors
         }
 
         public bool IsValidForCompose(Type type) => type.IsClass && !type.IsArray && !typeof(IEnumerable).IsAssignableFrom(type);

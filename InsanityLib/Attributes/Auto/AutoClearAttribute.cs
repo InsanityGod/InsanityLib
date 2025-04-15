@@ -1,12 +1,7 @@
-﻿using HarmonyLib;
-using InsanityLib.Constants;
+﻿using InsanityLib.Constants;
 using InsanityLib.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.Design;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Attributes.Auto
@@ -14,9 +9,8 @@ namespace InsanityLib.Attributes.Auto
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class AutoClearAttribute : Attribute
     {
-        //Auto bind this logic to dispose method
         [DisposalLogic(Priority = int.MinValue)]
-        internal static void ClearAll(ILogger logger)
+        internal static void ClearAll(IServiceContainer provider, ILogger logger)
         {
             foreach ((var member, _) in ReflectionUtil.FindAllMembers<AutoClearAttribute>())
             {
@@ -26,7 +20,7 @@ namespace InsanityLib.Attributes.Auto
                     if(value == null) continue;
 
                     var clearMethod = value.GetType().GetMethod("Clear");
-                    clearMethod.Invoke(value, null);
+                    clearMethod.AutoInvoke(provider, value);
                 }
                 catch(Exception ex)
                 {
