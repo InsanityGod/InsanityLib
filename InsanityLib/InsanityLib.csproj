@@ -90,9 +90,4 @@
   </Content>
 </ItemGroup>
 
-<ItemGroup>
-  <Folder Include="Attributes\Auto\UI\" />
-  <Folder Include="Config\Auto\" />
-</ItemGroup>
-
 </Project>

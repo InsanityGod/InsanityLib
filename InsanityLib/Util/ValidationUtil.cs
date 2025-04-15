@@ -63,7 +63,7 @@ namespace InsanityLib.Util
             {
                 if (!nestedContext.TryAutoFix || result.MemberNames.Count() != 1)
                 {
-                    logger?.Warning(Logging.EncounteredValidationError, nestedContext.Identifier, result, path);
+                    logger?.Warning(Logging.EncounteredValidationError, nestedContext.Identifier, result, $"{path}/({string.Join(", ", result.MemberNames)})");
                     nestedContext.Results.Add(result);
                     continue;
                 }
@@ -72,11 +72,11 @@ namespace InsanityLib.Util
                 var members = obj.GetType().GetMember(memberName);
                 if (members.Length == 1 && members[0].TryAutoSetDefaultValue(obj, nestedContext.Provider))
                 {
-                    logger?.Warning(Logging.AutoFixSucceed, nestedContext.Identifier, result, path, members[0].GetValue(obj)); // $"{path}/{memberName}", 
+                    logger?.Warning(Logging.AutoFixSucceed, nestedContext.Identifier, result, $"{path}/{memberName}", members[0].GetValue(obj)); 
                     continue;
                 }
 
-                logger?.Warning(Logging.AutoFixFailed, nestedContext.Identifier, result, path); //$"{path}"
+                logger?.Warning(Logging.AutoFixFailed, nestedContext.Identifier, result, $"{path}/{memberName}");
                 nestedContext.Results.Add(result);
             }
 

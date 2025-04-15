@@ -9,7 +9,7 @@ namespace InsanityLib.Enums.Auto.Config
     public enum EConfigVersionUpgradeMode
     {
         /// <summary>
-        /// Merge the current value into a new instance of the config object.
+        /// Creates a new instance of the config and then merges the old instance into the new one. <br />
         /// </summary>
         MergeIntoNew,
 
