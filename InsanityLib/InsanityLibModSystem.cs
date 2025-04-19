@@ -1,6 +1,5 @@
 ﻿using InsanityLib.Attributes.Auto;
 using InsanityLib.Attributes.Auto.Harmony;
-using InsanityLib.Config;
 using InsanityLib.UI;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
@@ -9,6 +8,9 @@ using System.ComponentModel.Design;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
+#if DEBUG
+using InsanityLib.UI.Examples;
+#endif
 
 [assembly: AutoPatcher("insanitylib")]
 namespace InsanityLib
@@ -50,9 +52,9 @@ namespace InsanityLib
         {
             ServiceContainer.CollectAutoGuiComposers();
 
-            #if DEBUG //TODO Cleanup once finished creating/testing AutoGui
+            #if DEBUG //Example UI
                 api.Input.RegisterHotKey("insanitylib:toggleAutoGui", "AutoGuiTest", GlKeys.Home, HotkeyType.GUIOrOtherControls);
-                api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => new AutoGuiDialog(api, InsanityLibConfig.Instance).TryOpen();
+                api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => new AutoGuiDialog(api, new ExampleUI()).TryOpen();
             #endif
         }
 

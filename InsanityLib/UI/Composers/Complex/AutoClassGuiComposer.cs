@@ -29,8 +29,9 @@ namespace InsanityLib.UI.Composers.Complex
             var recursiveProtection = provider.GetService<IRecursivePrevention>();
             //TODO Class context for setting/getting values
             var members = value.GetType()
-                .GetMembers(BindingFlags.Instance | BindingFlags.Public);
-
+                .GetMembers(BindingFlags.Instance | BindingFlags.Public)
+                .Where(member => member.DeclaringType != typeof(object));
+            //TODO ignore property get and set methods
             //TODO sorting/grouping
 
             foreach (var memberInfo in members)
@@ -40,7 +41,12 @@ namespace InsanityLib.UI.Composers.Complex
                     switch (memberInfo)
                     {
                         case MethodInfo method:
-                            //TODO for buttons
+                            if(method.Name.StartsWith("get_") || method.Name.StartsWith("set_")) continue;
+                            if (method.CanAutoInvoke(provider))
+                            {
+                                typeof(MethodBase).FindAutoGuiComposer()
+                                    .ComposeObject(composer, memberContext, memberInfo, method);
+                            }
                             break;
 
                         case PropertyInfo property:
@@ -86,10 +92,8 @@ namespace InsanityLib.UI.Composers.Complex
                     matchingContent.Bounds.fixedX = xAllignment;
                 }
             }
-
-            //TODO allign descriptors
         }
 
-        public bool IsValidForCompose(Type type) => type.IsClass && !type.IsArray && !typeof(IEnumerable).IsAssignableFrom(type);
+        public bool IsValidForCompose(Type type) => type.IsClass && !type.IsArray && !typeof(IEnumerable).IsAssignableFrom(type) && type != typeof(MethodBase);
     }
 }
