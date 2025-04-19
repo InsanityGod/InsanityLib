@@ -6,31 +6,38 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using InsanityLib.Util;
 
 namespace InsanityLib.Config
 {
     public class JsonWithCommentsConverter : JsonConverter
     {
-        public override bool CanConvert(Type objectType) => true;
+        public override bool CanConvert(Type objectType) => objectType.IsComplexClassType();
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
 
-            var props = value.GetType()
+            IEnumerable<MemberInfo> props = value.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanRead);
 
-            foreach (var prop in props)
+            IEnumerable<MemberInfo> fields = value.GetType()
+                .GetFields(BindingFlags.Public | BindingFlags.Instance)
+                .Where(f => !f.IsStatic);
+
+            foreach (var member in props.Union(fields))
             {
-                var description = prop.GetCustomAttribute<DescriptionAttribute>()?.Description;
+                var doc = member.GetDocumentationContext();
+                var description = doc.GetDescription();
+
                 if (!string.IsNullOrEmpty(description))
                 {
                     writer.WriteComment(description);
                 }
 
-                writer.WritePropertyName(prop.Name);
-                var propValue = prop.GetValue(value);
+                writer.WritePropertyName(member.Name);
+                var propValue = member.GetValue(value);
                 serializer.Serialize(writer, propValue);
             }
 
