@@ -1,17 +1,12 @@
-﻿using Cairo;
-using InsanityLib.Commands;
+﻿using InsanityLib.Commands;
 using InsanityLib.Enums.Auto.Commands;
 using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
-using Vintagestory.API.Util;
 
 namespace InsanityLib.Attributes.Auto.Command
 {
@@ -51,7 +46,7 @@ namespace InsanityLib.Attributes.Auto.Command
             var mustBeClient = Array.Exists(parameters, info => info.ParameterType == typeof(ICoreClientAPI));
             var mustBeServer = Array.Exists(parameters, info => info.ParameterType == typeof(ICoreServerAPI));
 
-            if(mustBeClient && mustBeServer) throw new InvalidOperationException($"AutoCommand cannot accept both {nameof(ICoreClientAPI)} and {nameof(ICoreServerAPI)} at the same time");
+            if(mustBeClient && mustBeServer) throw new InvalidOperationException($"AutoCommand cannot accept both {nameof(ICoreClientAPI)} and {nameof(ICoreServerAPI)} at the same time, accept {nameof(ICoreAPI)} instead");
             
             if(mustBeClient) Side = EnumAppSide.Client;
             else if(mustBeServer) Side = EnumAppSide.Server;

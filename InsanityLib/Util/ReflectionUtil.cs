@@ -76,6 +76,20 @@ namespace InsanityLib.Util
                     break;
             }
         }
+
+        public static bool TryAutoSetValue(this MemberInfo member, object value, object instance = null)
+        {
+            try
+            {
+                member.SetValue(value.AutoConvert(member.GetPrimaryType()), instance);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static bool CanSetValue(this MemberInfo memberInfo) => memberInfo switch
         {
             PropertyInfo property => property.CanWrite && property.GetIndexParameters().Length == 0,
@@ -235,13 +249,16 @@ namespace InsanityLib.Util
         /// </summary>
         /// <param name="type">The type you are searching for.</param>
         /// <param name="objects">The objects to search through.</param>
+        /// <param name="filter">Extra filter that it has to fullfill</param>
         /// <returns>The best matching object, or null if no match is found.</returns>
-        public static object FindMatch(this Type type, IEnumerable<object> objects)
+        public static T FindMatch<T>(this Type type, IEnumerable<T> objects, System.Func<T, bool> filter = null)
         {
-            object bestMatch = null;
+            T bestMatch = default;
 
             foreach(var obj in objects)
             {
+                if(filter != null && !filter.Invoke(obj)) continue;
+
                 var objType = obj.GetType();
                 if (objType == type) return obj; //Exact match
                 if(Array.Exists(objType.GetInterfaces(), interfaceType => interfaceType == type)) return obj; //Exact interface match

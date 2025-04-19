@@ -1,18 +1,11 @@
-﻿using HarmonyLib;
-using InsanityLib.Commands;
-using InsanityLib.Constants;
+﻿using InsanityLib.Commands;
 using InsanityLib.Enums.Auto.Commands;
 using InsanityLib.Util;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing;
-using System.Linq;
-using System.Net.Http.Headers;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 

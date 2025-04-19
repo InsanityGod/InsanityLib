@@ -91,7 +91,7 @@ namespace InsanityLib.Commands
                         else if (typeof(Entity).IsAssignableFrom(param.ParameterType)) parameters[i] = attr.Source switch
                         {
                             EParamSource.Caller => Context.Caller.Entity.As(param.ParameterType),
-                            EParamSource.CallerTarget => Context.Caller.Entity?.GetTargetEntity().As(param.ParameterType),
+                            EParamSource.CallerTarget => Context.Caller.Entity?.GetTargetEntity()?.Entity.As(param.ParameterType),
                             _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
                         };
                         else if (param.ParameterType == typeof(ItemSlot)) parameters[i] = attr.Source switch

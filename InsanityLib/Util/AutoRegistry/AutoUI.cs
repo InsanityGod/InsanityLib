@@ -36,7 +36,7 @@ namespace InsanityLib.Util.AutoRegistry
 
         public static IAutoGuiComposer FindAutoGuiComposer(this Type type)
         {
-            var reflectionMatch = (IAutoGuiComposer)typeof(IAutoGuiComposer<>).MakeGenericType(type).FindMatch(Composers);
+            var reflectionMatch = typeof(IAutoGuiComposer<>).MakeGenericType(type).FindMatch(Composers, composer => composer.IsValidForCompose(type));
             if (reflectionMatch != null) return reflectionMatch;
             return Array.Find(Composers, composer => composer.IsValidForCompose(type));
         }
@@ -48,25 +48,6 @@ namespace InsanityLib.Util.AutoRegistry
                 ?.ComposeObject(composer, provider, member, value);
 
             return composer;
-        }
-
-        /// <summary>
-        /// Opens a new AutoGuiDialog with the given object.<br/>
-        /// WARNING: this functionality is not finished yet
-        /// </summary>
-        public static AutoGuiDialog AutoGui(this ICoreClientAPI api, object obj, string identifier = null, bool editable = true, bool disposeOnClose = true)
-        {
-            try
-            {
-                var dialog = new AutoGuiDialog(api, obj, identifier, editable, disposeOnClose);
-                dialog.Compose(api);
-                return dialog;
-            }
-            catch(Exception ex)
-            {
-                api.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(AutoGui), obj, ex);
-                return null;
-            }
         }
     }
 }

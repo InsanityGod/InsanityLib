@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using InsanityLib.Interfaces;
 using InsanityLib.Interfaces.UI;
+using InsanityLib.UI.Contexts;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using System;
@@ -14,16 +15,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Vintagestory.API.Client;
 
-namespace InsanityLib.UI.Composers
+namespace InsanityLib.UI.Composers.Complex
 {
     public class AutoClassGuiComposer : IAutoGuiComposer
     {
 
         public void ComposeObject(GuiComposer composer, IServiceProvider provider, MemberInfo member, object value)
         {
-            if(provider is MemberContext) return;//TODO skipping sub complex classes for now
+            if (provider is MemberContext) return;//TODO skipping sub complex classes for now
             //TODO do something with member
-            if(value == null) return;
+            if (value == null) return;
             var memberContext = new MemberContext(provider, member, value);
             var recursiveProtection = provider.GetService<IRecursivePrevention>();
             //TODO Class context for setting/getting values

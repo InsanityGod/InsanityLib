@@ -1,12 +1,9 @@
 ﻿using InsanityLib.Interfaces.UI;
+using InsanityLib.UI.Contexts;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
 
 namespace InsanityLib.UI.Composers

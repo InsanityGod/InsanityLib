@@ -1,5 +1,4 @@
-﻿using AutoConfigLib;
-using AutoConfigLib.Auto;
+﻿using AutoConfigLib.Auto;
 using HarmonyLib;
 using InsanityLib.Attributes.Auto;
 using InsanityLib.Attributes.Auto.Config;
@@ -8,11 +7,12 @@ using InsanityLib.Constants;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.API.Server;
-using Vintagestory.Common;
 
 namespace InsanityLib.Util.AutoRegistry
 {
@@ -28,12 +28,25 @@ namespace InsanityLib.Util.AutoRegistry
             return true;
         }
 
+        //TODO make non generic
+        public static void StoreModConfig<T>(ICoreAPI api, T value, string filename)
+        {
+            FileInfo fileInfo = new(Path.Combine(GamePaths.ModConfig, filename));
+			GamePaths.EnsurePathExists(fileInfo.Directory.FullName);
+			string json = JsonConvert.SerializeObject(value, new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                Converters = { new JsonWithCommentsConverter() },
+            });
+			File.WriteAllText(fileInfo.FullName, json);
+        }
+
 
         internal static void LoadAll(IServiceProvider provider)
         {
             var api = provider.GetService<ICoreAPI>();
             var loadModConfig = AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.LoadModConfig) && method.IsGenericMethod);
-            var storeModConfig = AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.StoreModConfig) && method.IsGenericMethod);
+            var storeModConfig = AccessTools.Method(typeof(AutoConfig), nameof(StoreModConfig)); //AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.StoreModConfig) && method.IsGenericMethod);
             foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<AutoConfigAttribute>())
             {
                 try
@@ -63,7 +76,8 @@ namespace InsanityLib.Util.AutoRegistry
                                 value = configType.AutoCreate(provider, false);
 
                                 storeModConfig.MakeGenericMethod(configType)
-                                    .Invoke(api, new object[] { value, attr.Path });
+                                    //.Invoke(api, new object[] { value, attr.Path });
+                                    .Invoke(null, new object[] { api, value, attr.Path });
                             }
 
                             if (value != null) member.SetValue(value);
@@ -120,9 +134,11 @@ namespace InsanityLib.Util.AutoRegistry
             if (configChanged)
             {
                 var api = provider.GetService<ICoreAPI>();
-                AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPI.StoreModConfig) && method.IsGenericMethod)
+                //AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPI.StoreModConfig) && method.IsGenericMethod)
+                AccessTools.Method(typeof(AutoConfig), nameof(StoreModConfig))
                     .MakeGenericMethod(configType)
-                    .Invoke(api, new object[] { configInstance, configAttr.Path });
+                    //.Invoke(api, new object[] { configInstance, configAttr.Path });
+                    .Invoke(null, new object[] { api, configInstance, configAttr.Path });
             }
 
             configInstance.TryNestedValidate(provider, true, true, configAttr.Path).ThrowIfNotValid();

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace InsanityLib.Util.AutoRegistry
 {
-    public static class AutoBehavior //For auto behavior registration
+    public static class AutoBehavior
     {
+        //TODO For auto behavior registration
     }
 }

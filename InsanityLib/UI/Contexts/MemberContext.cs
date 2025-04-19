@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.MathTools;
 
-namespace InsanityLib.UI
+namespace InsanityLib.UI.Contexts
 {
     public class MemberContext : IDialogContext
     {
@@ -26,7 +26,7 @@ namespace InsanityLib.UI
             IsEditable = targetType.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly != true;
 
             Context = serviceProvider.GetService<IDialogContext>();
-            if(Context != null)
+            if (Context != null)
             {
                 IsEditable &= Context.IsEditable;
                 Path = $"{Context.Path}/{member?.Name ?? targetType.Name}";
@@ -42,8 +42,9 @@ namespace InsanityLib.UI
         public Vec2d Cursor => Context.Cursor;
 
         private readonly IServiceProvider ServiceProvider;
-        
+
         public object GetService(Type serviceType) => serviceType == typeof(IDialogContext) || serviceType == typeof(MemberContext) ? this : ServiceProvider.GetService(serviceType);
 
+        public void RegisterAfterComposeCallback(Action action) => Context.RegisterAfterComposeCallback(action);
     }
 }

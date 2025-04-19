@@ -1,6 +1,7 @@
 ﻿using InsanityLib.Attributes.Auto;
 using InsanityLib.Attributes.Auto.Harmony;
 using InsanityLib.Config;
+using InsanityLib.UI;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using System;
@@ -51,7 +52,7 @@ namespace InsanityLib
 
             #if DEBUG //TODO Cleanup once finished creating/testing AutoGui
                 api.Input.RegisterHotKey("insanitylib:toggleAutoGui", "AutoGuiTest", GlKeys.Home, HotkeyType.GUIOrOtherControls);
-                api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => api.AutoGui(InsanityLibConfig.Instance).TryOpen();
+                api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => new AutoGuiDialog(api, InsanityLibConfig.Instance).TryOpen();
             #endif
         }
 

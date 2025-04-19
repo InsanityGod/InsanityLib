@@ -30,24 +30,21 @@ namespace InsanityLib.Util
             if(value == null || targetType.IsInstanceOfType(value)) return value;
 
             // Handle enums
-            if (targetType.IsEnum && value is string str)
+            if (targetType.IsEnum && value is string str && Enum.TryParse(targetType, str, out var result)) return result;
+
+            // Handle other types
+            if(value is IConvertible) //TODO see about improving performance
             {
                 try
                 {
-                    return Enum.Parse(targetType, str);
+                    return Convert.ChangeType(value, targetType);
                 }
                 catch { /* fail silently */ }
             }
 
-            // Handle other types
             try
             {
-                return Convert.ChangeType(value, targetType);
-            }
-            catch { /* fail silently */ }
 
-            try
-            {
                 var converter = TypeDescriptor.GetConverter(targetType);
                 if (converter.CanConvertFrom(value.GetType())) return converter.ConvertFrom(value);
             }

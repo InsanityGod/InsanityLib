@@ -48,7 +48,6 @@ namespace InsanityLib.Util.AutoRegistry
             }
         }
 
-
         [DisposalLogic]
         private static void AutoHarmonyDisposal(ICoreAPI api)
         {

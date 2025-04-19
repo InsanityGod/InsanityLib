@@ -35,5 +35,7 @@ namespace InsanityLib.Interfaces.UI
 
         public Vec2d Cursor { get; }
 
+        public void RegisterAfterComposeCallback(Action action);
+
     }
 }

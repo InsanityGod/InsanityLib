@@ -3,6 +3,7 @@ using InsanityLib.Constants;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.CommandAbbr;
 using Vintagestory.API.Server;
 
 namespace InsanityLib.Util.AutoRegistry
@@ -40,6 +41,7 @@ namespace InsanityLib.Util.AutoRegistry
             var command = GetOrCreateStub(api, steps[0]);
 
             for(var i = 1; i < steps.Length; i++) command = command.GetOrCreateChildStub(steps[i]);
+
 
             return command;
         }
