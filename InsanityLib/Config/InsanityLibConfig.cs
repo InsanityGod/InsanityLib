@@ -13,7 +13,10 @@ namespace InsanityLib.Config
         [AutoConfig("InsanityLibConfig.json", ServerSync = true, CreateIfNotExist = true, DefaultOnError = true)] 
         public static InsanityLibConfig Instance { get; set; }
 
-        //TODO: remove all these testing values when they are no longer needed
+        /// <summary>Wether documentation should be put inside the config files, so that users know what the values do.</summary>
+        [DefaultValue(true)]
+        public bool DocumentConfigFiles { get; set; } = true;
+
         /// <summary>
         /// Wether feature X is enabled or not.
         /// </summary>
@@ -56,7 +59,9 @@ namespace InsanityLib.Config
         public TestEnum Test { get; set; } = TestEnum.SomeValue | TestEnum.RandomValue;
         
         public EnumAppSide TestComplexEnumFlag { get; set; } = EnumAppSide.Universal;
-        
+
+        public AutoUpdateConfig UpdateConfiguration { get; set; } = new AutoUpdateConfig();
+
         [Flags]
         public enum TestEnum
         {

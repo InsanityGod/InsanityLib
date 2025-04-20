@@ -32,6 +32,21 @@ namespace InsanityLib.Enums
                 .Select(str => Array.IndexOf(StrValues, str))
                 .ToArray();
 
+        public string GetDescriptionStrings()
+        {
+            //TODO also allow for displaying description of the enum values itself
+            var builder = new StringBuilder();
+
+            for(var i = 0; i < StrValues.Length; i++)
+            {
+                builder.Append($"{Names[i]} ({(int)Enum.Parse(EnumType, StrValues[i])})");
+
+                if(i != StrValues.Length - 1) builder.Append(", ");
+            }
+
+            return builder.ToString();
+        }
+
         public Type EnumType { get; }
 
         public bool IsEnumFlag { get; }

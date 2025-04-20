@@ -33,11 +33,18 @@ namespace InsanityLib.Util.AutoRegistry
         {
             FileInfo fileInfo = new(Path.Combine(GamePaths.ModConfig, filename));
 			GamePaths.EnsurePathExists(fileInfo.Directory.FullName);
-			string json = JsonConvert.SerializeObject(value, new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                Converters = { new JsonWithCommentsConverter() },
-            });
+            var settings = JsonConvert.DefaultSettings?.Invoke() ?? new JsonSerializerSettings();
+            settings.Formatting = Formatting.Indented;
+            settings.Converters.Add(new JsonWithCommentsConverter());
+
+            string json = JsonConvert.SerializeObject(value, settings);
+            ////string json2 = JsonConvert.SerializeObject(value);
+            ////api.StoreModConfig<T>(value, filename);
+            //new JsonSerializerSettings
+            //{
+            //    Formatting = Formatting.Indented,
+            //    Converters = { new JsonWithCommentsConverter() },
+            //}
 			File.WriteAllText(fileInfo.FullName, json);
         }
 
