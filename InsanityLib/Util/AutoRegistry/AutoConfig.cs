@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -28,23 +29,24 @@ namespace InsanityLib.Util.AutoRegistry
             return true;
         }
 
-        //TODO make non generic
-        public static void StoreModConfig<T>(ICoreAPI api, T value, string filename)
+        public static void StoreModConfig(ICoreAPI api, object value, string filename)
         {
+            if (InsanityLibConfig.Instance != null && !InsanityLibConfig.Instance.AutoConfig.DocumentationInConfigFile)
+            {
+                AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.StoreModConfig) && method.IsGenericMethod)
+                    .MakeGenericMethod(value.GetType())
+                    .Invoke(api, new object[] { value, filename });
+                return;
+            }
+
             FileInfo fileInfo = new(Path.Combine(GamePaths.ModConfig, filename));
 			GamePaths.EnsurePathExists(fileInfo.Directory.FullName);
+            
             var settings = JsonConvert.DefaultSettings?.Invoke() ?? new JsonSerializerSettings();
             settings.Formatting = Formatting.Indented;
-            settings.Converters.Add(new JsonWithCommentsConverter());
+            settings.Converters.Add(new JsonConverterWithCommentInjection());
 
             string json = JsonConvert.SerializeObject(value, settings);
-            ////string json2 = JsonConvert.SerializeObject(value);
-            ////api.StoreModConfig<T>(value, filename);
-            //new JsonSerializerSettings
-            //{
-            //    Formatting = Formatting.Indented,
-            //    Converters = { new JsonWithCommentsConverter() },
-            //}
 			File.WriteAllText(fileInfo.FullName, json);
         }
 
@@ -53,8 +55,8 @@ namespace InsanityLib.Util.AutoRegistry
         {
             var api = provider.GetService<ICoreAPI>();
             var loadModConfig = AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.LoadModConfig) && method.IsGenericMethod);
-            var storeModConfig = AccessTools.Method(typeof(AutoConfig), nameof(StoreModConfig)); //AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.StoreModConfig) && method.IsGenericMethod);
-            foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<AutoConfigAttribute>())
+            
+            foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<AutoConfigAttribute>().OrderByDescending(config => config.Item1.GetPrimaryType() == typeof(InsanityLibConfig))) //Ensure primary config is loaded first
             {
                 try
                 {
@@ -82,9 +84,7 @@ namespace InsanityLib.Util.AutoRegistry
                             {
                                 value = configType.AutoCreate(provider, false);
 
-                                storeModConfig.MakeGenericMethod(configType)
-                                    //.Invoke(api, new object[] { value, attr.Path });
-                                    .Invoke(null, new object[] { api, value, attr.Path });
+                                if(InsanityLibConfig.Instance == null || !InsanityLibConfig.Instance.AutoConfig.SaveOnLoad) StoreModConfig(api, value, attr.Path);
                             }
 
                             if (value != null) member.SetValue(value);
@@ -105,6 +105,8 @@ namespace InsanityLib.Util.AutoRegistry
                         {
                             LoadedConfigs.Add(attr.Path, value);
                             if(api.ModLoader.IsModEnabled("autoconfiglib")) RegisterToAutoConfigLib(api, value, attr.Path);
+
+                            if(InsanityLibConfig.Instance.AutoConfig.SaveOnLoad) StoreModConfig(api, value, attr.Path);
                         }
 
                         if (attr.ServerSync && api is ICoreServerAPI serverAPI) //Register even if playing singleplayer, since opening to LAN is a thing
@@ -141,11 +143,7 @@ namespace InsanityLib.Util.AutoRegistry
             if (configChanged)
             {
                 var api = provider.GetService<ICoreAPI>();
-                //AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPI.StoreModConfig) && method.IsGenericMethod)
-                AccessTools.Method(typeof(AutoConfig), nameof(StoreModConfig))
-                    .MakeGenericMethod(configType)
-                    //.Invoke(api, new object[] { configInstance, configAttr.Path });
-                    .Invoke(null, new object[] { api, configInstance, configAttr.Path });
+                if(InsanityLibConfig.Instance == null || !InsanityLibConfig.Instance.AutoConfig.SaveOnLoad) StoreModConfig(api, configInstance, configAttr.Path);
             }
 
             configInstance.TryNestedValidate(provider, true, true, configAttr.Path).ThrowIfNotValid();

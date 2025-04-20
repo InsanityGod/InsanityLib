@@ -2,6 +2,7 @@
 using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
@@ -27,7 +28,7 @@ namespace InsanityLib.Attributes.Auto
         /// If set to <see cref="EnumAppSide.Universal"/>, the logic is allowed to run on either side but will only run on twice if <seealso cref="MayRunTwice"/> is set to true.
         /// </summary>
         public EnumAppSide Side { get; init; } = EnumAppSide.Universal;
-
+        
         internal static void DisposeAll(IServiceContainer serviceContainer)
         {
             var api = serviceContainer.GetService<ICoreAPI>();
@@ -36,9 +37,8 @@ namespace InsanityLib.Attributes.Auto
             {
                 try
                 {
-                    //TODO test this
-                    if((attr.Side & api.Side) == 0) continue; //If the current api side does not match the Side it's allowed to run on
-                    if (!attr.MayRunTwice && attr.Side == EnumAppSide.Universal && loadedSides == EnumAppSide.Universal && api.Side != EnumAppSide.Server) continue;
+                    if((attr.Side & api.Side) == 0) continue; //If the current api side is not in the attribute side then skip
+                    if (!attr.MayRunTwice && attr.Side == EnumAppSide.Universal && loadedSides == EnumAppSide.Universal && api.Side != EnumAppSide.Server) continue; //Ensure that the logic is not run twice if it is not allowed to
                     member.AutoInvoke(serviceContainer);
                 }
                 catch (Exception ex)

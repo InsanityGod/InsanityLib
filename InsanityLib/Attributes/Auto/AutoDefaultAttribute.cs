@@ -55,8 +55,7 @@ namespace InsanityLib.Attributes.Auto
                     AccessTools.Method(AutoMethodName) :
                     AccessTools.Method(AutoType, AutoMethodName))
                     ?? throw new InvalidOperationException($"Combination of AutoMethodName: '{AutoMethodName}' and AutoType: '{AutoType}' could not be resolved");
-                
-                //TODO use instance to fill in potential gap in method arguments
+
                 return method.AutoInvoke(provider, (method.DeclaringType?.IsInstanceOfType(instance) ?? false) ? instance : null);
             }
             if(AutoType != null)

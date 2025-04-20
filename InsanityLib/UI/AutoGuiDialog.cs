@@ -77,42 +77,12 @@ namespace InsanityLib.UI
                 .AddShadedDialogBG(ElementBounds.Fill)
                 .AddDialogTitleBar(TargetObject.GetType().GetHumanReadableName(), Close)
                 .BeginChildElements(parentBounds)
-                    //.BeginClip(parentBounds)
-                        .AddAutoComposed(this, null, TargetObject)
-                    //.EndClip();
+                    .AddAutoComposed(this, null, TargetObject)
                 .EndChildElements();
              
-            //TODO make scrolling work
-            //parentBounds.CalcWorldBounds();
-            //
-            //var maxHeight = ClientSettings.ScreenHeight / 2;
-            //var totalHeight = parentBounds.absInnerHeight;
-            //if(totalHeight > maxHeight)
-            //{
-            //    parentBounds.BothSizing = ElementSizing.Fixed;
-            //    parentBounds.fixedX = parentBounds.absFixedX;
-            //    parentBounds.fixedY = parentBounds.absFixedY;
-            //    parentBounds.fixedWidth = parentBounds.absInnerWidth;
-            //    parentBounds.fixedHeight = maxHeight;
-            //
-            //    ElementBounds scrollbarBounds = parentBounds.RightCopy().WithFixedWidth(20);
-            //    
-            //    SingleComposer.AddVerticalScrollbar(
-            //        value =>
-            //        {
-            //            parentBounds.fixedY = 5 - value;
-            //
-            //            parentBounds.CalcWorldBounds();
-            //            //SingleComposer.ReCompose();
-            //        },
-            //        scrollbarBounds,
-            //        "scrollbar"
-            //    );
-            //}
+            //TODO scrolling
             
             SingleComposer.Compose(false);
-            
-            //SingleComposer.GetScrollbar("scrollbar")?.SetHeights((float)parentBounds.fixedHeight, (float)totalHeight);
 
             foreach(var callback in AfterComposeCallbacks) callback();
 

@@ -52,11 +52,6 @@ namespace InsanityLib.Attributes.Auto.Command
             else if(mustBeServer) Side = EnumAppSide.Server;
 
             Name ??= method.Name;
-            //TODO prettify
-            //TODO description
-            //TODO other attributes
-
-            //TODO validator attributes!
         }
 
         public void ConfigureCommand(IChatCommand command, IServiceProvider provider, MethodBase method)

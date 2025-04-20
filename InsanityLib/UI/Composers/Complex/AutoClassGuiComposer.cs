@@ -22,16 +22,17 @@ namespace InsanityLib.UI.Composers.Complex
 
         public void ComposeObject(GuiComposer composer, IServiceProvider provider, MemberInfo member, object value)
         {
-            if (provider is MemberContext) return;//TODO skipping sub complex classes for now
+            if (provider is MemberContext) return;
+            //TODO skipping sub complex classes for now
             //TODO do something with member
             if (value == null) return;
             var memberContext = new MemberContext(provider, member, value);
             var recursiveProtection = provider.GetService<IRecursivePrevention>();
-            //TODO Class context for setting/getting values
+            
             var members = value.GetType()
                 .GetMembers(BindingFlags.Instance | BindingFlags.Public)
                 .Where(member => member.DeclaringType != typeof(object));
-            //TODO ignore property get and set methods
+            
             //TODO sorting/grouping
 
             foreach (var memberInfo in members)
