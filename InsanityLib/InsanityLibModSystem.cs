@@ -27,7 +27,7 @@ namespace InsanityLib
     {
         [AutoDefaultValue(AutoType = typeof(ServiceContainer))]
         public static IServiceContainer GlobalServiceContainer { get; private set; } = new ServiceContainer(); //TODO write a custom service container
-
+        
         public IServiceContainer ServiceContainer { get; private set; }
 
         public object GetService(Type serviceType) => ServiceContainer.GetService(serviceType);
@@ -45,7 +45,7 @@ namespace InsanityLib
             ServiceContainer.Register(api.Logger);
             EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
             AssetCategoryAttribute.Load();
-            AutoRegistryAttribute.RegisterAll(api);
+            AutoRegistryAttribute.RegisterAll(api); //TODO see about allowing for config values to be used in patching
             AutoConfig.LoadAll(ServiceContainer);
         }
 
@@ -62,25 +62,16 @@ namespace InsanityLib
             //Clear documentation cache build up by auto registration code
             DocumentationUtil.ClearCache();
         }
+
         public override void StartClientSide(ICoreClientAPI api)
         {
-
+            
             ServiceContainer.CollectAutoGuiComposers();
 
             #if DEBUG //Example UI
                 api.Input.RegisterHotKey("insanitylib:toggleAutoGui", "AutoGuiTest", GlKeys.Home, HotkeyType.GUIOrOtherControls);
                 api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => new AutoGuiDialog(api, new ExampleUI()).TryOpen();
             #endif
-        }
-
-        //TODO remove test code
-        public override void AssetsFinalize(ICoreAPI api)
-        {
-            var testValue = EnumTransitionType.None + 1;
-
-            var result = CustomTransition.ExtendedEnum.FindHandler(testValue);
-
-            base.AssetsFinalize(api);
         }
 
         public override void Dispose()
