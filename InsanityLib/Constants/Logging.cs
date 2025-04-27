@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Vintagestory.API.Common;
 
 namespace InsanityLib.Constants
 {
@@ -19,5 +20,7 @@ namespace InsanityLib.Constants
         public const string EncounteredValidationError = "Encountered validation error while validating '{0}', error: '{1}' at path '{2}'";
         public const string AutoFixFailed = "Could not auto fix validation error while validating '{0}', error: '{1}' at path '{2}'";
         public const string AutoFixSucceed = "Auto fixed validation error while validating '{0}', error: '{1}' at path '{2}', new value: '{3}'";
+
+        public const string DomainDoesNotMatchFileOrigin = "Domain mismatch in '{0}', found '{1}' should have been '{2}'";
     }
 }

@@ -118,7 +118,14 @@ namespace InsanityLib.Util
             .Select(member => (member, member.GetCustomAttribute<T>()))
             .Where(pair => pair.Item2 != null);
 
-        //TODO extra method to find all matches on instance instead
+        public static IEnumerable<(Type, T)> FindAllClasses<T>() where T : Attribute => AccessTools.AllTypes()
+            .Select(type => (type, type.GetCustomAttribute<T>()))
+            .Where(pair => pair.Item2 != null);
+
+
+        public static IEnumerable<Type> FindImplementations<T>(this Assembly assembly, bool includeSelf = false) =>
+            AccessTools.GetTypesFromAssembly(assembly)
+            .Where(type =>  !type.IsAbstract && !type.IsInterface && typeof(T).IsAssignableFrom(type) && (includeSelf || type != typeof(T)));
 
         public static object Invoke<T>(this T method, object instance = null, object[] parameters = null) where T : MemberInfo => method switch
         {

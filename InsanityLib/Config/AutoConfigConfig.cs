@@ -9,7 +9,9 @@ namespace InsanityLib.Config
 {
     public class AutoConfigConfig
     {
-        /// <summary>Wether documentation should be put inside the config files, so that users know what the values do.</summary>
+        /// <summary>
+        /// Wether documentation should be put inside the config files, so that users know what the values do.
+        /// </summary>
         [DefaultValue(true)]
         public bool DocumentationInConfigFile { get; set; } = true;
 

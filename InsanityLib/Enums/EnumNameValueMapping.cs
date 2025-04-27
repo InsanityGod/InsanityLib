@@ -10,6 +10,7 @@ namespace InsanityLib.Enums
 {
     public class EnumNameValueMapping
     {
+        //TODO extended enum support
         public EnumNameValueMapping(Type enumType)
         {
             EnumType = enumType;

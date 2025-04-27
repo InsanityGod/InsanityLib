@@ -49,6 +49,15 @@ namespace InsanityLib.Util
             return member.Name.ToHumanReadable();
         }
 
+        public static string GetRegistryName(this MemberInfo member, string domain = null)
+        {
+            //TODO allow for removing prefixes
+            var memberName = member.Name.ToLower();
+
+            if(!string.IsNullOrEmpty(domain)) return $"{domain}:{memberName}";
+            return memberName;
+        }
+
         /// <summary>
         /// Converts a string to an AssetLocation in a way that does not automatically add the default domain <br/>
         /// Meaning that if you parse it back it will be the same as the input string

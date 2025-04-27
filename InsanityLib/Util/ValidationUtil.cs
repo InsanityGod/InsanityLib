@@ -89,5 +89,15 @@ namespace InsanityLib.Util
                 NestedValidate(value, nestedContext, $"{path}/{member.Name}");
             }
         }
+
+        public static void EnsureCorrectDomainForAsset(this AssetLocation code, IAsset asset, ILogger logger = null)
+        {
+            if(code.Domain != asset.Location.Domain)
+            {
+                var orginalCodeStr = code.ToString();
+                code.Domain = asset.Location.Domain;
+                logger?.Warning(Logging.DomainDoesNotMatchFileOrigin, asset.Location, orginalCodeStr, code);
+            }
+        }
     }
 }

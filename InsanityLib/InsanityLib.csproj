@@ -12,6 +12,10 @@
       <HintPath>..\..\AutoConfigLib\AutoConfigLib\bin\Debug\Mods\mod\AutoConfigLib.dll</HintPath>
       <Private>false</Private>
     </Reference>
+	  <Reference Include="xlib">
+		  <HintPath>..\..\Dep\xlib_v0.8.16\xlib.dll</HintPath>
+		  <Private>false</Private>
+	  </Reference>
     <Reference Include="VintagestoryAPI">
       <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
       <Private>false</Private>

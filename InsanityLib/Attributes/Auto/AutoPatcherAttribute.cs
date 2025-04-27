@@ -1,23 +1,27 @@
 ﻿using HarmonyLib;
-using InsanityLib.Attributes.Auto;
-using InsanityLib.Attributes.Auto.Harmony;
 using InsanityLib.Constants;
+using InsanityLib.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 
-namespace InsanityLib.Util.AutoRegistry
+namespace InsanityLib.Attributes.Auto
 {
-    public static class AutoHarmony
+    [AttributeUsage(AttributeTargets.Assembly)]
+    public class AutoPatcherAttribute : Attribute
     {
-        internal static void AutoPatch(this ICoreAPI api)
+        public readonly string HarmonyId;
+
+        public AutoPatcherAttribute(string harmonyId)
+        {
+            if (string.IsNullOrEmpty(harmonyId)) throw new ArgumentException($"'{nameof(harmonyId)}' cannot be null or empty.", nameof(harmonyId));
+            HarmonyId = harmonyId;
+        }
+
+        internal static void AutoPatch(ICoreAPI api)
         {
             var logger = api.GetService<ILogger>();
-            
+
             AutoPatcherAttribute attr = null;
             foreach (var assembly in AccessTools.AllAssemblies())
             {
@@ -58,7 +62,7 @@ namespace InsanityLib.Util.AutoRegistry
                 try
                 {
                     attr = assembly.GetCustomAttribute<AutoPatcherAttribute>();
-                    if(attr != null)
+                    if (attr != null)
                     {
                         var harmony = new Harmony(attr.HarmonyId);
                         harmony.UnpatchAll(attr.HarmonyId);
