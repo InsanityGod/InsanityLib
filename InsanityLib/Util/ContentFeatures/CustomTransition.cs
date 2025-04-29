@@ -13,11 +13,11 @@ namespace InsanityLib.Util.ContentFeatures
     public static class CustomTransition
     {
         [AutoClear]
-        internal readonly static Dictionary<string, Type> ClassRegistry = new();
+        internal readonly static Dictionary<AssetLocation, Type> ClassRegistry = new();
         
-        public static void RegisterHandler<T>(string code) where T : TransitionHandler => RegisterHandler(code, typeof(T));
+        public static void RegisterHandler<T>(AssetLocation code) where T : TransitionHandler => RegisterHandler(code, typeof(T));
         
-        internal static void RegisterHandler(string code, Type type) => ClassRegistry[code] = type;
+        internal static void RegisterHandler(AssetLocation code, Type type) => ClassRegistry[code] = type;
 
         public static ExtendedTransition ExtendedEnum => EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] as ExtendedTransition;
 

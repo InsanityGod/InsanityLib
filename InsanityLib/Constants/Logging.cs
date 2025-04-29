@@ -22,5 +22,7 @@ namespace InsanityLib.Constants
         public const string AutoFixSucceed = "Auto fixed validation error while validating '{0}', error: '{1}' at path '{2}', new value: '{3}'";
 
         public const string DomainDoesNotMatchFileOrigin = "Domain mismatch in '{0}', found '{1}' should have been '{2}'";
+
+        public const string PatchConfigValueResolverFailed = "Patch {0} in {1} failed because config value path {2} could not be resolved:\n{3}";
     }
 }

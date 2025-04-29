@@ -10,10 +10,6 @@ using Vintagestory.API.Server;
 using InsanityLib.Attributes;
 using InsanityLib.Extended;
 using InsanityLib.Util.ContentFeatures;
-using Vintagestory.API.Datastructures;
-
-
-
 
 #if DEBUG
 using InsanityLib.UI.Examples;
@@ -68,7 +64,7 @@ namespace InsanityLib
             
             ServiceContainer.CollectAutoGuiComposers();
 
-            #if DEBUG //Example UI
+            #if DEBUG //Example UI (for testing purposes)
                 api.Input.RegisterHotKey("insanitylib:toggleAutoGui", "AutoGuiTest", GlKeys.Home, HotkeyType.GUIOrOtherControls);
                 api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => new AutoGuiDialog(api, new ExampleUI()).TryOpen();
             #endif

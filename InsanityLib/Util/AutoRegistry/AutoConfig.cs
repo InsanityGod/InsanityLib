@@ -20,7 +20,7 @@ namespace InsanityLib.Util.AutoRegistry
     public static class AutoConfig
     {
         [AutoClear] //TODO move config tracking code to this library from AutoConfigLib
-        private static Dictionary<string, object> LoadedConfigs { get; } = new();
+        internal static Dictionary<string, object> LoadedConfigs { get; } = new();
 
         private static bool TryAssignFromCache(string path, MemberInfo member)
         {

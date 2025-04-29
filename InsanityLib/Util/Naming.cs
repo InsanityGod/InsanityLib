@@ -51,8 +51,8 @@ namespace InsanityLib.Util
 
         public static string GetRegistryName(this MemberInfo member, string domain = null)
         {
-            //TODO allow for removing prefixes
-            var memberName = member.Name.ToLower();
+            //TODO attributes
+            var memberName = member.Name;
 
             if(!string.IsNullOrEmpty(domain)) return $"{domain}:{memberName}";
             return memberName;
@@ -77,5 +77,14 @@ namespace InsanityLib.Util
             if (string.IsNullOrEmpty(currentExtension)) return str + extension;
             return string.Concat(str.AsSpan(0, str.Length - currentExtension.Length), extension);
         }
+
+        public static bool TryRemoveFrom(this string prefix, ref string str)
+        {
+            if(str == null || !str.StartsWith(prefix)) return false;
+            str = str[prefix.Length..];
+            return true;
+        }
+
+        public static string RemoveSuffix(this string str, string suffix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(suffix) || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
     }
 }

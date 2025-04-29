@@ -274,5 +274,36 @@ namespace InsanityLib.Util
 
             return bestMatch;
         }
+
+        /// <summary>
+        /// Recursively searches for a property or field by its name in the given object and retrieves its value.
+        /// </summary>
+        /// <param name="obj">The object to crawl through.</param>
+        /// <param name="target">The target path, with properties/fields separated by '/'.</param>
+        /// <param name="result">The resulting value if found, otherwise null.</param>
+        /// <returns>True if the target is found and its value retrieved, otherwise false.</returns>
+        public static bool TryCrawl(this object obj, string target, out object result)
+        {
+            result = null;
+            if (obj == null || string.IsNullOrWhiteSpace(target)) return false;
+
+            var parts = target.Split('/');
+            var current = obj;
+
+            foreach (var part in parts)
+            {
+                if (current == null) return false;
+
+                var type = current.GetType();
+                var member = type.GetMember(part, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
+
+                if (member == null || !member.CanGetValue()) return false;
+
+                current = member.GetValue(current);
+            }
+
+            result = current;
+            return true;
+        }
     }
 }

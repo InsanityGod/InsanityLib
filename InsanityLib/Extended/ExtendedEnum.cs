@@ -53,7 +53,7 @@ namespace InsanityLib.Extended
         {
             foreach ((var obj, var offset) in OffsetLookup) 
             {
-                if(obj is string strObj && string.Equals(strObj, value, StringComparison.OrdinalIgnoreCase)) return offset;
+                if(obj is string strObj && string.Equals(strObj, value, StringComparison.OrdinalIgnoreCase)) return offset; //TODO maybe store as asset location as well?
                 
                 if(obj is not Type type) continue;
                 var name =  Array.Find(Enum.GetNames(type), name => string.Equals(name, value, StringComparison.OrdinalIgnoreCase));
