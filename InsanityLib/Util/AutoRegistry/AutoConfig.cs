@@ -5,11 +5,13 @@ using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Config;
 using InsanityLib.Constants;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -70,8 +72,8 @@ namespace InsanityLib.Util.AutoRegistry
                     {
                         if(attr.ServerSync && api is ICoreClientAPI clientApi && !clientApi.IsSinglePlayer)
                         {
-                            var json = clientApi.World.Config.GetOrAddTreeAttribute("insanitylib").GetString(attr.Path);
-                            value = JsonConvert.DeserializeObject(json, configType) ?? throw new InvalidOperationException($"Config is configured to be synced from server but no config was sent for '{attr.Path}'");
+                            var jsonBase64 = clientApi.World.Config.GetOrAddTreeAttribute("insanitylib").GetString(attr.Path);
+                            value = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(Convert.FromBase64String(jsonBase64)), configType) ?? throw new InvalidOperationException($"Config is configured to be synced from server but no config was sent for '{attr.Path}'");
                         }
                         else
                         {
@@ -113,7 +115,7 @@ namespace InsanityLib.Util.AutoRegistry
                         {
                             //TODO use this same mechanism to allow for localizing configs to be world specific
                             var json = JsonConvert.SerializeObject(value, Formatting.None);
-                            serverAPI.World.Config.GetOrAddTreeAttribute("insanitylib").SetString(attr.Path, json);
+                            serverAPI.World.Config.GetOrAddTreeAttribute("insanitylib").SetString(attr.Path, Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
                         }
                     }
                 }
@@ -123,7 +125,7 @@ namespace InsanityLib.Util.AutoRegistry
                 }
             }
         }
-        
+
         private static void RegisterToAutoConfigLib(ICoreAPI api, object instance, string path)
         {
             AccessTools.Method(typeof(AutoConfigGenerator), nameof(AutoConfigGenerator.RegisterOrCollectConfigFile))
