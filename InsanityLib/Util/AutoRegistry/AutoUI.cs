@@ -30,7 +30,7 @@ namespace InsanityLib.Util.AutoRegistry
                     if (result == null) logger?.Warning($"[InsanityLib] Failed to create AutoUI composer instance of '{type}'");
                     return result;
                 })
-                .OfType<IAutoGuiComposer>() //TODO check if this also filters out null values
+                .OfType<IAutoGuiComposer>()
                 .ToArray();
         }
 

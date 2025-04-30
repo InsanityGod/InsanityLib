@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.GameContent;
 
@@ -35,8 +36,26 @@ namespace InsanityLib.HarmonyPatches.LogicChanges
             return codes;
         }
 
+        [HarmonyPatch(typeof(BarrelRecipe), nameof(BarrelRecipe.TryCraftNow))]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> FixBarrelRecipeTransitionLogic(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+
+            for(int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Stloc_2)
+                {
+                    codes.Insert(i, new(OpCodes.Call, AccessTools.Method(typeof(TransitionLogicPatches), nameof(FilterPerishableTransitions))));
+                    break;
+                }
+            }
+
+            return codes;
+        }
+
         [HarmonyPatch(typeof(CollectibleObject), nameof(CollectibleObject.CarryOverFreshness), new Type[] { typeof(ICoreAPI), typeof(ItemSlot[]), typeof(ItemStack[]), typeof(TransitionableProperties)})]
-        [HarmonyPrefix] //TODO double check
+        [HarmonyPrefix]
         public static bool ReplaceCarryOverFreshness(CollectibleObject __instance, ICoreAPI api, ItemSlot[] inputSlots, ItemStack[] outStacks, TransitionableProperties perishProps)
         {
             float transitionedHoursRelative = 0f;

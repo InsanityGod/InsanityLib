@@ -8,14 +8,14 @@ using Vintagestory.API.Datastructures;
 
 namespace InsanityLib.JsonAssets
 {
-    [AssetCategory("transitiontypes", true, EnumAppSide.Universal)] //TODO
+    [AssetCategory("transitiontypes", true, EnumAppSide.Universal)]
     public class TransitionType
     {
         /// <summary>
         /// The code for this transition
         /// </summary>
         [Required]
-        public AssetLocation Code { get; set; } //TODO documentate language keys
+        public AssetLocation Code { get; set; }
 
         /// <summary>
         /// The handler to use for the transition

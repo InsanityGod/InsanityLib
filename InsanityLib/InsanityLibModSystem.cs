@@ -11,10 +11,6 @@ using InsanityLib.Attributes;
 using InsanityLib.Extended;
 using InsanityLib.Util.ContentFeatures;
 
-#if DEBUG
-using InsanityLib.UI.Examples;
-#endif
-
 [assembly: AutoPatcher("insanitylib")]
 [assembly: AutoRegistry("insanitylib")]
 namespace InsanityLib
@@ -61,13 +57,7 @@ namespace InsanityLib
 
         public override void StartClientSide(ICoreClientAPI api)
         {
-            
             ServiceContainer.CollectAutoGuiComposers();
-
-            #if DEBUG //Example UI (for testing purposes)
-                api.Input.RegisterHotKey("insanitylib:toggleAutoGui", "AutoGuiTest", GlKeys.Home, HotkeyType.GUIOrOtherControls);
-                api.Input.GetHotKeyByCode("insanitylib:toggleAutoGui").Handler += (hotkey) => new AutoGuiDialog(api, new ExampleUI()).TryOpen();
-            #endif
         }
 
         public override void Dispose()

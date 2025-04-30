@@ -5,7 +5,6 @@ using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Config;
 using InsanityLib.Constants;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -74,6 +73,7 @@ namespace InsanityLib.Util.AutoRegistry
                         {
                             var jsonBase64 = clientApi.World.Config.GetOrAddTreeAttribute("insanitylib").GetString(attr.Path);
                             value = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(Convert.FromBase64String(jsonBase64)), configType) ?? throw new InvalidOperationException($"Config is configured to be synced from server but no config was sent for '{attr.Path}'");
+                            member.SetValue(value);
                         }
                         else
                         {

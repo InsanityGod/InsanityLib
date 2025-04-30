@@ -1,8 +1,6 @@
-﻿using HarmonyLib;
-using InsanityLib.Attributes.Auto;
+﻿using InsanityLib.Attributes.Auto;
 using InsanityLib.Extended;
 using InsanityLib.Handlers;
-using InsanityLib.Interfaces;
 using InsanityLib.JsonAssets;
 using System;
 using System.Collections.Generic;
@@ -26,7 +24,7 @@ namespace InsanityLib.Util.ContentFeatures
             var serviceProvider = api.GetServiceContainer();
             var logger = serviceProvider.GetService<ILogger>();
             
-            foreach (var asset in api.Assets.GetMany("transitiontypes/")) 
+            foreach (var asset in api.Assets.GetMany("transitiontypes/"))
             {
                 var transitionType = asset.ToObject<TransitionType>();
                 transitionType.Code.EnsureCorrectDomainForAsset(asset, logger);
