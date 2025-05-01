@@ -1,0 +1,50 @@
+﻿using Vintagestory.API.Common;
+
+namespace InsanityLib.Util
+{
+    public static class CollectibleObjectUtil
+    {
+        /// <summary>
+        /// Get the CollectibleObject used to place this Block.
+        /// Allowes for using the "PlacedByItem" attribute to redirect.
+        /// </summary>
+        public static CollectibleObject GetPlacedByItem(this Block block, ICoreAPI api)
+        {
+            if (block.Attributes != null)
+            {
+                var redirect = block.Attributes["PlacedByItem"].AsString();
+                if (redirect != null)
+                {
+                    CollectibleObject placedByItem = api.World.GetBlock(redirect);
+                    placedByItem ??= api.World.GetItem(redirect);
+                    if (placedByItem != null) return placedByItem;
+                    
+                    api.GetService<ILogger>()?.Error($"[InsanityLib] Invalid PlacedByItem redirect {block.Code} -> {redirect}");
+                }
+            }
+
+            return block;
+        }
+
+        /// <summary>
+        /// Get the Block being placed by this CollectibleObject if any.
+        /// Allowes for using the "PlacedBlock" attribute to redirect.
+        /// </summary>
+        public static Block GetPlacedBlock(this CollectibleObject collectible, ICoreAPI api)
+        {
+            if (collectible.Attributes != null)
+            {
+                var redirect = collectible.Attributes["PlacedBlock"].AsString();
+                if (redirect != null)
+                {
+                    Block block = api.World.GetBlock(redirect);
+                    if (block != null) return block;
+                    
+                    api.GetService<ILogger>().Error($"[WearAndTear] Invalid PlacedBlock redirect {collectible.Code} -> {redirect}");
+                }
+            }
+
+            return collectible as Block;
+        }
+    }
+}
