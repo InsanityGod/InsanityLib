@@ -167,6 +167,8 @@ namespace InsanityLib.Util
             return false;
         }
 
+        public static void SetAutoDefaultValue(this MemberInfo member, IServiceProvider provider, object instance = null) => member.SetAutoDefaultValue(member.GetCustomAttribute<DefaultValueAttribute>(), instance, provider);
+
         //TODO method for just getting the auto default value (so we can use this on method parameters)
         public static void SetAutoDefaultValue(this MemberInfo member, DefaultValueAttribute defaultAttr, object instance, IServiceProvider provider)
         {

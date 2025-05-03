@@ -1,5 +1,4 @@
 ﻿using InsanityLib.Attributes.Auto;
-using InsanityLib.UI;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using System;
