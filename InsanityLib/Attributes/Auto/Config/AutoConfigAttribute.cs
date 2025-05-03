@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using InsanityLib.Constants;
+using InsanityLib.Enums.Auto.Config;
 using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,11 @@ namespace InsanityLib.Attributes.Auto.Config
         /// Whether the config should be automatically created if it does not exist yet.
         /// </summary>
         public bool CreateIfNotExist { get; init; } = true;
+
+        /// <summary>
+        /// Whether the config should get an automatically generated configlib implementation
+        /// </summary>
+        public EConfigLibMode ConfigLibMode { get; init; } = EConfigLibMode.Always;
 
         /// <summary>
         /// Whether the config file should be synced from server to client

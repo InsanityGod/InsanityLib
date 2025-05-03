@@ -1,9 +1,11 @@
-﻿using AutoConfigLib.Auto;
+﻿using InsanityLib.Config.Util;
+using ConfigLib;
 using HarmonyLib;
 using InsanityLib.Attributes.Auto;
 using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Config;
 using InsanityLib.Constants;
+using InsanityLib.Enums.Auto.Config;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -106,7 +108,7 @@ namespace InsanityLib.Util.AutoRegistry
                         if(value != null)
                         {
                             LoadedConfigs.Add(attr.Path, value);
-                            if(api.ModLoader.IsModEnabled("autoconfiglib")) RegisterToAutoConfigLib(api, value, attr.Path);
+                            if(api.ModLoader.IsModEnabled("configlib")) RegisterToConfigLib(api, value, attr);
 
                             if(InsanityLibConfig.Instance.AutoConfig.SaveOnLoad) StoreModConfig(api, value, attr.Path);
                         }
@@ -126,12 +128,32 @@ namespace InsanityLib.Util.AutoRegistry
             }
         }
 
-        private static void RegisterToAutoConfigLib(ICoreAPI api, object instance, string path)
+        private static void RegisterToConfigLib(ICoreAPI api, object instance, AutoConfigAttribute attr)
         {
-            AccessTools.Method(typeof(AutoConfigGenerator), nameof(AutoConfigGenerator.RegisterOrCollectConfigFile))
-                .MakeGenericMethod(instance.GetType())
-                .Invoke(null, new object[] { api, path, instance });
+            if (attr.ConfigLibMode == EConfigLibMode.Never) return;
+            if (attr.ConfigLibMode == EConfigLibMode.OnlyWithAutoConfigLib && !api.ModLoader.IsModEnabled("autoconfiglib")) return;
+            
+            var configLib = api.ModLoader.GetModSystem<ConfigLibModSystem>();
+
+            var config = new AutoConfigLib(api, instance, attr);
+            configLib.RegisterCustomConfig(config.Path, (string domain, ControlButtons buttons) =>
+            {
+                //TODO handle server and client difference
+                if(buttons.Save) config.Save();
+                if(buttons.Restore) config.Restore();
+                if(buttons.Defaults) config.Defaults();
+                if(buttons.Reload) config.Reload();
+
+                config.Render();
+            });
         }
+
+        //private static void RegisterToAutoConfigLib(ICoreAPI api, object instance, string path)
+        //{
+        //    AccessTools.Method(typeof(AutoConfigGenerator), nameof(AutoConfigGenerator.RegisterOrCollectConfigFile))
+        //        .MakeGenericMethod(instance.GetType())
+        //        .Invoke(null, new object[] { api, path, instance });
+        //}
 
         private static void ValidateAndFix(IServiceProvider provider, Type configType, ref object configInstance, AutoConfigAttribute configAttr)
         {
