@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 
@@ -49,10 +45,25 @@ namespace InsanityLib.Util
             return member.Name.ToHumanReadable();
         }
 
-        public static string GetRegistryName(this MemberInfo member, string domain = null)
+        public static readonly string[] RegistryAffixes = new string[]
+        {
+            "Item",
+            "Block",
+            "BlockEntity",
+            "Entity",
+            "Behavior",
+            "CollectibleBehavior",
+            "BlockBehavior",
+            "BlockEntityBehavior",
+            "TransitionHandler"
+        };
+
+        public static string GetRegistryName(this MemberInfo member, string domain = null, bool removeComminAffixes = false)
         {
             //TODO attributes
             var memberName = member.Name;
+
+            if(removeComminAffixes) foreach(var affix in RegistryAffixes) memberName = memberName.RemoveAffix(affix);
 
             if(!string.IsNullOrEmpty(domain)) return $"{domain}:{memberName}";
             return memberName;
@@ -86,5 +97,7 @@ namespace InsanityLib.Util
         }
 
         public static string RemoveSuffix(this string str, string suffix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(suffix) || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
+        public static string RemovePrefix(this string str, string prefix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(prefix) || !str.StartsWith(prefix) ? str : str[prefix.Length..];
+        public static string RemoveAffix(this string str, string affix) => str.RemovePrefix(affix).RemoveSuffix(affix);
     }
 }
