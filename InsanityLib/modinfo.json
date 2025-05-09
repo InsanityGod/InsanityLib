@@ -6,7 +6,7 @@
         "TheInsanityGod"
     ],
     "description": "Library with shared code for my other mods",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "dependencies": {
         "game": ""
     }

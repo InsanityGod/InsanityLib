@@ -108,18 +108,30 @@ namespace InsanityLib.Util
             _ => null,
         };
 
+        public static T TryGetCustomAttribute<T>(this MemberInfo member) where T : Attribute
+        {
+            try
+            {
+                return member.GetCustomAttribute<T>();
+            }
+            catch
+            {
+                return default;
+            }
+        }
+
         public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(BindingFlags? flags = null) where T : Attribute => AccessTools.AllTypes()
             .SelectMany(type => type.GetMembers(flags ?? AccessTools.all))
-            .Select(member => (member, member.GetCustomAttribute<T>()))
+            .Select(member => (member, member.TryGetCustomAttribute<T>()))
             .Where(pair => pair.Item2 != null);
 
         public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
             .GetMembers(flags ?? AccessTools.all)
-            .Select(member => (member, member.GetCustomAttribute<T>()))
+            .Select(member => (member, member.TryGetCustomAttribute<T>()))
             .Where(pair => pair.Item2 != null);
 
         public static IEnumerable<(Type, T)> FindAllClasses<T>() where T : Attribute => AccessTools.AllTypes()
-            .Select(type => (type, type.GetCustomAttribute<T>()))
+            .Select(type => (type, type.TryGetCustomAttribute<T>()))
             .Where(pair => pair.Item2 != null);
 
 
@@ -158,7 +170,7 @@ namespace InsanityLib.Util
 
             try
             {
-                var defaultAttr = member.GetCustomAttribute<DefaultValueAttribute>();
+                var defaultAttr = member.TryGetCustomAttribute<DefaultValueAttribute>();
                 member.SetAutoDefaultValue(defaultAttr, instance, provider);
                 return true;
             }
@@ -167,7 +179,7 @@ namespace InsanityLib.Util
             return false;
         }
 
-        public static void SetAutoDefaultValue(this MemberInfo member, IServiceProvider provider, object instance = null) => member.SetAutoDefaultValue(member.GetCustomAttribute<DefaultValueAttribute>(), instance, provider);
+        public static void SetAutoDefaultValue(this MemberInfo member, IServiceProvider provider, object instance = null) => member.SetAutoDefaultValue(member.TryGetCustomAttribute<DefaultValueAttribute>(), instance, provider);
 
         //TODO method for just getting the auto default value (so we can use this on method parameters)
         public static void SetAutoDefaultValue(this MemberInfo member, DefaultValueAttribute defaultAttr, object instance, IServiceProvider provider)
