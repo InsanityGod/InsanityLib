@@ -23,12 +23,12 @@ namespace InsanityLib.Util.AutoRegistry
     public static class AutoConfig
     {
         [AutoClear] //TODO move config tracking code to this library from AutoConfigLib
-        internal static Dictionary<string, object> LoadedConfigs { get; } = new();
+        internal static Dictionary<string, AutoConfigLib> LoadedConfigs { get; } = new();
 
         private static bool TryAssignFromCache(string path, MemberInfo member)
         {
             if(!LoadedConfigs.TryGetValue(path, out var value)) return false;
-            member.SetValue(value);
+            member.SetValue(value.ConfigInstance);
             return true;
         }
 
@@ -107,8 +107,7 @@ namespace InsanityLib.Util.AutoRegistry
                     {
                         if(value != null)
                         {
-                            LoadedConfigs.Add(attr.Path, value);
-                            if(api.ModLoader.IsModEnabled("configlib")) RegisterToConfigLib(api, value, attr);
+                            LoadedConfigs.Add(attr.Path, new AutoConfigLib(api, value, attr));
 
                             if(InsanityLibConfig.Instance.AutoConfig.SaveOnLoad) StoreModConfig(api, value, attr.Path);
                         }
@@ -126,16 +125,26 @@ namespace InsanityLib.Util.AutoRegistry
                     provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedDefaultTemplate, nameof(AutoConfigAttribute), attr.Path, ex);
                 }
             }
+
+            if(api is ICoreClientAPI) RegisterToConfigLib(api);
         }
 
-        private static void RegisterToConfigLib(ICoreAPI api, object instance, AutoConfigAttribute attr)
+        internal static void RegisterToConfigLib(ICoreAPI api)
         {
-            if (attr.ConfigLibMode == EConfigLibMode.Never) return;
-            if (attr.ConfigLibMode == EConfigLibMode.OnlyWithAutoConfigLib && !api.ModLoader.IsModEnabled("autoconfiglib")) return;
+            if(!api.ModLoader.IsModEnabled("configlib")) return;
+            foreach ((_, var config) in LoadedConfigs)
+            {
+                RegisterToConfigLib(api, config); //Seperate method to avoid crash when configlib is not present
+            }
+        }
+
+        private static void RegisterToConfigLib(ICoreAPI api, AutoConfigLib config)
+        {
+            if (config.ConfigLibMode == EConfigLibMode.Never) return;
+            if (config.ConfigLibMode == EConfigLibMode.OnlyWithAutoConfigLib && !api.ModLoader.IsModEnabled("autoconfiglib")) return;
             
             var configLib = api.ModLoader.GetModSystem<ConfigLibModSystem>();
 
-            var config = new AutoConfigLib(api, instance, attr);
             configLib.RegisterCustomConfig(config.Path, (string domain, ControlButtons buttons) =>
             {
                 //TODO handle server and client difference
@@ -147,13 +156,6 @@ namespace InsanityLib.Util.AutoRegistry
                 config.Render();
             });
         }
-
-        //private static void RegisterToAutoConfigLib(ICoreAPI api, object instance, string path)
-        //{
-        //    AccessTools.Method(typeof(AutoConfigGenerator), nameof(AutoConfigGenerator.RegisterOrCollectConfigFile))
-        //        .MakeGenericMethod(instance.GetType())
-        //        .Invoke(null, new object[] { api, path, instance });
-        //}
 
         private static void ValidateAndFix(IServiceProvider provider, Type configType, ref object configInstance, AutoConfigAttribute configAttr)
         {

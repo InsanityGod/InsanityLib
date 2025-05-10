@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using InsanityLib.Attributes.Auto.Config;
+using InsanityLib.Enums.Auto.Config;
 using InsanityLib.Interfaces.UI.ImGui;
 using InsanityLib.UI.ImGuiTools;
 using InsanityLib.UI.ImGuiTools.Composers;
@@ -39,12 +40,15 @@ namespace InsanityLib.Config.Util
         /// </summary>
         public readonly bool ServerSync;
 
+        public readonly EConfigLibMode ConfigLibMode;
+
         public AutoConfigLib(ICoreAPI api, object instance, AutoConfigAttribute attr)
         {
             Api = api;
             ConfigInstance = instance;
             Path = attr.Path;
             ServerSync = attr.ServerSync;
+            ConfigLibMode = attr.ConfigLibMode;
         }
 
         public bool Validate()
@@ -93,7 +97,7 @@ namespace InsanityLib.Config.Util
         {
             Restore();
             var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(EditConfigInstance)), id: Path);
-            Component = ImGuiComposer.TryCompose(context);
+            Component = ImGuiComposer.TryCompose(context, ConfigInstance.GetType());
         }
 
         private IImGuiComponent Component; //TODO disposal

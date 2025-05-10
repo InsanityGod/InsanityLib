@@ -20,7 +20,8 @@ namespace InsanityLib.UI.Composers.Complex
 
         public override void ComposeValueRenderer(GuiComposer composer, IDialogContext context, MemberInfo member, AssetLocation value)
         {
-            var strValue = value == null ? null : (value.HasDomain() ? value.ToString() : value.Path);
+            string strValue = null;
+            if (value != null) strValue = value.HasDomain() ? value.ToString() : value.Path;
             
             if (context.IsMemberEditable(member))
             {

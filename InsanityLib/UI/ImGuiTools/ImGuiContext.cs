@@ -33,10 +33,11 @@ namespace InsanityLib.UI.ImGuiTools
             TargetObject = targetObject;
             Member = member;
 
-            var idBuilder = new StringBuilder("##");
+            var idBuilder = new StringBuilder();
             if (parentContext != null)
             {
                 ParentContext = parentContext;
+                AllowedToWrite = ParentContext.AllowedToWrite;
 
                 idBuilder.Append(parentContext.Id);
                 idBuilder.Append('-');
@@ -48,9 +49,9 @@ namespace InsanityLib.UI.ImGuiTools
             AllowedToRead = Member.GetCustomAttribute<BrowsableAttribute>()?.Browsable != false;
             
             CanWrite = Member.CanSetValue();
-            AllowedToWrite = ParentContext.AllowedToWrite && Member.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly != true;
+            AllowedToWrite &= Member.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly != true;
 
-            Label = $"{name ?? Member.GetHumanReadableName()}{Id}";
+            Label = $"{name ?? Member.GetHumanReadableName()}##{Id}";
 
             var docs = Member.GetDocumentationContext();
 

@@ -19,7 +19,7 @@ namespace InsanityLib.Util
                 var prefix = $"{path.RemoveSuffix(".json")}/";
                 if(!prefix.TryRemoveFrom(ref uri)) continue;
 
-                if(!config.TryCrawl(uri, out var resolvedObj)) throw new InvalidOperationException("Could not find path");
+                if(!config.ConfigInstance.TryCrawl(uri, out var resolvedObj)) throw new InvalidOperationException("Could not find path");
                 return resolvedObj;
             }
 

@@ -13,7 +13,8 @@ namespace InsanityLib.UI.ImGuiTools.Composers
     {
         private readonly Dictionary<Type, Type> Renderers = new()
         {
-            { typeof(string), typeof(StringComponent) }
+            { typeof(string), typeof(StringComponent) },
+            { typeof(int), typeof(IntegerComponent) },
         };
 
         public bool CanComposeType(Type type) => Renderers.ContainsKey(type);

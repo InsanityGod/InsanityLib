@@ -20,9 +20,9 @@ namespace InsanityLib.UI.ImGuiTools
             new ValueComposer(),
         };
 
-        public static IImGuiComponent TryCompose(ImGuiContext context)
+        public static IImGuiComponent TryCompose(ImGuiContext context, Type type = null)
         {
-            var type = context.Member is MethodInfo ? typeof(MethodInfo) : context.Member.GetPrimaryType();
+            type ??= context.Member is MethodInfo ? typeof(MethodInfo) : context.Member.GetPrimaryType();
 
             return Composers.FirstOrDefault(composer => composer.CanComposeType(type))?.Compose(context, type);
         }

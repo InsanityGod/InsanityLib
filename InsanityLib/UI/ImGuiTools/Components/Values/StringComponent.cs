@@ -1,27 +1,17 @@
-﻿using AutoConfigLib;
-using ImGuiNET;
+﻿using ImGuiNET;
 using InsanityLib.Util;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InsanityLib.UI.ImGuiTools.Components.Values
 {
-    public class StringComponent : ValueComponentBase
+    public class StringComponent : ValueComponentBase<string>
     {
-        private string value;
-        public uint MaxStringLength { get; init; }
+        public uint MaxStringLength { get; init; } = 128;
+
         public StringComponent(ImGuiContext context) : base(context) 
         {
-            value = context.Member.GetValue(context.TargetObject).AutoConvert<string>();
-            
-            MaxStringLength = 128;
-            
             var stringLengthAttr = context.Member.GetCustomAttribute<StringLengthAttribute>();
             var maxLengthAttr = context.Member.GetCustomAttribute<MaxLengthAttribute>();
             
