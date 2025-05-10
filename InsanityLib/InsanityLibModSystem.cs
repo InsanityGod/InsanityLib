@@ -63,8 +63,5 @@ namespace InsanityLib
         {
             DisposalLogicAttribute.DisposeAll(ServiceContainer);
         }
-
-        //TODO allow for saving runtime added EntityBehaviors (so they survive reload)
-        //TODO expanded rooms
     }
 }
