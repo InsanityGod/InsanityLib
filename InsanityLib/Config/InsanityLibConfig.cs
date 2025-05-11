@@ -9,5 +9,9 @@ namespace InsanityLib.Config
         
         public AutoConfigConfig AutoConfig { get; set; } = new AutoConfigConfig();
 
+        public string Test { get; set; } = "world";
+
+        public int Num { get; set;}
+
     }
 }
