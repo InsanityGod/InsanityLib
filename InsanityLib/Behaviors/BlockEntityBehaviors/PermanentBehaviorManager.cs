@@ -34,10 +34,24 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
             }
         }
 
-        public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldAccessForResolve)
+        public bool RemoveBehavior(BlockEntityBehavior behavior)
         {
-            //TODO this should be injected in defaultFromTreeAttributes
+            var key = Behaviors
+                .Where(pair => pair.Value.Instance == behavior)
+                .Select(static pair => pair.Key)
+                .FirstOrDefault();
 
+            return key != null && RemoveBehavior(key);
+        }
+
+        public bool RemoveBehavior(string key)
+        {
+            if(Api.Side != EnumAppSide.Server) return false; //These can only be removed server side
+            return Behaviors.Remove(key);
+        }
+
+        public void UpdateBehaviorsFromTree(ITreeAttribute tree, IWorldAccessor worldAccessForResolve)
+        {
             var permanentBehaviorsTree = tree.GetTreeAttribute("permanent-behaviors");
             if (permanentBehaviorsTree == null) return;
 
@@ -51,7 +65,7 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
                 //TODO maybe have an interface for PermanentBehavior Events
             }
 
-            // Add or update behaviors that exist in the tree but not in the dictionary
+            // Add behaviors that exist in the tree but not in the dictionary
             foreach ((var key, var attr) in permanentBehaviorsTree)
             {
                 if (Behaviors.ContainsKey(key) || attr is not TreeAttribute behaviorTree) continue;
@@ -63,8 +77,7 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
                 {
                     if (worldAccessForResolve.ClassRegistry.GetBlockEntityBehaviorClass(name) == null)
                     {
-                        var pos = Blockentity.Pos;
-                        worldAccessForResolve.Api.GetService<ILogger>().Warning(Lang.Get("Failed to add permanent BlockEntityBehavior {0} for {1}", name, pos));
+                        worldAccessForResolve.Api.GetService<ILogger>().Warning(Lang.Get("Failed to add permanent BlockEntityBehavior {0} for {1}", name, Blockentity.Pos));
                         continue;
                     }
 
@@ -81,17 +94,14 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
                         Instance = blockEntityBehavior
                     });
                     Blockentity.Behaviors.Add(blockEntityBehavior);
+                    blockEntityBehavior.Initialize(worldAccessForResolve.Api, properties);
                 }
-                catch
+                catch(Exception ex)
                 {
-                    var pos = Blockentity.Pos;
-                    worldAccessForResolve.Api.GetService<ILogger>().Warning(Lang.Get("Failed to add permanent BlockEntityBehavior {0} for {1}", name, pos));
+                    worldAccessForResolve.Api.GetService<ILogger>().Error(Lang.Get("Failed to add permanent BlockEntityBehavior {0} for {1}, ex: {2}", name, Blockentity.Pos, ex));
                 }
             }
         }
-
-        //TODO add
-        //TODO remove
 
         public IEnumerator<BlockEntityBehavior> GetEnumerator() => Behaviors.Values.Select(context => context.Instance).GetEnumerator();
 

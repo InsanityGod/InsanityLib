@@ -2,12 +2,14 @@
 using InsanityLib.Attributes.Auto.Command;
 using InsanityLib.Enums.Auto.Commands;
 using InsanityLib.UI;
+using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 
 namespace InsanityLib.Commands
@@ -39,14 +41,31 @@ namespace InsanityLib.Commands
         /// <summary>
         /// Opens an AutoGui for the target block.
         /// </summary>
-        [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Block")]
+        [AutoCommand(RequiredPrivelege = "controlserver", Path = "InsanityLib/debug/AutoGui", Name = "Block")]
         public static void AutoGuiForBlock(ICoreClientAPI api, [CommandParameter(Source = EParamSource.CallerTarget)] [Required(ErrorMessage = "Not targeting a block")] Block block) => new AutoGuiDialog(api, block).TryOpen();
 
         /// <summary>
         /// Opens an AutoGui for the target item.
         /// </summary>
-        [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Item")]
+        [AutoCommand(RequiredPrivelege = "controlserver", Path = "InsanityLib/debug/AutoGui", Name = "Item")]
         public static void AutoGuiForItem(ICoreClientAPI api, [CommandParameter(Source = EParamSource.Caller)] CollectibleObject collectible) => new AutoGuiDialog(api, collectible).TryOpen();
+
+        /// <summary>
+        /// Add behavior to specified block
+        /// </summary>
+        [AutoCommand(RequiredPrivelege = "controlserver", Path = "InsanityLib/debug/Behaviors", Name = "Add")]
+        public static bool AddPermantentBehavior(ICoreServerAPI api, [CommandParameter(Source = EParamSource.CallerTarget)] [Required(ErrorMessage = "Not targeting a valid position")] BlockPos pos, [CommandParameter(Source = EParamSource.Specify)] string behavior)
+        {
+            var accessor = api.World.BlockAccessor;
+            var entity = accessor.GetBlockEntity(pos);
+            if(entity == null)
+            {
+                accessor.SpawnBlockEntity("Generic", pos);
+                entity = accessor.GetBlockEntity(pos);
+            }
+
+            return entity?.TryAddPermanentbehavior(behavior) != null;
+        }
         
         #endif
     }
