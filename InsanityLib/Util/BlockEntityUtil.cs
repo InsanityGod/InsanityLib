@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Behaviors.BlockEntityBehaviors;
 using InsanityLib.Contexts;
+using InsanityLib.Interfaces;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
@@ -51,7 +52,9 @@ namespace InsanityLib.Util
                     Instance = blockEntityBehavior
                 });
                 blockEntity.Behaviors.Add(blockEntityBehavior);
+                blockEntityBehavior.properties = properties;
                 blockEntityBehavior.Initialize(blockEntity.Api, properties);
+                if(blockEntityBehavior is IPermanentBehavior permanentBehavior) permanentBehavior.OnRuntimeAdded();
                 blockEntity.MarkDirty();
 
                 return blockEntityBehavior;

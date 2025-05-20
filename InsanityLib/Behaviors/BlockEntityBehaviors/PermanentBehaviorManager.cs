@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Contexts;
+using InsanityLib.Interfaces;
 using InsanityLib.Util;
 using Newtonsoft.Json.Linq;
 using System;
@@ -14,6 +15,7 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
 {
     public class PermanentBehaviorManager : BlockEntityBehavior, IEnumerable<BlockEntityBehavior>
     {
+        public const string PermanentBehaviorTreeKey = "permanent-behaviors";
         public PermanentBehaviorManager(BlockEntity blockentity) : base(blockentity)
         {
         }
@@ -22,7 +24,7 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
 
         public override void ToTreeAttributes(ITreeAttribute tree)
         {
-            var permanentBehaviorsTree = tree.GetOrAddTreeAttribute("permanent-behaviors");
+            var permanentBehaviorsTree = tree.GetOrAddTreeAttribute(PermanentBehaviorTreeKey);
 
             foreach((var key, var behavior) in Behaviors)
             {
@@ -34,35 +36,39 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
             }
         }
 
-        public bool RemoveBehavior(BlockEntityBehavior behavior)
-        {
-            var key = Behaviors
-                .Where(pair => pair.Value.Instance == behavior)
+        public string GetId(BlockEntityBehavior permanentBehavior) => Behaviors
+                .Where(pair => pair.Value.Instance == permanentBehavior)
                 .Select(static pair => pair.Key)
                 .FirstOrDefault();
 
-            return key != null && RemoveBehavior(key);
-        }
+        public bool RemoveBehavior(BlockEntityBehavior behavior) => RemoveBehavior(GetId(behavior));
 
         public bool RemoveBehavior(string key)
         {
-            if(Api.Side != EnumAppSide.Server) return false; //These can only be removed server side
-            return Behaviors.Remove(key);
+            if(Api.Side != EnumAppSide.Server) return false; //These can only be removed like this server side
+            if (Behaviors.TryGetValue(key, out var blockEntityBehavior))
+            {
+                if(blockEntityBehavior is IPermanentBehavior permanentBehavior) permanentBehavior.OnRuntimeRemoved();
+                if(blockEntityBehavior is IDisposable disposable) disposable.Dispose();
+                return Behaviors.Remove(key);
+            }
+            return false;
         }
-
+        
         public void UpdateBehaviorsFromTree(ITreeAttribute tree, IWorldAccessor worldAccessForResolve)
         {
-            var permanentBehaviorsTree = tree.GetTreeAttribute("permanent-behaviors");
+            var permanentBehaviorsTree = tree.GetTreeAttribute(PermanentBehaviorTreeKey);
             if (permanentBehaviorsTree == null) return;
 
             // Remove behaviors that no longer exist in the tree
             var keysToRemove = Behaviors.Keys.Where(key => !permanentBehaviorsTree.HasAttribute(key)).ToList();
             foreach (var key in keysToRemove)
             {
-                var behavior = Behaviors[key].Instance;
+                var blockEntityBehavior = Behaviors[key].Instance;
+                if(blockEntityBehavior is IPermanentBehavior permanentBehavior) permanentBehavior.OnRuntimeRemoved();
+                if(blockEntityBehavior is IDisposable disposable) disposable.Dispose();
                 Behaviors.Remove(key);
-                Blockentity.Behaviors.Remove(behavior);
-                //TODO maybe have an interface for PermanentBehavior Events
+                Blockentity.Behaviors.Remove(blockEntityBehavior);
             }
 
             // Add behaviors that exist in the tree but not in the dictionary
@@ -94,7 +100,14 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
                         Instance = blockEntityBehavior
                     });
                     Blockentity.Behaviors.Add(blockEntityBehavior);
-                    blockEntityBehavior.Initialize(worldAccessForResolve.Api, properties);
+                    blockEntityBehavior.properties = properties;
+
+                    //If the BlockEntity doesn't have the API yet then that means we are loading the world (and this will get called automatically later)
+                    if (Blockentity.Api != null)
+                    {
+                        blockEntityBehavior.Initialize(worldAccessForResolve.Api, properties);
+                        if(blockEntityBehavior is IPermanentBehavior permanentBehavior) permanentBehavior.OnRuntimeAdded();
+                    }
                 }
                 catch(Exception ex)
                 {
