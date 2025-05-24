@@ -1,16 +1,11 @@
 ﻿using HarmonyLib;
 using InsanityLib.Attributes.Auto;
-using InsanityLib.Interfaces.UI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
-using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using Vintagestory.API.Server;
-using Vintagestory.ServerMods;
 
 namespace InsanityLib.Util
 {
@@ -318,6 +313,15 @@ namespace InsanityLib.Util
 
             result = current;
             return true;
+        }
+
+        public static int GetRandom<T>(bool allowExtendedValues = false, Random random = null) where T : Enum
+        {
+            if(allowExtendedValues) throw new NotImplementedException("random values do not support extended values yet"); //TODO
+            random ??= Random.Shared;
+            
+            var valid = Enum.GetValues(typeof(T));
+            return (int)valid.GetValue(random.Next(valid.Length));
         }
     }
 }
