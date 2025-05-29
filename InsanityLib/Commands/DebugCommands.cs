@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Algorithm;
 using InsanityLib.Attributes.Auto.Command;
+using InsanityLib.Behaviors.BlockEntityBehaviors;
 using InsanityLib.Enums.Auto.Commands;
 using InsanityLib.UI;
 using InsanityLib.Util;
@@ -41,19 +42,21 @@ namespace InsanityLib.Commands
         /// <summary>
         /// Opens an AutoGui for the target block.
         /// </summary>
-        [AutoCommand(RequiredPrivelege = "controlserver", Path = "InsanityLib/debug/AutoGui", Name = "Block")]
+        [AutoCommand(RequiredPrivelege = "controlserver", Path = "insanitylib/debug/autogui", Name = "block")]
         public static void AutoGuiForBlock(ICoreClientAPI api, [CommandParameter(Source = EParamSource.CallerTarget)] [Required(ErrorMessage = "Not targeting a block")] Block block) => new AutoGuiDialog(api, block).TryOpen();
 
         /// <summary>
         /// Opens an AutoGui for the target item.
         /// </summary>
-        [AutoCommand(RequiredPrivelege = "controlserver", Path = "InsanityLib/debug/AutoGui", Name = "Item")]
+        [AutoCommand(RequiredPrivelege = "controlserver", Path = "insanitylib/debug/autogui", Name = "item")]
         public static void AutoGuiForItem(ICoreClientAPI api, [CommandParameter(Source = EParamSource.Caller)] CollectibleObject collectible) => new AutoGuiDialog(api, collectible).TryOpen();
+        
+        #endif
 
         /// <summary>
-        /// Add behavior to specified block
+        /// Adds blockentity behavior to block
         /// </summary>
-        [AutoCommand(RequiredPrivelege = "controlserver", Path = "InsanityLib/debug/Behaviors", Name = "Add")]
+        [AutoCommand(RequiredPrivelege = "controlserver", Path = "insanitylib/debug/behavior", Name = "add")]
         public static bool AddPermantentBehavior(ICoreServerAPI api, [CommandParameter(Source = EParamSource.CallerTarget)] [Required(ErrorMessage = "Not targeting a valid position")] BlockPos pos, [CommandParameter(Source = EParamSource.Specify)] string behavior)
         {
             var accessor = api.World.BlockAccessor;
@@ -66,7 +69,20 @@ namespace InsanityLib.Commands
 
             return entity?.TryAddPermanentbehavior(behavior) != null;
         }
-        
-        #endif
+
+        /// <summary>
+        /// Removes all permanent block entity behaviors from block
+        /// </summary>
+        [AutoCommand(RequiredPrivelege = "controlserver", Path = "insanitylib/debug/behavior", Name = "clear", Side = EnumAppSide.Server)]
+        public static string ClearPermantentBehavior([CommandParameter(Source = EParamSource.CallerTarget)][Required(ErrorMessage = "Not targeting a blockentity")] BlockEntity blockEntity)
+        {
+            var manager = blockEntity.GetBehavior<PermanentBehaviorManager>();
+            if(manager == null) return "Blockentity does not have any permanent behaviors";
+            
+            var toRemove = manager.Behaviors.Keys.ToList();
+            foreach(var behavior in toRemove) manager.RemoveBehavior(behavior);
+
+            return $"Removed {toRemove.Count} behaviors";
+        }
     }
 }

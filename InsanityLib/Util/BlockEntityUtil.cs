@@ -18,6 +18,7 @@ namespace InsanityLib.Util
             if (manager == null)
             {
                 manager = new PermanentBehaviorManager(blockEntity);
+                manager.Initialize(blockEntity.Api, new JsonObject(new JObject()));
                 blockEntity.Behaviors.Add(manager);
             }
             return manager;

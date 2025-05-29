@@ -43,16 +43,20 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
 
         public bool RemoveBehavior(BlockEntityBehavior behavior) => RemoveBehavior(GetId(behavior));
 
-        public bool RemoveBehavior(string key)
+        public bool RemoveBehavior(string key) => Api.Side == EnumAppSide.Server && Remove(key);
+
+        private bool Remove(string key)
         {
-            if(Api.Side != EnumAppSide.Server) return false; //These can only be removed like this server side
-            if (Behaviors.TryGetValue(key, out var blockEntityBehavior))
-            {
-                if(blockEntityBehavior is IPermanentBehavior permanentBehavior) permanentBehavior.OnRuntimeRemoved();
-                if(blockEntityBehavior is IDisposable disposable) disposable.Dispose();
-                return Behaviors.Remove(key);
-            }
-            return false;
+            if(!Behaviors.TryGetValue(key, out var context)) return false;
+            var blockEntityBehavior = context.Instance;
+
+            if(blockEntityBehavior == null) return false;
+            if(blockEntityBehavior is IPermanentBehavior permanentBehavior) permanentBehavior.OnRuntimeRemoved();
+            if(blockEntityBehavior is IDisposable disposable) disposable.Dispose();
+            Behaviors.Remove(key);
+            Blockentity.Behaviors.Remove(blockEntityBehavior);
+            Blockentity.MarkDirty();
+            return true;
         }
         
         public void UpdateBehaviorsFromTree(ITreeAttribute tree, IWorldAccessor worldAccessForResolve)
@@ -62,14 +66,7 @@ namespace InsanityLib.Behaviors.BlockEntityBehaviors
 
             // Remove behaviors that no longer exist in the tree
             var keysToRemove = Behaviors.Keys.Where(key => !permanentBehaviorsTree.HasAttribute(key)).ToList();
-            foreach (var key in keysToRemove)
-            {
-                var blockEntityBehavior = Behaviors[key].Instance;
-                if(blockEntityBehavior is IPermanentBehavior permanentBehavior) permanentBehavior.OnRuntimeRemoved();
-                if(blockEntityBehavior is IDisposable disposable) disposable.Dispose();
-                Behaviors.Remove(key);
-                Blockentity.Behaviors.Remove(blockEntityBehavior);
-            }
+            foreach (var key in keysToRemove) Remove(key);
 
             // Add behaviors that exist in the tree but not in the dictionary
             foreach ((var key, var attr) in permanentBehaviorsTree)
