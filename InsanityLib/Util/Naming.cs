@@ -22,7 +22,7 @@ namespace InsanityLib.Util
 
             for (int i = 1; i < str.Length; i++)
             {
-                if (char.IsUpper(str[i]) && str[i - 1] != ' ')
+                if (char.IsUpper(str[i]) && !char.IsUpper(str[i - 1]) && str[i - 1] != ' ')
                 {
                     newText.Append(' ');
                 }
