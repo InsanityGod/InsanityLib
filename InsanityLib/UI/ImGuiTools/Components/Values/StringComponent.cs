@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using InsanityLib.Util;
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
@@ -20,11 +21,17 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
             else if(maxLengthAttr != null) MaxStringLength = (uint)maxLengthAttr.Length;
         }
 
+        protected override void OnValueChanged(object sender, PropertyChangedEventArgs args)
+        {
+            base.OnValueChanged(sender, args);
+            value ??= string.Empty;
+        }
+
         public override void RenderValue()
         {
             if(ImGui.InputText(Context.Label, ref value, MaxStringLength))
             {
-                OnValueChanged(value);
+                Context.TryAutoSetValue(value, this);
             }
         }
     }

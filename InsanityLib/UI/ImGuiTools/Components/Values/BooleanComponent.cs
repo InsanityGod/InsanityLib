@@ -10,15 +10,15 @@ using VSImGui;
 
 namespace InsanityLib.UI.ImGuiTools.Components.Values
 {
-    public class IntegerComponent : ValueComponentBase<int>
+    public class BooleanComponent : ValueComponentBase<bool>
     {
-        public IntegerComponent(ImGuiContext context) : base(context)
+        public BooleanComponent(ImGuiContext context) : base(context)
         {
         }
 
         public override void RenderValue()
         {
-            if(ImGui.DragInt(Context.Label, ref value))
+            if(ImGui.Checkbox(Context.Label, ref value))
             {
                 Context.TryAutoSetValue(value, this);
             }

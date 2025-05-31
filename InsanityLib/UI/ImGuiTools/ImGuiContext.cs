@@ -55,7 +55,7 @@ namespace InsanityLib.UI.ImGuiTools
 
             var docs = Member.GetDocumentationContext();
 
-            Description = docs.GetDescription();
+            Description = docs.GetExtendedDescription().ReplaceSpecialSymbolsWithText(); //TODO maybe some way to repsect display format when using it for ImGui (so 0.3 shows up as 30%)
             if (string.IsNullOrWhiteSpace(Description)) Description = null;
         }
 
@@ -64,6 +64,12 @@ namespace InsanityLib.UI.ImGuiTools
         public readonly bool CanWrite;
         public readonly bool AllowedToWrite = true;
 
+        public PropertyChangedEventHandler PropertyChanged { get; set; }
+
+        public void NotifyChanged(object sender) => PropertyChanged?.Invoke(sender, new PropertyChangedEventArgs(Member.Name));
+
+
+        //TODO methods bellow
         public bool TryGetValue(out object value)
         {
             value = null;
@@ -79,12 +85,28 @@ namespace InsanityLib.UI.ImGuiTools
             }
         }
 
-        public bool TrySetValue(object value)
+        public bool TrySetValue(object value, object ChangedBy)
         {
             if(!CanWrite) return false;
             try
             {
                 Member.SetValue(value, TargetObject);
+                NotifyChanged(ChangedBy);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool TryAutoSetValue(object value, object ChangedBy)
+        {
+            if(!CanWrite) return false;
+            try
+            {
+                if(!Member.TryAutoSetValue(value, TargetObject)) return false;
+                NotifyChanged(ChangedBy);
                 return true;
             }
             catch

@@ -1,18 +1,13 @@
 ﻿using HarmonyLib;
+using ImGuiNET;
 using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Enums.Auto.Config;
 using InsanityLib.Interfaces.UI.ImGui;
 using InsanityLib.UI.ImGuiTools;
-using InsanityLib.UI.ImGuiTools.Composers;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using YamlDotNet.Core.Tokens;
-using YamlDotNet.Serialization;
 
 namespace InsanityLib.Config.Util
 {
@@ -87,7 +82,7 @@ namespace InsanityLib.Config.Util
         /// </summary>
         public void Reload()
         {
-            
+
         }
 
         /// <summary>
@@ -95,26 +90,35 @@ namespace InsanityLib.Config.Util
         /// </summary>
         public void ReCompose()
         {
-            Restore();
-            var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(EditConfigInstance)), id: Path);
-            Component = ImGuiComposer.TryCompose(context, ConfigInstance.GetType());
+            try
+            {
+                Restore();
+                var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(EditConfigInstance)), id: Path);
+                Component = ImGuiComposer.TryCompose(context, ConfigInstance.GetType());
+            }
+            catch(Exception ex)
+            {
+                ComposeError = ex.ToString();
+            }
         }
-
-        private IImGuiComponent Component; //TODO disposal
+        public string ComposeError { get; private set; }
         
+        private IImGuiComponent Component; //TODO disposal
+
         /// <summary>
         /// Render the config
         /// </summary>
         public void Render()
         {
-            if(Component == null)
+            if(!string.IsNullOrEmpty(ComposeError))
             {
-                ReCompose();
+                ImGui.Text(ComposeError);
+                return;
             }
-            else
-            {
-                Component.SafeRender();
-            }
+            
+            if (Component == null) ReCompose();
+
+            Component?.SafeRender();
         }
     }
 }

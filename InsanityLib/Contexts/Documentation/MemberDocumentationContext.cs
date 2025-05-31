@@ -26,13 +26,13 @@ namespace InsanityLib.Contexts.Documentation
                 var summaryNode = MemberNode.SelectSingleNode("summary");
                 if (summaryNode != null)
                 {
-                    var summaryStr = summaryNode.InnerText.Trim(Naming.TrimCharacters);
+                    var summaryStr = summaryNode.InnerText.CleanWhiteSpaces();
                     if(!string.IsNullOrEmpty(summaryStr)) return summaryStr;
                 }
             }
 
             var attr = Member.GetCustomAttribute<DescriptionAttribute>();
-            return attr?.Description.Trim(Naming.TrimCharacters) ?? string.Empty;
+            return attr?.Description.CleanWhiteSpaces() ?? string.Empty;
         }
 
         public string[] GetExamples()
@@ -46,7 +46,7 @@ namespace InsanityLib.Contexts.Documentation
 
                     foreach (XmlNode exampleNode in exampleNodes)
                     {
-                        var exampleStr = exampleNode.InnerText.Trim(Naming.TrimCharacters);
+                        var exampleStr = exampleNode.InnerText.CleanWhiteSpaces();
                         if (!string.IsNullOrEmpty(exampleStr)) exampleStrings.Add(exampleStr);
                     }
 
@@ -64,7 +64,7 @@ namespace InsanityLib.Contexts.Documentation
                 var returnNode = MemberNode.SelectSingleNode("returns");
                 if (returnNode != null)
                 {
-                    var returnStr = returnNode.InnerText.Trim(Naming.TrimCharacters);
+                    var returnStr = returnNode.InnerText.CleanWhiteSpaces();
                     if(!string.IsNullOrEmpty(returnStr)) return returnStr;
                 }
             }
@@ -83,13 +83,13 @@ namespace InsanityLib.Contexts.Documentation
 
             var validatorAttributes = Member.GetCustomAttributes<ValidationAttribute>().ToArray();
 
-            var primaryTye = Member.GetPrimaryType();
-            if (primaryTye.IsEnum)
+            var primaryType = Member.GetPrimaryType();
+            if (primaryType.IsEnum)
             {
-                var isEnumFlag = primaryTye.GetCustomAttribute<FlagsAttribute>() != null;
+                var isEnumFlag = primaryType.GetCustomAttribute<FlagsAttribute>() != null;
                 if (isEnumFlag) description.Append("Valid Values (Combination): ");
                 else description.Append("Valid Values: ");
-                var parser = new EnumNameValueMapping(primaryTye);
+                var parser = new EnumNameValueMapping(primaryType);
                 description.AppendLine(parser.GetDescriptionStrings());
                 if(validatorAttributes.Length > 0) description.AppendLine();
             }
@@ -131,7 +131,7 @@ namespace InsanityLib.Contexts.Documentation
                 //TODO interface for custom attribute messages
             }
 
-            return description.ToString().Trim(Naming.TrimCharacters);
+            return description.ToString().CleanWhiteSpaces();
         }
     }
 }

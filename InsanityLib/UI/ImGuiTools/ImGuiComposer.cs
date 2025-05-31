@@ -16,8 +16,9 @@ namespace InsanityLib.UI.ImGuiTools
     {
         public static ICollection<IImGuiComposer> Composers { get; } = new List<IImGuiComposer>()
         {
-            new ClassComposer(),
+            new EnumerableComposer(),
             new ValueComposer(),
+            new ClassComposer(),
         };
 
         public static IImGuiComponent TryCompose(ImGuiContext context, Type type = null)

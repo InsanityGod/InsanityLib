@@ -24,7 +24,7 @@ namespace InsanityLib.Util
         // Backing field name pattern: "<PropertyName>k__BackingField"
         public static bool IsBackingField(this MemberInfo field) => field.Name.StartsWith('<') && field.Name.Contains("k__BackingField");
         
-        public static bool IsComplexClassType(this Type type) => !type.IsValueType && type != typeof(string) && type != typeof(Delegate);
+        public static bool IsComplexClassType(this Type type) => !type.IsValueType && type != typeof(string) && type != typeof(Delegate) && !typeof(MethodBase).IsAssignableFrom(type);
 
         public static bool IsStatic(this MemberInfo info) => info switch
         {

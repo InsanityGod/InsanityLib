@@ -34,11 +34,6 @@ namespace InsanityLib.UI.ImGuiTools.Components
             }
         }
 
-        public virtual void OnValueChanged(object newValue)
-        {
-            //TODO
-        }
-
         public virtual void OnError(object error)
         {
             if (HandleError(error)) return;

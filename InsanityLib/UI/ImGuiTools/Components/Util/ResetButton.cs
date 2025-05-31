@@ -37,6 +37,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                 try
                 {
                     Context.Member.SetAutoDefaultValue(Context, Context.TargetObject);
+                    Context.ParentContext.NotifyChanged(this); //Reset button has a sperate context, we should notify the parent context instead
                 }
                 catch(Exception ex)
                 {

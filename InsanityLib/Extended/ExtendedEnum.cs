@@ -12,7 +12,7 @@ namespace InsanityLib.Extended
     {
         public Type EnumType { get; }
 
-        protected readonly OrderedDictionary<object, int> OffsetLookup = new();
+        internal readonly OrderedDictionary<object, int> OffsetLookup = new();
         protected int currentOffset;
 
         public ExtendedEnum(Type enumType)

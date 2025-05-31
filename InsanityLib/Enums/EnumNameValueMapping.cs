@@ -5,22 +5,68 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Vintagestory.API.Util;
 
 namespace InsanityLib.Enums
 {
     public class EnumNameValueMapping
     {
+
         //TODO extended enum support
-        public EnumNameValueMapping(Type enumType)
+
+        //TODO make enums in configs load/save as string instead of number
+        public EnumNameValueMapping(Type enumType, bool includeExtended = true)
         {
             EnumType = enumType;
-            //TODO filter out Enum values that represent more then 1 flag
+            IsEnumFlag = enumType.GetCustomAttribute<FlagsAttribute>() != null;
+            
+
             StrValues = Enum.GetNames(enumType);
+            
             Names = Enum.GetNames(enumType)
                 .Select(Naming.ToHumanReadable)
                 .ToArray();
 
-            IsEnumFlag = enumType.GetCustomAttribute<FlagsAttribute>() != null;
+            IntValues = enumType.GetEnumValues()
+                .Cast<int>()
+                .ToArray();
+
+            if (includeExtended && EnumExtensionUtil.EnumExtensions.TryGetValue(enumType, out var extension))
+            {
+                foreach((var value, var offset) in extension.OffsetLookup)
+                {
+                    if(value is string singleRegistry)
+                    {
+                        var code = singleRegistry.ToAssetLocation(); //TODO maybe an option to include domain between brackets
+                        
+                        StrValues = StrValues.Append(singleRegistry);
+                        Names = Names.Append(code.Path.ToHumanReadable());
+
+                        IntValues = IntValues.Append(offset);
+                        continue;
+                    }
+
+                    if(value is not Type enumExtensionType || !enumExtensionType.IsEnum) continue;
+
+                    StrValues = StrValues.Append(
+                        Enum.GetNames(enumExtensionType)
+                    );
+                    
+                    Names = Names.Append(
+                        Enum.GetNames(enumExtensionType)
+                            .Select(Naming.ToHumanReadable)
+                    );
+
+                    IntValues = IntValues.Append(
+                        enumExtensionType.GetEnumValues()
+                            .Cast<int>()
+                    );
+
+                }
+            }
+
+
+            //TODO filter out Enum values that represent more then 1 flag
         }
 
         public string[] GetStringValues(object value)
@@ -40,9 +86,28 @@ namespace InsanityLib.Enums
 
             for(var i = 0; i < StrValues.Length; i++)
             {
-                builder.Append($"{Names[i]} ({(int)Enum.Parse(EnumType, StrValues[i])})");
+                builder.Append($"{Names[i]} ({IntValues[i]})");
 
                 if(i != StrValues.Length - 1) builder.Append(", ");
+            }
+
+            return builder.ToString();
+        }
+
+        public string GetDisplayString(int value)
+        {
+            if (!IsEnumFlag) return Names[IntValues.IndexOf(value)];
+            var builder = new StringBuilder();
+
+            for(var i = 0; i < IntValues.Length; i++)
+            {
+                if((value & IntValues[i]) != 0)
+                {
+                    //Enum flag is active
+
+                    if(builder.Length > 0) builder.Append(", ");
+                    builder.Append(Names[i]);
+                }
             }
 
             return builder.ToString();

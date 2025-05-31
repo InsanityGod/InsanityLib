@@ -16,6 +16,5 @@ namespace InsanityLib.Interfaces.UI.ImGui
         public void Render();
 
         void OnError(object error);
-        void OnValueChanged(object newValue);
     }
 }

@@ -17,7 +17,7 @@ namespace InsanityLib.Config
 
         /// <summary>
         /// If enabled the config will be saved to disk again right after loading.
-        /// This helps ensure that newly added properties, auto corrections, documentation, enz. are saved to disk.
+        /// This helps ensure that newly added properties, auto corrections, documentation, etc. are saved to disk.
         /// </summary>
         [DefaultValue(true)]
         public bool SaveOnLoad { get; set; } = true;

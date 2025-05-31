@@ -16,6 +16,7 @@ namespace InsanityLib.UI.ImGuiTools.Composers
 
         public IImGuiComponent Compose(ImGuiContext context, Type type)
         {
+            if(!context.TryGetValue(out var classInstance) || classInstance == null) return null;
 
             var container = new ComponentCollection(context);
 
@@ -23,10 +24,6 @@ namespace InsanityLib.UI.ImGuiTools.Composers
             {
                 if(member.DeclaringType == typeof(object)) continue;
                 if(member is not PropertyInfo && member is not FieldInfo && member is not MethodInfo) continue;
-                if(member is MethodInfo method && (method.IsBackingField() || Array.Exists(
-                    type.GetProperties(),
-                    prop => prop.GetGetMethod() == method || prop.GetSetMethod() == method //Ensure it's not a getter/setter
-                ))) continue;
 
                 var memberContext = context.New(member.Name, member);
 

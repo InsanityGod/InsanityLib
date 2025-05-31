@@ -15,13 +15,24 @@ namespace InsanityLib.UI.ImGuiTools.Composers
         {
             { typeof(string), typeof(StringComponent) },
             { typeof(int), typeof(IntegerComponent) },
+            { typeof(bool), typeof(BooleanComponent) },
+            { typeof(float), typeof(FloatComponent) },
+            { typeof(double), typeof(DoubleComponent) },
+            //TODO assetlocation
         };
 
-        public bool CanComposeType(Type type) => Renderers.ContainsKey(type);
+        public bool CanComposeType(Type type) => Renderers.ContainsKey(type) || type.IsEnum;
 
         public IImGuiComponent Compose(ImGuiContext context, Type type)
         {
-            var componentType = Renderers[type];
+            Type componentType = null;
+            
+            if (type.IsEnum)
+            {
+                componentType = typeof(EnumComponent);
+            }
+            
+            componentType ??= Renderers[type];
 
             try
             {

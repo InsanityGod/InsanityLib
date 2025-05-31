@@ -1,9 +1,19 @@
 ﻿using ImGuiNET;
 using InsanityLib.UI.ImGuiTools.Components.Util;
 using InsanityLib.Util;
+using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Drawing;
+using System.Linq;
+using System.Numerics;
+using System.Reflection;
+using System.Text;
+using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Server;
 using VSImGui;
-using YamlDotNet.Core.Tokens;
 
+#pragma warning disable S1699 // Constructors should only call non-overridable methods
 namespace InsanityLib.UI.ImGuiTools.Components
 {
     public abstract class ValueComponentBase<T> : ValueComponentBase
@@ -13,7 +23,14 @@ namespace InsanityLib.UI.ImGuiTools.Components
 
         protected ValueComponentBase(ImGuiContext context) : base(context)
         {
-            value = context.Member.GetValue(context.TargetObject).AutoConvert<T>();
+            OnValueChanged(this, new PropertyChangedEventArgs(Context.Member.Name));
+            context.PropertyChanged += OnValueChanged;
+        }
+
+        protected virtual void OnValueChanged(object sender, PropertyChangedEventArgs args)
+        {
+            value = Context.Member.GetValue(Context.TargetObject).AutoConvert<T>();
+            Validate();
         }
     }
 
@@ -23,8 +40,52 @@ namespace InsanityLib.UI.ImGuiTools.Components
 
         protected ValueComponentBase(ImGuiContext context) : base(context)
         {
+            ValidationAttributes = context.Member.GetCustomAttributes<ValidationAttribute>().ToArray();
+
+            ValidationContext = new(context.TargetObject)
+            {
+                MemberName = context.Member.Name,
+            };
+
             ResetButton = ResetButton.TryCreate(context);
         }
+
+        #region validation
+        public static Vector4 ValidationColor { get; } = new(Color.Red.R, Color.Red.G, Color.Red.B, Color.Red.A); //TODO config
+        
+        public ValidationContext ValidationContext { get; }
+
+        public ValidationAttribute[] ValidationAttributes { get; }
+
+        public string LastValidationResult { get; protected set; }
+        
+        public virtual bool Validate()
+        {
+            if (ValidationAttributes.Length == 0) return true;
+            if(!Context.TryGetValue(out var value)) return false;
+            
+            var builder = new StringBuilder();
+
+            foreach (var attribute in ValidationAttributes)
+            {
+                var result = attribute.GetValidationResult(value, ValidationContext);
+                if(result != ValidationResult.Success)
+                {
+                    if(builder.Length > 0) builder.Append(Environment.NewLine);
+                    builder.Append(result.ToString());
+                }
+            }
+            
+            if(builder.Length > 0)
+            {
+                LastValidationResult = builder.ToString().ReplaceSpecialSymbolsWithText();
+                return false;
+            }
+
+            LastValidationResult = null;
+            return true;
+        }
+        #endregion validation
 
         public abstract void RenderValue();
 
@@ -46,6 +107,8 @@ namespace InsanityLib.UI.ImGuiTools.Components
             if(Context.Description != null) Editors.DrawHint(Context.Description);
             
             if(!Context.AllowedToWrite) ImGui.EndDisabled();
+            
+            if(!string.IsNullOrEmpty(LastValidationResult)) ImGui.TextColored(ValidationColor, LastValidationResult);
         }
     }
 }
