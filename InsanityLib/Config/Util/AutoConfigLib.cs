@@ -1,9 +1,12 @@
 ﻿using HarmonyLib;
 using ImGuiNET;
 using InsanityLib.Attributes.Auto.Config;
+using InsanityLib.Attributes.Auto.Config.UI;
 using InsanityLib.Enums.Auto.Config;
+using InsanityLib.Enums.Auto.Config.UI;
 using InsanityLib.Interfaces.UI.ImGui;
 using InsanityLib.UI.ImGuiTools;
+using InsanityLib.Util;
 using Newtonsoft.Json;
 using System;
 using Vintagestory.API.Common;
@@ -21,6 +24,7 @@ namespace InsanityLib.Config.Util
         /// <summary>
         /// A copy of the config instance, to which we apply edits
         /// </summary>
+        [ConfigDisplay(Hierarchy = EHierarchyDisplay.None)]
         public object EditConfigInstance { get; set; } //TODO disposal
 
         public readonly ICoreAPI Api;
@@ -93,7 +97,7 @@ namespace InsanityLib.Config.Util
             try
             {
                 Restore();
-                var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(EditConfigInstance)), id: Path);
+                var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(EditConfigInstance)), id: Path, serviceProvider: Api.GetServiceContainer());
                 Component = ImGuiComposer.TryCompose(context, ConfigInstance.GetType());
             }
             catch(Exception ex)

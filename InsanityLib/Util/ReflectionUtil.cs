@@ -139,6 +139,10 @@ namespace InsanityLib.Util
             AccessTools.GetTypesFromAssembly(assembly)
             .Where(type =>  !type.IsAbstract && !type.IsInterface && typeof(T).IsAssignableFrom(type) && (includeSelf || type != typeof(T)));
 
+        public static Type FindGenericInterfaceDefinition(this Type type, Type genericInterfaceType) =>
+            type.GetInterfaces()
+            .SingleOrDefault(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == genericInterfaceType);
+
         public static object Invoke<T>(this T method, object instance = null, object[] parameters = null) where T : MemberInfo => method switch
         {
             MethodInfo info => info.Invoke(instance, parameters),
@@ -198,6 +202,9 @@ namespace InsanityLib.Util
 
         public static object AutoCreate(this Type type, IServiceProvider provider, bool returnNullOnFailure = true)
         {
+            if (type.IsValueType) return type.Default();
+            if(type == typeof(string)) return string.Empty;
+
             //TODO maybe create a custom attribute to specify default auto constructor
             var constructors = type.GetConstructors();
             ConstructorInfo bestConstructor = null;

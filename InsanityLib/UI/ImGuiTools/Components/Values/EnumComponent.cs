@@ -18,7 +18,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
         
         public EnumComponent(ImGuiContext context) : base(context)
         {
-            Mapping = new EnumNameValueMapping(context.Member.GetPrimaryType());
+            Mapping = new EnumNameValueMapping(context.ComposeType);
             DisplayStr = Mapping?.GetDisplayString(value);
         }
 

@@ -21,10 +21,11 @@ namespace InsanityLib.UI.ImGuiTools.Composers
             //TODO assetlocation
         };
 
-        public bool CanComposeType(Type type) => Renderers.ContainsKey(type) || type.IsEnum;
+        public bool CanComposeType(Type type) => Renderers.ContainsKey(type) || type.IsEnum || (Nullable.GetUnderlyingType(type) is Type underLyingType && CanComposeType(underLyingType));
 
         public IImGuiComponent Compose(ImGuiContext context, Type type)
         {
+            type = Nullable.GetUnderlyingType(type) ?? type;
             Type componentType = null;
             
             if (type.IsEnum)

@@ -21,6 +21,8 @@ namespace InsanityLib.UI.ImGuiTools.Components
         protected T value;
         public T Value => value;
 
+        public override object ValueAsObject => Value;
+
         protected ValueComponentBase(ImGuiContext context) : base(context)
         {
             OnValueChanged(this, new PropertyChangedEventArgs(Context.Member.Name));
@@ -29,7 +31,11 @@ namespace InsanityLib.UI.ImGuiTools.Components
 
         protected virtual void OnValueChanged(object sender, PropertyChangedEventArgs args)
         {
-            value = Context.Member.GetValue(Context.TargetObject).AutoConvert<T>();
+            if(!Context.TryGetValue(out var obj)) return;
+
+            isNull = IsNullable && obj == null;
+            if (!IsNull) value = obj.AutoConvert<T>();
+
             Validate();
         }
     }
@@ -38,10 +44,15 @@ namespace InsanityLib.UI.ImGuiTools.Components
     {
         protected readonly ResetButton ResetButton;
 
+        public bool IsNullable { get; }
+
+        protected bool isNull;
+        public bool IsNull => isNull;
+
         protected ValueComponentBase(ImGuiContext context) : base(context)
         {
             ValidationAttributes = context.Member.GetCustomAttributes<ValidationAttribute>().ToArray();
-
+            IsNullable = Nullable.GetUnderlyingType(context.Member.GetPrimaryType()) != null;
             ValidationContext = new(context.TargetObject)
             {
                 MemberName = context.Member.Name,
@@ -86,15 +97,17 @@ namespace InsanityLib.UI.ImGuiTools.Components
             return true;
         }
         #endregion validation
-
+        
+        public abstract object ValueAsObject { get; }
         public abstract void RenderValue();
 
         public override void Render()
         {
-            if(!Context.AllowedToWrite) ImGui.BeginDisabled();
+            ImGui.BeginDisabled(!Context.AllowedToWrite);
             
             ResetButton?.SafeRender();
 
+            ImGui.BeginDisabled(isNull); //Normal value cannot be changed while null checkbox is checked
             try
             {
                 RenderValue();
@@ -103,12 +116,24 @@ namespace InsanityLib.UI.ImGuiTools.Components
             {
                 //TODO logging
             }
+            ImGui.EndDisabled();
+            
+            if(IsNullable)
+            {
+                ImGui.SameLine();
+                if(ImGui.Checkbox($"Null##{Context.Id}-nullable", ref isNull))
+                {
+                    Context.TryAutoSetValue(isNull ? null : ValueAsObject, this);
+                }
+            }
+
 
             if(Context.Description != null) Editors.DrawHint(Context.Description);
             
-            if(!Context.AllowedToWrite) ImGui.EndDisabled();
+            ImGui.EndDisabled();
             
             if(!string.IsNullOrEmpty(LastValidationResult)) ImGui.TextColored(ValidationColor, LastValidationResult);
+            if(!string.IsNullOrEmpty(Context.LastValidationResult)) ImGui.TextColored(ValidationColor, Context.LastValidationResult);
         }
     }
 }

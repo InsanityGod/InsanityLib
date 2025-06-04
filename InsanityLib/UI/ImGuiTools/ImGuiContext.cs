@@ -1,4 +1,5 @@
-﻿using InsanityLib.Util;
+﻿using Cairo;
+using InsanityLib.Util;
 using System;
 using System.ComponentModel;
 using System.Reflection;
@@ -11,10 +12,12 @@ namespace InsanityLib.UI.ImGuiTools
         public virtual object GetService(Type serviceType)
         {
             if(serviceType.IsInstanceOfType(this)) return this;
-            return ParentContext?.GetService(serviceType);
+
+            return ServiceProvider?.GetService(serviceType) ?? ParentContext?.GetService(serviceType);
         }
 
         public readonly ImGuiContext ParentContext;
+        public readonly IServiceProvider ServiceProvider;
 
         public readonly object TargetObject;
 
@@ -22,16 +25,17 @@ namespace InsanityLib.UI.ImGuiTools
 
         public readonly string Label;
 
-        public readonly string Description;
+        public string Description { get; protected set; }
 
         public readonly string Id;
 
-        public ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member == null ? TargetObject : Member.GetValue(TargetObject), member ?? Member, this, id, name);
+        public virtual ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member == null ? TargetObject : Member.GetValue(TargetObject), member ?? Member, this, id, name);
 
-        public ImGuiContext(object targetObject, MemberInfo member, ImGuiContext parentContext = null, string id = null, string name = null)
+        public ImGuiContext(object targetObject, MemberInfo member, ImGuiContext parentContext = null, string id = null, string name = null, IServiceProvider serviceProvider = null)
         {
             TargetObject = targetObject;
             Member = member;
+            PropertyChanged += Validate;
 
             var idBuilder = new StringBuilder();
             if (parentContext != null)
@@ -47,7 +51,7 @@ namespace InsanityLib.UI.ImGuiTools
 
             CanRead = Member.CanGetValue();
             AllowedToRead = Member.GetCustomAttribute<BrowsableAttribute>()?.Browsable != false;
-            
+
             CanWrite = Member.CanSetValue();
             AllowedToWrite &= Member.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly != true;
 
@@ -57,7 +61,11 @@ namespace InsanityLib.UI.ImGuiTools
 
             Description = docs.GetExtendedDescription().ReplaceSpecialSymbolsWithText(); //TODO maybe some way to repsect display format when using it for ImGui (so 0.3 shows up as 30%)
             if (string.IsNullOrWhiteSpace(Description)) Description = null;
+            
+            ServiceProvider = serviceProvider;
         }
+
+        public virtual Type ComposeType => Member is MethodInfo ? typeof(MethodInfo) : Member.GetPrimaryType();
 
         public readonly bool CanRead;
         public readonly bool AllowedToRead = true;
@@ -65,12 +73,16 @@ namespace InsanityLib.UI.ImGuiTools
         public readonly bool AllowedToWrite = true;
 
         public PropertyChangedEventHandler PropertyChanged { get; set; }
+        public string LastValidationResult { get; set; }
+
+        public virtual void Validate(object sender, PropertyChangedEventArgs args)
+        {
+            //Optional
+        }
 
         public void NotifyChanged(object sender) => PropertyChanged?.Invoke(sender, new PropertyChangedEventArgs(Member.Name));
 
-
-        //TODO methods bellow
-        public bool TryGetValue(out object value)
+        public virtual bool TryGetValue(out object value)
         {
             value = null;
             if(!CanRead) return false;
@@ -85,7 +97,7 @@ namespace InsanityLib.UI.ImGuiTools
             }
         }
 
-        public bool TrySetValue(object value, object ChangedBy)
+        public virtual bool TrySetValue(object value, object ChangedBy)
         {
             if(!CanWrite) return false;
             try
@@ -100,12 +112,12 @@ namespace InsanityLib.UI.ImGuiTools
             }
         }
 
-        public bool TryAutoSetValue(object value, object ChangedBy)
+        public virtual bool TryAutoSetValue(object value, object ChangedBy)
         {
             if(!CanWrite) return false;
             try
             {
-                if(!Member.TryAutoSetValue(value, TargetObject)) return false;
+                if(!TrySetValue(value.AutoConvert(Member.GetPrimaryType()), this)) return false;
                 NotifyChanged(ChangedBy);
                 return true;
             }

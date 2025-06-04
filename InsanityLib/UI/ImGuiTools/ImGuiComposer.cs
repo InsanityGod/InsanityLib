@@ -19,11 +19,12 @@ namespace InsanityLib.UI.ImGuiTools
             new EnumerableComposer(),
             new ValueComposer(),
             new ClassComposer(),
+            new MethodComposer(),
         };
 
         public static IImGuiComponent TryCompose(ImGuiContext context, Type type = null)
         {
-            type ??= context.Member is MethodInfo ? typeof(MethodInfo) : context.Member.GetPrimaryType();
+            type ??= context.ComposeType;
 
             return Composers.FirstOrDefault(composer => composer.CanComposeType(type))?.Compose(context, type);
         }
