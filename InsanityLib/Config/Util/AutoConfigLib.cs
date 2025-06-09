@@ -9,6 +9,7 @@ using InsanityLib.UI.ImGuiTools;
 using InsanityLib.Util;
 using Newtonsoft.Json;
 using System;
+using System.Text;
 using Vintagestory.API.Common;
 using YamlDotNet.Core.Tokens;
 

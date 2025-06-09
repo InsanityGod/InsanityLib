@@ -22,8 +22,8 @@ namespace InsanityLib.UI.ImGuiTools.Contexts
 
         public object LastValidKey { get; private set; }
         public object CurrentKey { get; private set; }
-
-        public override ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member == null ? TargetObject : Member.GetValue(TargetObject), member ?? Member, this, id, name);
+        
+        public override ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member == null ? TargetObject : CurrentKey, member ?? Member, this, id, name);
 
         public KeyContext(object targetObject, MemberInfo member, Type keyType, object currentKey, Type valueType, ImGuiContext parentContext, string id = null, string name = null, IServiceProvider serviceProvider = null) : base(targetObject, member, parentContext, id, name, serviceProvider)
         {

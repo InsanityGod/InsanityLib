@@ -75,6 +75,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                     var newArray = Array.CreateInstance(ValueType, key + 1);
                     list.CopyTo(newArray, 0);
                     newArray.SetValue(value, key);
+                    Context.ParentContext.TrySetValue(newArray, this);
                     AddDisplay(key, value, true);
                 }
                 else

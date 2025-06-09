@@ -24,6 +24,10 @@ namespace InsanityLib.UI.ImGuiTools.Contexts
         /// </summary>
         public object CachedObject { get; internal set; }
 
+        public override ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member == null ? TargetObject : GetValueOrThrow(), member ?? Member, this, id, name);
+        
+        private object GetValueOrThrow() => TryGetValue(out var value) ? value : throw new InvalidOperationException();
+        
         public ValueContext(object targetObject, MemberInfo member, Type valueType, KeyContext keyContext, ImGuiContext parentContext = null, string id = null, string name = null, IServiceProvider serviceProvider = null) : base(targetObject, member, parentContext, id, name, serviceProvider)
         {
             ValueType = valueType;

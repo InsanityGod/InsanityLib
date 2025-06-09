@@ -23,6 +23,8 @@ namespace InsanityLib.UI.ImGuiTools.Composers
             var addButton = new AddButton(context, componentContainer);
             componentContainer.Components.Add(addButton);
             
+            //TODO sperator component
+
             if(context.TryGetValue(out var container))
             {
                 if(container is IDictionary dict)

@@ -43,7 +43,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
 
         public override void Render()
         {
-            ImGui.BeginDisabled(LastError != null);
+            ImGui.BeginDisabled(LastError != null || !Context.CanWrite);
 
             if (ImGui.Button(Context.Label, FullWidth ? new(ImGui.GetContentRegionAvail().X, 0) : default))
             {

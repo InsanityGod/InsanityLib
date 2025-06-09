@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Vintagestory.API.Common;
+using VSImGui;
 
 namespace InsanityLib.UI.ImGuiTools.Composers
 {
@@ -18,6 +20,7 @@ namespace InsanityLib.UI.ImGuiTools.Composers
             { typeof(bool), typeof(BooleanComponent) },
             { typeof(float), typeof(FloatComponent) },
             { typeof(double), typeof(DoubleComponent) },
+            { typeof(AssetLocationAndSource), typeof(AssetLocationComponent) },
             //TODO assetlocation
         };
 
