@@ -27,8 +27,9 @@ namespace InsanityLib.Enums
                 .Select(Naming.ToHumanReadable)
                 .ToArray();
 
-            IntValues = enumType.GetEnumValues()
+            NumericValues = enumType.GetEnumValues()
                 .Cast<int>()
+                .Select(static x => (long)x)
                 .ToArray();
 
             if (includeExtended && EnumExtensionUtil.EnumExtensions.TryGetValue(enumType, out var extension))
@@ -42,7 +43,7 @@ namespace InsanityLib.Enums
                         StrValues = StrValues.Append(singleRegistry);
                         Names = Names.Append(code.Path.ToHumanReadable());
 
-                        IntValues = IntValues.Append(offset);
+                        NumericValues = NumericValues.Append(offset);
                         continue;
                     }
 
@@ -57,16 +58,38 @@ namespace InsanityLib.Enums
                             .Select(Naming.ToHumanReadable)
                     );
 
-                    IntValues = IntValues.Append(
+                    NumericValues = NumericValues.Append(
                         enumExtensionType.GetEnumValues()
-                            .Cast<int>()
+                        .Cast<int>()
+                        .Select(static x => (long)x)
                     );
 
                 }
             }
 
+            //TODO TEST filter out values that represent more then 1 flag
+            if (IsEnumFlag)
+            {
+                var filteredStrValues = new List<string>();
+                var filteredNames = new List<string>();
+                var filteredNumericValues = new List<long>();
 
-            //TODO filter out Enum values that represent more then 1 flag
+                for (int i = 0; i < NumericValues.Length; i++)
+                {
+                    long val = NumericValues[i];
+                    // Only include values that are powers of two (single flag) or zero
+                    if (val == 0 || (val & (val - 1)) == 0)
+                    {
+                        filteredStrValues.Add(StrValues[i]);
+                        filteredNames.Add(Names[i]);
+                        filteredNumericValues.Add(val);
+                    }
+                }
+
+                StrValues = filteredStrValues.ToArray();
+                Names = filteredNames.ToArray();
+                NumericValues = filteredNumericValues.ToArray();
+            }
         }
 
         public string[] GetStringValues(object value)
@@ -75,7 +98,7 @@ namespace InsanityLib.Enums
             return Enum.Format(EnumType, value, "G").Split(", ");
         }
 
-        public int[] GetIndexes(object value) => GetStringValues(value)
+        public int[] GetIndexes(long value) => GetStringValues(value)
                 .Select(str => Array.IndexOf(StrValues, str))
                 .ToArray();
 
@@ -86,7 +109,7 @@ namespace InsanityLib.Enums
 
             for(var i = 0; i < StrValues.Length; i++)
             {
-                builder.Append($"{Names[i]} ({IntValues[i]})");
+                builder.Append($"{Names[i]} ({NumericValues[i]})");
 
                 if(i != StrValues.Length - 1) builder.Append(", ");
             }
@@ -94,14 +117,14 @@ namespace InsanityLib.Enums
             return builder.ToString();
         }
 
-        public string GetDisplayString(int value)
+        public string GetDisplayString(long value)
         {
-            if (!IsEnumFlag) return Names[IntValues.IndexOf(value)];
+            if (!IsEnumFlag) return Names[NumericValues.IndexOf(value)];
             var builder = new StringBuilder();
 
-            for(var i = 0; i < IntValues.Length; i++)
+            for(var i = 0; i < NumericValues.Length; i++)
             {
-                if((value & IntValues[i]) != 0)
+                if((value & NumericValues[i]) != 0)
                 {
                     //Enum flag is active
 
@@ -119,6 +142,6 @@ namespace InsanityLib.Enums
 
         public string[] StrValues { get; }
         public string[] Names { get; }
-        public int[] IntValues { get; }
+        public long[] NumericValues { get; }
     }
 }

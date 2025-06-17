@@ -9,17 +9,28 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Vintagestory.API.Util;
 
 namespace InsanityLib.UI.ImGuiTools.Components.Values
 {
-    public class EnumComponent : ValueComponentBase<int>
+    public class EnumComponent : ValueComponentBase<long>
     {
         public EnumNameValueMapping Mapping { get; set; }
         
+        private int index;
         public EnumComponent(ImGuiContext context) : base(context)
         {
             Mapping = new EnumNameValueMapping(context.ComposeType);
-            DisplayStr = Mapping?.GetDisplayString(value);
+            UpdateValues();
+        }
+
+        private void UpdateValues()
+        {
+            if(Mapping != null)
+            {
+                DisplayStr = Mapping.GetDisplayString(value);
+                if(!Mapping.IsEnumFlag) index = Mapping.NumericValues.IndexOf(value);
+            }
         }
 
         public string DisplayStr { get; private set; }
@@ -27,8 +38,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
         protected override void OnValueChanged(object sender, PropertyChangedEventArgs args)
         {
             base.OnValueChanged(sender, args);
-
-            DisplayStr = Mapping?.GetDisplayString(value);
+            UpdateValues();
         }
 
         public override void RenderValue()
@@ -36,8 +46,8 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
             if (!Mapping.IsEnumFlag)
             {
                 //TODO maybe add a combined enum description? (description of all enum values)
-                if(ImGui.Combo(Context.Label, ref value, Mapping.Names, Mapping.Names.Length)) Context.TryAutoSetValue(value, this);
-                
+                if(ImGui.Combo(Context.Label, ref index, Mapping.Names, Mapping.Names.Length)) Context.TryAutoSetValue(Mapping.NumericValues[index], this);
+
                 return;
             }
 
@@ -45,7 +55,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
             {
                 for (int i = 0; i < Mapping.StrValues.Length; i++)
                 {
-                    var flag = Mapping.IntValues[i];
+                    var flag = Mapping.NumericValues[i];
                     var isSelected  = (value & flag) != 0;
                     if (ImGui.Selectable($"{Mapping.Names[i]}##{Context.Id}-item-{flag}", isSelected))
                     {

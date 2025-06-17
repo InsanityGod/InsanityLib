@@ -40,6 +40,8 @@ namespace InsanityLib.Config
 
         public EnumItemStorageFlags EnumItemStorageFlags { get; set; } = EnumItemStorageFlags.Alchemy;
 
+        public EnumAppSide EnumAppSide { get; set; } = EnumAppSide.Universal;
+
         public Dictionary<EnumTransitionType, int> Test1 { get; set; } = new Dictionary<EnumTransitionType, int>
         {
             { EnumTransitionType.Burn, 1 },

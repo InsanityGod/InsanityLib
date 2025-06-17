@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InsanityLib.Interfaces.UI.ImGui
+namespace InsanityLib.Interfaces.UI.ImGuiComponents
 {
 
     public interface IImGuiComposer

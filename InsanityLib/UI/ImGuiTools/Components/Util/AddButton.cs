@@ -1,4 +1,4 @@
-﻿using InsanityLib.Interfaces.UI.ImGui;
+﻿using InsanityLib.Interfaces.UI.ImGuiComponents;
 using InsanityLib.UI.ImGuiTools.Contexts;
 using InsanityLib.Util;
 using System;

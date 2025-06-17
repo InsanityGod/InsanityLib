@@ -2,7 +2,7 @@
 using InsanityLib.Attributes.Auto.Config.UI;
 using InsanityLib.Config.Util;
 using InsanityLib.Enums.Auto.Config.UI;
-using InsanityLib.Interfaces.UI.ImGui;
+using InsanityLib.Interfaces.UI.ImGuiComponents;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -56,15 +56,12 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                 Components[i].SafeRender();
             }
             ImGui.EndGroup();
-
-            ContextMenu();
         }
 
-        //TODO virtual
-        public virtual void ContextMenu()
-        {
-            if (!ShouldRenderChildren ||AutoConfigLib.ContextMenuOpen || !ImGui.BeginPopupContextItem()) return;
+        public override bool ContextMenuEnabled => ShouldRenderChildren;
 
+        public override void RenderContextMenuContent()
+        {
             ImGui.SeparatorText("Hierarchy Display Options");
             if(DisplayProperties.Hierarchy != EHierarchyDisplay.DropDown && ImGui.MenuItem("Collapse Content"))
             {
@@ -75,22 +72,12 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
             {
                 DisplayProperties.Hierarchy = EHierarchyDisplay.Seperator;
             }
-            
-            if(DisplayProperties.Hierarchy != EHierarchyDisplay.None && ImGui.MenuItem("Flatten Content"))
-            {
-                DisplayProperties.Hierarchy = EHierarchyDisplay.None;
-            }
-
-            //TODO global context menu items (like reload)
-
-            AutoConfigLib.ContextMenuOpen = true;
-            ImGui.EndPopup();
         }
 
         private void DropDown()
         {
             IsDropDownOpen = ImGui.CollapsingHeader(Context.Label);
-            ContextMenu();
+            RenderContextMenu();
 
             if(Context.Description != null) Editors.DrawHint(Context.Description);
             
@@ -106,7 +93,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
         private void Seperator()
         {
             ImGui.SeparatorText(Context.Label); //TODO custom seperator
-            ContextMenu();
+            RenderContextMenu();
 
             if(Context.Description != null) Editors.DrawHint(Context.Description);
             

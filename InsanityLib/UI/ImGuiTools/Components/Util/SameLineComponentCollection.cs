@@ -1,6 +1,6 @@
 ﻿using ImGuiNET;
 using InsanityLib.Enums.Auto.Config.UI;
-using InsanityLib.Interfaces.UI.ImGui;
+using InsanityLib.Interfaces.UI.ImGuiComponents;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

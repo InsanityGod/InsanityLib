@@ -4,7 +4,7 @@ using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Attributes.Auto.Config.UI;
 using InsanityLib.Enums.Auto.Config;
 using InsanityLib.Enums.Auto.Config.UI;
-using InsanityLib.Interfaces.UI.ImGui;
+using InsanityLib.Interfaces.UI.ImGuiComponents;
 using InsanityLib.UI.ImGuiTools;
 using InsanityLib.Util;
 using Newtonsoft.Json;
@@ -108,10 +108,15 @@ namespace InsanityLib.Config.Util
             }
         }
 
+        public static object CurrentContextMenuClaim { get; set; } = null;
+        public static object ContextMenuOwner { get; set; } = null;
+
         public static bool ContextMenuOpen { get; set; }
         public string ComposeError { get; private set; }
         
         private IImGuiComponent Component; //TODO disposal
+
+        public static Action PostRenderCallback { get; set; } = null;
 
         /// <summary>
         /// Render the config
@@ -128,6 +133,15 @@ namespace InsanityLib.Config.Util
 
             Component?.SafeRender();
             ContextMenuOpen = false;
+            
+            PostRenderCallback?.Invoke();
+
+            PostRenderCallback = null; //reset after render
+            
+            if(ContextMenuOwner != null && CurrentContextMenuClaim == null) ImGui.CloseCurrentPopup(); //Close the current popup
+
+            ContextMenuOwner = CurrentContextMenuClaim;
+            CurrentContextMenuClaim = null; //reset after render
         }
     }
 }

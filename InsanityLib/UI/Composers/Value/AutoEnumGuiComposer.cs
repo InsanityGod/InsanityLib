@@ -65,7 +65,7 @@ namespace InsanityLib.UI.Composers.Value
 
             composer.AddInteractiveElement(element, context.ExtendPath<string>(member));
             element.listMenu.ComposeDynamicElements();
-            context.RegisterAfterComposeCallback(() => element.SetSelectedValue(mapper.GetStringValues(value)));
+            context.RegisterAfterComposeCallback(() => element.SetSelectedValue(mapper.GetStringValues(Convert.ToInt64(value))));
         }
 
         public bool IsValidForCompose(Type type) => type.IsEnum;

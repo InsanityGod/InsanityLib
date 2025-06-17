@@ -20,8 +20,8 @@ namespace InsanityLib.UI.ImGuiTools.Contexts
         
         public bool ExistsInDictionary { get; internal set; }
 
-        public object LastValidKey { get; private set; }
-        public object CurrentKey { get; private set; }
+        public object LastValidKey { get; internal set; }
+        public object CurrentKey { get; internal set; }
         
         public override ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member == null ? TargetObject : CurrentKey, member ?? Member, this, id, name);
 

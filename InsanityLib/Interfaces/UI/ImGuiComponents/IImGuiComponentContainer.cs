@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InsanityLib.Interfaces.UI.ImGui
+namespace InsanityLib.Interfaces.UI.ImGuiComponents
 {
     public interface IImGuiComponentContainer : IImGuiComponent, IEnumerable<IImGuiComponent>
     {
@@ -23,15 +23,9 @@ namespace InsanityLib.Interfaces.UI.ImGui
         bool ShouldRenderChildren { get; set; }
         ConfigDisplayAttribute DisplayProperties { get; set; }
 
-        IEnumerator<IImGuiComponent> IEnumerable<IImGuiComponent>.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator<IImGuiComponent> IEnumerable<IImGuiComponent>.GetEnumerator() => Components.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <summary>
         /// Renders the child components of this container.
