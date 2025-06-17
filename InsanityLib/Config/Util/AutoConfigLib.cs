@@ -87,7 +87,7 @@ namespace InsanityLib.Config.Util
         /// </summary>
         public void Reload()
         {
-
+            ReCompose();
         }
 
         /// <summary>
@@ -100,12 +100,15 @@ namespace InsanityLib.Config.Util
                 Restore();
                 var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(EditConfigInstance)), id: Path, serviceProvider: Api.GetServiceContainer());
                 Component = ImGuiComposer.TryCompose(context, ConfigInstance.GetType());
+                ComposeError = null;
             }
             catch(Exception ex)
             {
                 ComposeError = ex.ToString();
             }
         }
+
+        public static bool ContextMenuOpen { get; set; }
         public string ComposeError { get; private set; }
         
         private IImGuiComponent Component; //TODO disposal
@@ -124,6 +127,7 @@ namespace InsanityLib.Config.Util
             if (Component == null) ReCompose();
 
             Component?.SafeRender();
+            ContextMenuOpen = false;
         }
     }
 }

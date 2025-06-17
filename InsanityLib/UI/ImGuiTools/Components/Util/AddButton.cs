@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Vintagestory.API.Common;
@@ -90,6 +91,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
         public void AddDisplay(object key, object item, bool existsInDictionary)
         {
             if(!Context.TryGetValue(out var container)) return;
+            
             var collection = new SameLineComponentCollection(Context)
             {
                 Spread = new int?[3]
@@ -102,8 +104,14 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
 
             if (!keyContext.ExistsInDictionary)
             {
-                keyContext.LastValidationResult = "Duplicate Key!"; //TODO
+                keyContext.LastValidationResult = "Duplicate Key!";
             }
+
+            collection.Components.Add(new RemoveButton(ComponentContainer, collection, keyContext)
+            {
+                FullWidth = false,
+                FixedWidth = new Vector2(50, 0)
+            });
 
             keyContext.ValueContext.CachedObject = item;
             if (container is IDictionary)
@@ -115,11 +123,13 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                     collection.Components.Add(keyComponent);
                 }
             }
-
             
             var valueComponent = ImGuiComposer.TryCompose(keyContext.ValueContext, ValueType);
-            if(valueComponent != null) collection.Components.Add(valueComponent);
-            //TODO delete button
+            if(valueComponent != null)
+            {
+                collection.Components.Add(valueComponent);
+            }
+
             //TODO test Set / HashSet
 
             ComponentContainer.Components.Insert(ComponentContainer.Components.IndexOf(this), collection);

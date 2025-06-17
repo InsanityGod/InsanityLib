@@ -1,6 +1,8 @@
 ﻿using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Attributes.Auto.Config.UI;
+using InsanityLib.UI.ImGuiTools.Components.Util;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Vintagestory.API.Common;
 
@@ -37,5 +39,12 @@ namespace InsanityLib.Config
         public EnumTransitionType EnumTransitionType { get; set; } = EnumTransitionType.Burn;
 
         public EnumItemStorageFlags EnumItemStorageFlags { get; set; } = EnumItemStorageFlags.Alchemy;
+
+        public Dictionary<EnumTransitionType, int> Test1 { get; set; } = new Dictionary<EnumTransitionType, int>
+        {
+            { EnumTransitionType.Burn, 1 },
+            { EnumTransitionType.Cure, 2 },
+            { EnumTransitionType.Dry, 3 }
+        };
     }
 }

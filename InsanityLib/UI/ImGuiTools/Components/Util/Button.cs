@@ -16,6 +16,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
         public Action Action { get; set; }
         public string LastError { get; private set; }
         public bool FullWidth { get; set; } = true;
+        public Vector2? FixedWidth { get; set; }
         public Button(ImGuiContext context, Action action = null) : base(context)
         {
             Action = action;
@@ -45,7 +46,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
         {
             ImGui.BeginDisabled(LastError != null || !Context.CanWrite);
 
-            if (ImGui.Button(Context.Label, FullWidth ? new(ImGui.GetContentRegionAvail().X, 0) : default))
+            if (ImGui.Button(Context.Label, FixedWidth ?? (FullWidth ? new(ImGui.GetContentRegionAvail().X, 0) : default)))
             {
                 LastError = SafeExecute();
                 //TODO maybe an error popup

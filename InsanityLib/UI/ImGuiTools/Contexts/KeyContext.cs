@@ -31,7 +31,7 @@ namespace InsanityLib.UI.ImGuiTools.Contexts
             LastValidKey = currentKey;
             CurrentKey = currentKey;
 
-            ValueContext = new(TargetObject, Member, valueType, this, parentContext, $"{Id}-value", "Value");
+            ValueContext = new(TargetObject, Member, valueType, this, parentContext, $"{Id}-value", name: string.Empty);
 
             Description = null;
         }

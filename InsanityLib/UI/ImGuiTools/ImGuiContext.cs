@@ -1,4 +1,5 @@
 ﻿using Cairo;
+using InsanityLib.UI.ImGuiTools.Contexts;
 using InsanityLib.Util;
 using System;
 using System.ComponentModel;
@@ -19,7 +20,8 @@ namespace InsanityLib.UI.ImGuiTools
         public readonly ImGuiContext ParentContext;
         public readonly IServiceProvider ServiceProvider;
 
-        public readonly object TargetObject;
+        private object targetObject;
+        public object TargetObject { get => targetObject; protected set => targetObject = value; }
 
         public readonly MemberInfo Member;
 
@@ -35,6 +37,7 @@ namespace InsanityLib.UI.ImGuiTools
         {
             TargetObject = targetObject;
             Member = member;
+            ServiceProvider = serviceProvider;
             PropertyChanged += Validate;
 
             var idBuilder = new StringBuilder();
@@ -48,24 +51,36 @@ namespace InsanityLib.UI.ImGuiTools
             }
             idBuilder.Append(id ?? Guid.NewGuid().ToString());
             Id = idBuilder.ToString();
+            Label = $"{name ?? Member?.GetHumanReadableName()}##{Id}";
 
+            if(Member == null)
+            {
+                CanRead = true;
+                CanWrite = ParentContext is ValueContext;
+                return;
+            }
             CanRead = Member.CanGetValue();
             AllowedToRead = Member.GetCustomAttribute<BrowsableAttribute>()?.Browsable != false;
 
             CanWrite = Member.CanSetValue();
             AllowedToWrite &= Member.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly != true;
 
-            Label = $"{name ?? Member.GetHumanReadableName()}##{Id}";
-
             var docs = Member.GetDocumentationContext();
 
             Description = docs.GetExtendedDescription().ReplaceSpecialSymbolsWithText(); //TODO maybe some way to repsect display format when using it for ImGui (so 0.3 shows up as 30%)
             if (string.IsNullOrWhiteSpace(Description)) Description = null;
             
-            ServiceProvider = serviceProvider;
         }
 
-        public virtual Type ComposeType => Member is MethodInfo ? typeof(MethodInfo) : Member.GetPrimaryType();
+        public virtual Type ComposeType
+        {
+            get
+            {
+                if(Member == null) return TargetObject.GetType();
+
+                return Member is MethodInfo ? typeof(MethodInfo) : Member.GetPrimaryType();
+            }
+        }
 
         public readonly bool CanRead;
         public readonly bool AllowedToRead = true;
@@ -86,6 +101,12 @@ namespace InsanityLib.UI.ImGuiTools
         {
             value = null;
             if(!CanRead) return false;
+            else if(Member == null)
+            {
+                value = TargetObject;
+                return true;
+            }
+
             try
             {
                 value = Member.GetValue(TargetObject);
@@ -100,6 +121,14 @@ namespace InsanityLib.UI.ImGuiTools
         public virtual bool TrySetValue(object value, object ChangedBy)
         {
             if(!CanWrite) return false;
+
+            if(Member == null && ParentContext is ValueContext)
+            {
+                var result = ParentContext.TryAutoSetValue(value, ChangedBy);
+                if (result) ParentContext.TryGetValue(out targetObject);
+                return result;
+            }
+
             try
             {
                 Member.SetValue(value, TargetObject);

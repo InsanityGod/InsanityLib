@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using InsanityLib.Attributes.Auto.Config.UI;
+using InsanityLib.Config.Util;
 using InsanityLib.Enums.Auto.Config.UI;
 using InsanityLib.Interfaces.UI.ImGui;
 using System;
@@ -19,10 +20,14 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
 
         public ComponentCollection(ImGuiContext context) : base(context)
         {
-            DisplayProperties = context.Member.GetCustomAttribute<ConfigDisplayAttribute>() ?? new();
+            DisplayProperties = context.Member?.GetCustomAttribute<ConfigDisplayAttribute>() ?? new();
         }
 
         public IList<IImGuiComponent> Components { get; set; } = new List<IImGuiComponent>();
+
+        public bool IsDropDownOpen { get; set; }
+
+        public bool ShouldRenderChildren { get; set; } = true;
 
         public override void Render()
         {
@@ -32,32 +37,83 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                     DropDown();
                     break;
 
+                case EHierarchyDisplay.Seperator:
+                    Seperator();
+                    break;
+
                 default:
+                    if(!ShouldRenderChildren) return;
                     RenderChildren();
                     break;
             }
         }
 
-        protected virtual void RenderChildren()
+        public virtual void RenderChildren()
         {
+            ImGui.BeginGroup();
             for(var i = 0; i < Components.Count; i++)
             {
                 Components[i].SafeRender();
             }
+            ImGui.EndGroup();
+
+            ContextMenu();
+        }
+
+        //TODO virtual
+        public virtual void ContextMenu()
+        {
+            if (!ShouldRenderChildren ||AutoConfigLib.ContextMenuOpen || !ImGui.BeginPopupContextItem()) return;
+
+            ImGui.SeparatorText("Hierarchy Display Options");
+            if(DisplayProperties.Hierarchy != EHierarchyDisplay.DropDown && ImGui.MenuItem("Collapse Content"))
+            {
+                DisplayProperties.Hierarchy = EHierarchyDisplay.DropDown;
+            }
+
+            if(DisplayProperties.Hierarchy != EHierarchyDisplay.Seperator && ImGui.MenuItem("Seperate Content"))
+            {
+                DisplayProperties.Hierarchy = EHierarchyDisplay.Seperator;
+            }
+            
+            if(DisplayProperties.Hierarchy != EHierarchyDisplay.None && ImGui.MenuItem("Flatten Content"))
+            {
+                DisplayProperties.Hierarchy = EHierarchyDisplay.None;
+            }
+
+            //TODO global context menu items (like reload)
+
+            AutoConfigLib.ContextMenuOpen = true;
+            ImGui.EndPopup();
         }
 
         private void DropDown()
         {
-            var open = ImGui.CollapsingHeader(Context.Label);
+            IsDropDownOpen = ImGui.CollapsingHeader(Context.Label);
+            ContextMenu();
+
             if(Context.Description != null) Editors.DrawHint(Context.Description);
             
-            if (!open) return;
+            if (!IsDropDownOpen || !ShouldRenderChildren) return;
             
             ImGui.Indent();
             
-            RenderChildren(); //TODO Group Displacement
+            RenderChildren();
             
             ImGui.Unindent();
+        }
+
+        private void Seperator()
+        {
+            ImGui.SeparatorText(Context.Label); //TODO custom seperator
+            ContextMenu();
+
+            if(Context.Description != null) Editors.DrawHint(Context.Description);
+            
+            if (!ShouldRenderChildren) return;
+            
+            RenderChildren();
+            ImGui.NewLine();
         }
     }
 }

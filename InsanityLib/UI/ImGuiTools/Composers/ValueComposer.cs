@@ -20,7 +20,7 @@ namespace InsanityLib.UI.ImGuiTools.Composers
             { typeof(bool), typeof(BooleanComponent) },
             { typeof(float), typeof(FloatComponent) },
             { typeof(double), typeof(DoubleComponent) },
-            { typeof(AssetLocationAndSource), typeof(AssetLocationComponent) },
+            { typeof(AssetLocation), typeof(AssetLocationComponent) },
             //TODO assetlocation
         };
 

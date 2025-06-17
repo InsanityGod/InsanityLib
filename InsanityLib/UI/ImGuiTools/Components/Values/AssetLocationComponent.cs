@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using InsanityLib.Util.SpanUtil;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,14 +23,16 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
                 var components = value.Split(new[] { ':' }, 2);
 
                 //TODO validator/warning attribute for checking for valid matches
-                Context.TryAutoSetValue(components.Length > 1 ? new AssetLocation(components[0], components[1]) : new AssetLocation(null, components[1]), this);
+                //TODO maybe just retrieve the assetlocation instead
+                //TODO null assignment
+                Context.TryAutoSetValue(components.Length > 1 ? new AssetLocation(components[0], components[1]) : new AssetLocation(string.Empty, components[0]), this);
             }
         }
 
         protected override void OnValueChanged(object sender, PropertyChangedEventArgs args)
         {
             base.OnValueChanged(sender, args);
-            value ??= new AssetLocation(string.Empty, string.Empty);
+            value ??= string.Empty;
         }
     }
 }
