@@ -26,7 +26,7 @@ namespace InsanityLib.Util
             throw new InvalidOperationException($"Could not find config file");
         }
 
-        public const string ConfigPatchPrefix = "config://";
+        public const string ConfigPatchPrefix = "config://"; //TODO configlib prefix
         internal static void PreProcessJsonPatchValue(JsonPatch patch, int patchIndex, AssetLocation patchSourceFile, ICoreAPI api)
         {
             if(patch?.Value?.Token?.Type != JTokenType.String) return;

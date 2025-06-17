@@ -62,7 +62,7 @@ namespace InsanityLib.Util
             }
         }
 
-        private static T CastWrapper<T>(object value) => (T)value;
+        private static T CastWrapper<T>(dynamic value) => (T)value;
 
         /// <summary>
         /// Dynamicly cast to gived type

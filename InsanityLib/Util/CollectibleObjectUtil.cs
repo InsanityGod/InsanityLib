@@ -46,5 +46,24 @@ namespace InsanityLib.Util
 
             return collectible as Block;
         }
+
+        public static int GetOrientationVariantIndex(this RegistryObject obj)
+        {
+            int index = obj.VariantStrict.IndexOfKey("side");
+
+            if (index == -1) index = obj.VariantStrict.IndexOfKey("rotation");
+            if (index == -1) index = obj.VariantStrict.IndexOfKey("orientation");
+
+            return index;
+        }
+
+        public static CollectibleObject GetCollectibleObject(this IWorldAccessor world, AssetLocation code, EnumItemClass? itemType = null)
+        {
+            CollectibleObject result = null;
+            if(itemType != EnumItemClass.Block) result = world.GetItem(code);
+            if(itemType != EnumItemClass.Item) result ??= world.GetBlock(code);
+            
+            return result;
+        }
     }
 }
