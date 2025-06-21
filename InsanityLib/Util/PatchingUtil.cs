@@ -9,8 +9,9 @@ using Vintagestory.ServerMods.NoObf;
 
 namespace InsanityLib.Util
 {
-    public static class ConfigUtil
+    internal static class PatchingUtil
     {
+        private static JToken AsJToken(this object obj) => obj is JToken jToken ? jToken : JToken.FromObject(obj);
 
         internal static bool PreProcessJsonPatchValue(JsonPatch patch, int patchIndex, AssetLocation patchSourceFile, ICoreAPI api)
         {
@@ -37,7 +38,7 @@ namespace InsanityLib.Util
 
             if (resolver.TryResolvePath(path[(scheme.Length + 3)..], api, out var result))
             {
-                patch.Value.Token = JToken.FromObject(result);
+                patch.Value.Token = result.AsJToken();
                 return true;
             }
 
@@ -77,7 +78,7 @@ namespace InsanityLib.Util
             if (resolver.TryResolvePath(path[(scheme.Length + 3)..], api, out var result))
             {
                 //TODO maybe allow for a truthy/falsy comparison?
-                var value = JToken.FromObject(result).ToString();
+                var value = result.AsJToken().ToString();
 
                 if(string.Equals(value, patch.Condition.IsValue, StringComparison.InvariantCultureIgnoreCase))
                 {

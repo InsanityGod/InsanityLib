@@ -25,7 +25,9 @@ namespace InsanityLib.Constants
 
         public const string PatchPathResolverFailed = "[InsanityLib] Patch {0} in {1} failed because path {2} could not be resolved: {3}";
         public const string PatchUnmentCondition = "[InsanityLib] Patch {0} in {1}: Unmet IsValue condition for '{2}' ({3}!={4})";
+        
+        public const string PathResolverFailed = "[InsanityLib] [{0}] Resolved: '{1}', Unresolved: '{2}', Reason: {3}";
 
-        public const string PathResolverFailed = "[InsanityLib] [{0}] Resolved: '{1}' Unresolved: '{2}' Reason: {3}";
+        public const string ModRequirementNotMet = "[InsanityLib] Mod requirement not met for using [{0}], Missing mod: '{1}'";
     }
 }

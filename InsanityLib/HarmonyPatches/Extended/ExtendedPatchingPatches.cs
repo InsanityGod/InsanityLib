@@ -33,7 +33,7 @@ namespace InsanityLib.HarmonyPatches.Extended
                         new(OpCodes.Ldarg_2), //AssetLocation patchSourceFile
                         new(OpCodes.Ldarg_0),
                         new(OpCodes.Ldfld, AccessTools.Field(typeof(ModJsonPatchLoader), "api")), //ICoreAPI api
-                        new(OpCodes.Call, AccessTools.Method(typeof(ConfigUtil), nameof(ConfigUtil.PreProcessJsonPatchValue))),
+                        new(OpCodes.Call, AccessTools.Method(typeof(PatchingUtil), nameof(PatchingUtil.PreProcessJsonPatchValue))),
                         new(OpCodes.Brtrue_S, normalPath), //If successful, continue with the normal path
                         
                         //errorCount++
@@ -87,7 +87,7 @@ namespace InsanityLib.HarmonyPatches.Extended
                         new(OpCodes.Ldloc_S, 8), //IAsset asset
                         new(OpCodes.Ldarg_0),
                         new(OpCodes.Ldfld, AccessTools.Field(typeof(ModJsonPatchLoader), "api")), //ICoreAPI api
-                        new(OpCodes.Call, AccessTools.Method(typeof(ConfigUtil), nameof(ConfigUtil.PreProcessJsonPatchCondition))),
+                        new(OpCodes.Call, AccessTools.Method(typeof(PatchingUtil), nameof(PatchingUtil.PreProcessJsonPatchCondition))),
                         new(OpCodes.Brfalse_S, unmentConditionPath), //If not successful, go to unmet condition path
                 });
                 break;

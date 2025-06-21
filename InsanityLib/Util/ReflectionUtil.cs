@@ -358,7 +358,7 @@ namespace InsanityLib.Util
                     break;
                 }
 
-                path = seperatorIndex == -1 ? ReadOnlySpan<char>.Empty : path[seperatorIndex..];
+                path = seperatorIndex == -1 ? ReadOnlySpan<char>.Empty : path[(seperatorIndex + 1)..]; //Skip the seperator
             }
             
             result = obj;

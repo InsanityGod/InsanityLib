@@ -2,17 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.PathResolvers
 {
     public static class Resolver
     {
+        //TODO allow for using these in more the just JSON patches
         public static List<IPathResolver> Resolvers { get; } = new()
         {
-            new AutoConfigResolver()
+            new WorldPropertiesResolver(),
+            new AutoConfigResolver(),
+            new ConfigLibResolver(),
         };
 
         public static IPathResolver Find(ReadOnlySpan<char> scheme)
