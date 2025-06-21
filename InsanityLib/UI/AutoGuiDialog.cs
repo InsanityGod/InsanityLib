@@ -105,7 +105,7 @@ namespace InsanityLib.UI
             }
             catch(Exception ex)
             {
-                capi.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(AutoGuiDialog), TargetObject, ex);
+                capi.Logger.Error(Logging.ExecutionFailedTemplate, nameof(AutoGuiDialog), TargetObject, ex);
                 return false;
             }
         }
@@ -121,7 +121,7 @@ namespace InsanityLib.UI
                 }
                 catch (Exception ex)
                 {
-                    capi.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(OnClose), OnClose, ex);
+                    capi.Logger.Error(Logging.ExecutionFailedTemplate, nameof(OnClose), OnClose, ex);
                 }
 
                 return true;

@@ -326,5 +326,43 @@ namespace InsanityLib.Util
             result = current;
             return true;
         }
+
+        /// <summary>
+        /// Recursively searches for a property or field by its name in the given object and retrieves its value.
+        /// </summary>
+        /// <param name="obj">The object to crawl through.</param>
+        /// <param name="path">The target path, with properties/fields separated by '/'.</param>
+        /// <param name="result">The last found value while crawling the path, this may contain an exception if failure occured during retrieval property/field</param>
+        /// <param name="flags">The flags used to search for members that can be traversed</param>
+        /// <returns>The part that could not be crawled</returns>
+        public static ReadOnlySpan<char> TryCrawl2(this object obj, ReadOnlySpan<char> path, out object result, BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.GetProperty)
+        {
+            while (!path.IsEmpty)
+            {
+                if (obj == null) break;
+
+                var seperatorIndex = path.IndexOf('/');
+                var nextPart = seperatorIndex == -1 ? path : path[..seperatorIndex];
+
+                var member = obj.GetType().GetMember(nextPart.ToString(), flags).SingleOrDefault();
+                if(member == null) break;
+                
+                //TODO indexer support?
+                try
+                {
+                    obj = member.GetValue(obj);
+                }
+                catch(Exception ex)
+                {
+                    obj = ex;
+                    break;
+                }
+
+                path = seperatorIndex == -1 ? ReadOnlySpan<char>.Empty : path[seperatorIndex..];
+            }
+            
+            result = obj;
+            return path;
+        }
     }
 }

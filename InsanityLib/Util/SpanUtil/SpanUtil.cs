@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using Vintagestory.API.Util;
+using Vintagestory.ServerMods;
 
 namespace InsanityLib.Util.SpanUtil
 {
@@ -33,8 +34,11 @@ namespace InsanityLib.Util.SpanUtil
                     start = i + 1;
                 }
             }
-        
+
             return default;
         }
+
+        public static ReadOnlySpan<char> WithoutSuffix(this ReadOnlySpan<char> span, ReadOnlySpan<char> suffix) => suffix.IsEmpty || span.Length < suffix.Length || !span.EndsWith(suffix) ? span : span[..^suffix.Length];
+        public static ReadOnlySpan<char> WithoutPrefix(this ReadOnlySpan<char> span, ReadOnlySpan<char> prefix) => prefix.IsEmpty || span.Length < prefix.Length || !span.StartsWith(prefix) ? span : span[prefix.Length..];
     }
 }

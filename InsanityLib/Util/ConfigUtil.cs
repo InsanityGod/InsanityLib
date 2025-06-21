@@ -1,7 +1,9 @@
 ﻿using InsanityLib.Constants;
+using InsanityLib.PathResolvers;
 using InsanityLib.Util.AutoRegistry;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Diagnostics.Contracts;
 using Vintagestory.API.Common;
 using Vintagestory.ServerMods.NoObf;
 
@@ -9,58 +11,100 @@ namespace InsanityLib.Util
 {
     public static class ConfigUtil
     {
-        public static JToken Resolve(string uri) => JToken.FromObject(ResolveObj(uri));
 
-        public static object ResolveObj(string uri)
+        internal static bool PreProcessJsonPatchValue(JsonPatch patch, int patchIndex, AssetLocation patchSourceFile, ICoreAPI api)
         {
-            if (!ConfigPatchPrefix.TryRemoveFrom(ref uri)) throw new InvalidOperationException("Invalid URI scheme");
-            foreach((var path, var config) in AutoConfig.LoadedConfigs)
-            {
-                var prefix = $"{path.RemoveSuffix(".json")}/";
-                if(!prefix.TryRemoveFrom(ref uri)) continue;
+            if (patch?.Value?.Token is not JValue value || value.Type != JTokenType.String) return true;
+            ReadOnlySpan<char> path = value.Value as string;
 
-                if(!config.ConfigInstance.TryCrawl(uri, out var resolvedObj)) throw new InvalidOperationException("Could not find path");
-                return resolvedObj;
+            var scheme = Resolver.FindScheme(path);
+            if(scheme.IsEmpty) return true;
+
+            var resolver = Resolver.Find(scheme);
+            if(resolver == null)
+            {
+                api.Logger.Error(
+                    Logging.PatchPathResolverFailed,
+                    patchIndex,
+                    patchSourceFile,
+                    patch.Value,
+                    $"No resolver found for scheme '{scheme}'"
+                );
+
+                return false;
+
             }
 
-            throw new InvalidOperationException($"Could not find config file");
+            if (resolver.TryResolvePath(path[(scheme.Length + 3)..], api, out var result))
+            {
+                patch.Value.Token = JToken.FromObject(result);
+                return true;
+            }
+
+            api.Logger.Error(
+                Logging.PatchPathResolverFailed,
+                patchIndex,
+                patchSourceFile,
+                patch.Value,
+                $"Failed to resolve path '{path}'"
+            );
+            return false;
         }
 
-        public const string ConfigPatchPrefix = "config://"; //TODO configlib prefix
-        internal static void PreProcessJsonPatchValue(JsonPatch patch, int patchIndex, AssetLocation patchSourceFile, ICoreAPI api)
+        internal static bool PreProcessJsonPatchCondition(JsonPatch patch, int patchIndex, IAsset asset, ICoreAPI api)
         {
-            if(patch?.Value?.Token?.Type != JTokenType.String) return;
+            if (patch.Condition is null) return true;
+            
+            ReadOnlySpan<char> path = patch.Condition.When; //TODO maybe allow for resolving both When and IsValue?
+            var scheme = Resolver.FindScheme(path);
+            
+            if(scheme.IsEmpty) return true;
 
-            var uri = patch.Value.AsString();
-
-            if(!uri.StartsWith(ConfigPatchPrefix)) return;
-            try
+            var resolver = Resolver.Find(scheme);
+            if(resolver == null)
             {
-                patch.Value.Token = Resolve(uri); //TODO TEST
+                api.Logger.Error(
+                    Logging.PatchPathResolverFailed,
+                    patchIndex,
+                    asset.Location,
+                    patch.Condition.When,
+                    $"No resolver found for scheme '{scheme}'"
+                );
+
+                return false;
             }
-            catch(Exception ex)
-            {
-                api.GetService<ILogger>()?.Error(Logging.PatchConfigValueResolverFailed, patchIndex, patchSourceFile, patch.Value.AsString(), ex);
-            }
-        }
 
-        internal static void PreProcessJsonPatchCondition(JsonPatch patch, int patchIndex, IAsset asset, ICoreAPI api)
-        {
-            if(patch.Condition == null || !patch.Condition.When.StartsWith(ConfigPatchPrefix)) return;
-            var uri = patch.Condition.When;
-
-            try
+            if (resolver.TryResolvePath(path[(scheme.Length + 3)..], api, out var result))
             {
-                var value = Resolve(uri).ToString();
+                //TODO maybe allow for a truthy/falsy comparison?
+                var value = JToken.FromObject(result).ToString();
+
                 if(string.Equals(value, patch.Condition.IsValue, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    patch.Condition = null; //Condition matched
+                    patch.Condition = null; //Condition is matched and can be ignored
+                    return true;
                 }
+
+                api.Logger.VerboseDebug(
+                    Logging.PatchUnmentCondition,
+                    patchIndex,
+                    asset.Location,
+                    patch.Condition.When,
+                    $"Condition not matched: '{value}' != '{patch.Condition.IsValue}'"
+                );
+
+                return false;
             }
-            catch(Exception ex)
-            {
-                api.GetService<ILogger>()?.Error(Logging.PatchConfigValueResolverFailed, patchIndex, asset.Location, patch.Value.AsString(), ex);
-            }
+
+            api.Logger.Error(
+                Logging.PatchPathResolverFailed,
+                patchIndex,
+                asset.Location,
+                patch.Value,
+                $"Failed to resolve path '{path}'"
+            );
+
+            return false;
         }
     }
 }

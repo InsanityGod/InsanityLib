@@ -19,7 +19,7 @@ namespace InsanityLib.Util
                     placedByItem ??= api.World.GetItem(redirect);
                     if (placedByItem != null) return placedByItem;
                     
-                    api.GetService<ILogger>()?.Error($"[InsanityLib] Invalid PlacedByItem redirect {block.Code} -> {redirect}");
+                    api.Logger.Error($"[InsanityLib] Invalid PlacedByItem redirect {block.Code} -> {redirect}");
                 }
             }
 
