@@ -92,10 +92,9 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
 
         private void Seperator()
         {
-            ImGui.SeparatorText(Context.Label); //TODO custom seperator
+            ImGuiHelpers.Seperator(Context.Text, Context.Description);
+            
             RenderContextMenu();
-
-            if(Context.Description != null) Editors.DrawHint(Context.Description);
             
             if (!ShouldRenderChildren) return;
             

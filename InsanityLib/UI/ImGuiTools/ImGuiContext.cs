@@ -27,9 +27,12 @@ namespace InsanityLib.UI.ImGuiTools
 
         public readonly string Label;
 
+        public ReadOnlySpan<char> Id => Label.AsSpan()[(Label.IndexOf("##") + 2)..];
+        public ReadOnlySpan<char> Text => Label.AsSpan()[..Label.IndexOf("##")];
+
         public string Description { get; protected set; }
 
-        public readonly string Id;
+        //public readonly string Id; //TODO ReadOnlySpan<char>
 
         public virtual ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member == null ? TargetObject : Member.GetValue(TargetObject), member ?? Member, this, id, name);
 
@@ -50,8 +53,8 @@ namespace InsanityLib.UI.ImGuiTools
                 idBuilder.Append('-');
             }
             idBuilder.Append(id ?? Guid.NewGuid().ToString());
-            Id = idBuilder.ToString();
-            Label = $"{name ?? Member?.GetHumanReadableName()}##{Id}";
+            var NewId = idBuilder.ToString(); //TODO
+            Label = $"{name ?? Member?.GetHumanReadableName()}##{NewId}";
 
             if(Member == null)
             {
