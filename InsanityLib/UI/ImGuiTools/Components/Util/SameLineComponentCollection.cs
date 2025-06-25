@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using InsanityLib.Enums.Auto.Config.UI;
+using InsanityLib.Interfaces.UI;
 using InsanityLib.Interfaces.UI.ImGuiComponents;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
 
         public IImGuiComponentContainer LastActiveChildContainer { get; set; }
 
+        public IValidationResultProvider ValidationResulProvider { get; set; }
+
         public SameLineComponentCollection(ImGuiContext context) : base(context)
         {
             DisplayProperties.Hierarchy = EHierarchyDisplay.None;
@@ -28,7 +31,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
             for (var i = 0; i < Components.Count; i++)
             {
                 if(i > 0) ImGui.SameLine();
-                if(Spread != null && Spread.Length > i)
+                if(Spread is not null && Spread.Length > i)
                 {
                     var spread = Spread[i];
                     if(spread.HasValue && spread.Value != 0)
@@ -55,6 +58,11 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                     }
                 }
                 else component.SafeRender();
+            }
+
+            if (!string.IsNullOrEmpty(ValidationResulProvider?.LastValidationResult))
+            {
+                ImGui.TextColored(ValueComponentBase.ValidationColor, ValidationResulProvider?.LastValidationResult);
             }
             
             if(LastActiveChildContainer?.IsDropDownOpen == true)

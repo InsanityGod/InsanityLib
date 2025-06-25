@@ -17,7 +17,7 @@ namespace InsanityLib.Attributes.Auto
                 try
                 {
                     var value = member.GetValue();
-                    if(value == null) continue;
+                    if(value is null) continue;
 
                     var clearMethod = value.GetType().GetMethod("Clear");
                     clearMethod.AutoInvoke(provider, value);

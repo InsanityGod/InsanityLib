@@ -1,4 +1,5 @@
 ﻿using Cairo;
+using InsanityLib.Interfaces.UI;
 using InsanityLib.UI.ImGuiTools.Contexts;
 using InsanityLib.Util;
 using System;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace InsanityLib.UI.ImGuiTools
 {
-    public class ImGuiContext : IServiceProvider
+    public class ImGuiContext : IServiceProvider, IValidationResultProvider
     {
         public virtual object GetService(Type serviceType)
         {
@@ -34,7 +35,7 @@ namespace InsanityLib.UI.ImGuiTools
 
         //public readonly string Id; //TODO ReadOnlySpan<char>
 
-        public virtual ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member == null ? TargetObject : Member.GetValue(TargetObject), member ?? Member, this, id, name);
+        public virtual ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member is null ? TargetObject : Member.GetValue(TargetObject), member ?? Member, this, id, name);
 
         public ImGuiContext(object targetObject, MemberInfo member, ImGuiContext parentContext = null, string id = null, string name = null, IServiceProvider serviceProvider = null)
         {
@@ -43,20 +44,16 @@ namespace InsanityLib.UI.ImGuiTools
             ServiceProvider = serviceProvider;
             PropertyChanged += Validate;
 
-            var idBuilder = new StringBuilder();
-            if (parentContext != null)
+            Label = $"{name ?? Member?.GetHumanReadableName()}##{(parentContext is not null ? parentContext.Id : default)}-{(id is not null ? id : Guid.NewGuid())}";
+
+            if (parentContext is not null)
             {
                 ParentContext = parentContext;
                 AllowedToWrite = ParentContext.AllowedToWrite;
 
-                idBuilder.Append(parentContext.Id);
-                idBuilder.Append('-');
             }
-            idBuilder.Append(id ?? Guid.NewGuid().ToString());
-            var NewId = idBuilder.ToString(); //TODO
-            Label = $"{name ?? Member?.GetHumanReadableName()}##{NewId}";
 
-            if(Member == null)
+            if(Member is null)
             {
                 CanRead = true;
                 CanWrite = ParentContext is ValueContext;
@@ -79,7 +76,7 @@ namespace InsanityLib.UI.ImGuiTools
         {
             get
             {
-                if(Member == null) return TargetObject.GetType();
+                if(Member is null) return TargetObject.GetType();
 
                 return Member is MethodInfo ? typeof(MethodInfo) : Member.GetPrimaryType();
             }
@@ -104,7 +101,7 @@ namespace InsanityLib.UI.ImGuiTools
         {
             value = null;
             if(!CanRead) return false;
-            else if(Member == null)
+            else if(Member is null)
             {
                 value = TargetObject;
                 return true;
@@ -125,7 +122,7 @@ namespace InsanityLib.UI.ImGuiTools
         {
             if(!CanWrite) return false;
 
-            if(Member == null && ParentContext is ValueContext)
+            if(Member is null && ParentContext is ValueContext)
             {
                 var result = ParentContext.TryAutoSetValue(value, ChangedBy);
                 if (result) ParentContext.TryGetValue(out targetObject);

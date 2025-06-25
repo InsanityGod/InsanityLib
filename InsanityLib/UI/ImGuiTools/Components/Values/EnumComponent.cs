@@ -26,7 +26,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
 
         private void UpdateValues()
         {
-            if(Mapping != null)
+            if(Mapping is not null)
             {
                 DisplayStr = Mapping.GetDisplayString(value);
                 if(!Mapping.IsEnumFlag) index = Mapping.NumericValues.IndexOf(value);

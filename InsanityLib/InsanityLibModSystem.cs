@@ -37,7 +37,7 @@ namespace InsanityLib
             EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
             AssetCategoryAttribute.Load();
             AutoRegistryAttribute.RegisterAll(api); //TODO see about allowing for config values to be used in patching
-            AutoConfig.LoadAll(ServiceContainer);
+            AutoConfigUtil.LoadAll(ServiceContainer);
         }
 
         public override void AssetsLoaded(ICoreAPI api)

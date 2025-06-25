@@ -11,7 +11,7 @@ namespace InsanityLib.Util
     {
         public static bool CompareWithoutOrientation(RegistryObject item1, RegistryObject item2)
         {
-            if (item1.Code == null || item2.Code == null || item1.Code.Domain != item2.Code.Domain) return false;
+            if (item1.Code is null || item2.Code is null || item1.Code.Domain != item2.Code.Domain) return false;
 
             var orientationVariantIndex = item1.GetOrientationVariantIndex();
             if (orientationVariantIndex != item2.GetOrientationVariantIndex()) return false;

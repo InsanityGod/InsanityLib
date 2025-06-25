@@ -19,7 +19,14 @@ namespace InsanityLib.Util
         [AutoDefaultValue(null)]
         public static EnumAppSide? LoadedSides { get; internal set; }
 
-        public static bool SideLoaded(EnumAppSide side) => LoadedSides != null && LoadedSides.Value.Is(side);
+        public static bool SideLoaded(EnumAppSide side) => LoadedSides is not null && LoadedSides.Value.Is(side);
+
+        public static ICoreAPI GetApi(bool prioritizeServer = true)
+        {
+            ICoreAPI result = prioritizeServer ? InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreServerAPI>() : InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>();
+            result ??= prioritizeServer ? InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>() : InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreServerAPI>();
+            return result;
+        }
 
         // Backing field name pattern: "<PropertyName>k__BackingField"
         public static bool IsBackingField(this MemberInfo field) => field.Name.StartsWith('<') && field.Name.Contains("k__BackingField");
@@ -123,16 +130,16 @@ namespace InsanityLib.Util
         public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(BindingFlags? flags = null) where T : Attribute => AccessTools.AllTypes()
             .SelectMany(type => type.GetMembers(flags ?? AccessTools.all))
             .Select(member => (member, member.TryGetCustomAttribute<T>()))
-            .Where(pair => pair.Item2 != null);
+            .Where(pair => pair.Item2 is not null);
 
         public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
             .GetMembers(flags ?? AccessTools.all)
             .Select(member => (member, member.TryGetCustomAttribute<T>()))
-            .Where(pair => pair.Item2 != null);
+            .Where(pair => pair.Item2 is not null);
 
         public static IEnumerable<(Type, T)> FindAllClasses<T>() where T : Attribute => AccessTools.AllTypes()
             .Select(type => (type, type.TryGetCustomAttribute<T>()))
-            .Where(pair => pair.Item2 != null);
+            .Where(pair => pair.Item2 is not null);
 
 
         public static IEnumerable<Type> FindImplementations<T>(this Assembly assembly, bool includeSelf = false) =>
@@ -156,7 +163,7 @@ namespace InsanityLib.Util
             foreach(var param in parameters)
             {
                 var service = provider.GetService(param.ParameterType);
-                if (service == null && !param.HasDefaultValue) return false;
+                if (service is null && !param.HasDefaultValue) return false;
             }
             return true;
         }
@@ -188,7 +195,7 @@ namespace InsanityLib.Util
         //TODO method for just getting the auto default value (so we can use this on method parameters)
         public static void SetAutoDefaultValue(this MemberInfo member, DefaultValueAttribute defaultAttr, object instance, IServiceProvider provider)
         {
-            if(defaultAttr != null)
+            if(defaultAttr is not null)
             {
                 var value = defaultAttr is AutoDefaultValueAttribute autoDefaultAttr
                     ? autoDefaultAttr.GetAutoDefaultValue(provider, instance)
@@ -222,7 +229,7 @@ namespace InsanityLib.Util
                     var param = parameters[i];
                     var service = provider.GetService(param.ParameterType);
 
-                    if(service != null) paramValues[i] = service;
+                    if(service is not null) paramValues[i] = service;
                     else if (param.HasDefaultValue) paramValues[i] = param.DefaultValue;
                     else break;
                     paramCount++;
@@ -235,7 +242,7 @@ namespace InsanityLib.Util
                 maxParams = paramCount;
             }
 
-            if (bestConstructor == null)
+            if (bestConstructor is null)
             {
                 if(returnNullOnFailure) return null;
                 throw new InvalidOperationException($"No suitable constructor found for type {type.FullName}");
@@ -270,7 +277,7 @@ namespace InsanityLib.Util
         /// Helper method to check if an object is null (only usefull if you need a prediction delegate)
         /// </summary>
         /// <returns>True if the object is not null else false.</returns>
-        public static bool IsNotNull(this object value) => value != null;
+        public static bool IsNotNull(this object value) => value is not null;
 
         /// <summary>
         /// Finds the best match for a type in a list of objects.
@@ -285,7 +292,7 @@ namespace InsanityLib.Util
 
             foreach(var obj in objects)
             {
-                if(filter != null && !filter.Invoke(obj)) continue;
+                if(filter is not null && !filter.Invoke(obj)) continue;
 
                 var objType = obj.GetType();
                 if (objType == type) return obj; //Exact match
@@ -306,19 +313,19 @@ namespace InsanityLib.Util
         public static bool TryCrawl(this object obj, string target, out object result)
         {
             result = null;
-            if (obj == null || string.IsNullOrWhiteSpace(target)) return false;
+            if (obj is null || string.IsNullOrWhiteSpace(target)) return false;
 
             var parts = target.Split('/');
             var current = obj;
 
             foreach (var part in parts)
             {
-                if (current == null) return false;
+                if (current is null) return false;
 
                 var type = current.GetType();
                 var member = type.GetMember(part, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
 
-                if (member == null || !member.CanGetValue()) return false;
+                if (member is null || !member.CanGetValue()) return false;
 
                 current = member.GetValue(current);
             }
@@ -339,13 +346,13 @@ namespace InsanityLib.Util
         {
             while (!path.IsEmpty)
             {
-                if (obj == null) break;
+                if (obj is null) break;
 
                 var seperatorIndex = path.IndexOf('/');
                 var nextPart = seperatorIndex == -1 ? path : path[..seperatorIndex];
 
                 var member = obj.GetType().GetMember(nextPart.ToString(), flags).SingleOrDefault();
-                if(member == null) break;
+                if(member is null) break;
                 
                 //TODO indexer support?
                 try

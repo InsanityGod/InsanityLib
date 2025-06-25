@@ -26,7 +26,7 @@ namespace InsanityLib.UI.Contexts
             IsEditable = targetType.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly != true;
 
             Context = serviceProvider.GetService<IDialogContext>();
-            if (Context != null)
+            if (Context is not null)
             {
                 IsEditable &= Context.IsEditable;
                 Path = $"{Context.Path}/{member?.Name ?? targetType.Name}";

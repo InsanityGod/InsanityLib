@@ -22,7 +22,7 @@ namespace InsanityLib.Util
             if(scheme.IsEmpty) return true;
 
             var resolver = Resolver.Find(scheme);
-            if(resolver == null)
+            if(resolver is null)
             {
                 api.Logger.Error(
                     Logging.PatchPathResolverFailed,
@@ -62,7 +62,7 @@ namespace InsanityLib.Util
             if(scheme.IsEmpty) return true;
 
             var resolver = Resolver.Find(scheme);
-            if(resolver == null)
+            if(resolver is null)
             {
                 api.Logger.Error(
                     Logging.PatchPathResolverFailed,

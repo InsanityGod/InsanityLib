@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using InsanityLib.Enums.Auto.Config;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InsanityLib.Config
 {
@@ -21,5 +17,13 @@ namespace InsanityLib.Config
         /// </summary>
         [DefaultValue(true)]
         public bool SaveOnLoad { get; set; } = true;
+
+        public EConfigEditorMode ConfigUIMode { get; set; } = EConfigEditorMode.InsanityLibConfigEditor;
+
+        /// <summary>
+        /// Wether elements should automatically be ordered for better visibility.
+        /// (this for instances moves CollapseHeaders down to the bottom of the section)
+        /// </summary>
+        public bool AutoElementOrdering { get; set; } = true;
     }
 }

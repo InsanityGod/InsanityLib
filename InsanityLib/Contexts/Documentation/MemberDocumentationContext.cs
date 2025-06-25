@@ -17,14 +17,14 @@ namespace InsanityLib.Contexts.Documentation
         public AssemblyDocumentationContext AssemblyDocumentationContext { get; init; }
         public MemberInfo Member { get; init; }
         public XmlNode MemberNode { get; internal set; }
-        public bool HasXmlDocumentation => MemberNode != null;
+        public bool HasXmlDocumentation => MemberNode is not null;
 
         public string GetDescription()
         {
             if (HasXmlDocumentation)
             {
                 var summaryNode = MemberNode.SelectSingleNode("summary");
-                if (summaryNode != null)
+                if (summaryNode is not null)
                 {
                     var summaryStr = summaryNode.InnerText.CleanWhiteSpaces();
                     if(!string.IsNullOrEmpty(summaryStr)) return summaryStr;
@@ -40,7 +40,7 @@ namespace InsanityLib.Contexts.Documentation
             if (HasXmlDocumentation)
             {
                 var exampleNodes = MemberNode.SelectNodes("example");
-                if (exampleNodes != null)
+                if (exampleNodes is not null)
                 {
                     var exampleStrings = new List<string>();
 
@@ -62,7 +62,7 @@ namespace InsanityLib.Contexts.Documentation
             if (HasXmlDocumentation)
             {
                 var returnNode = MemberNode.SelectSingleNode("returns");
-                if (returnNode != null)
+                if (returnNode is not null)
                 {
                     var returnStr = returnNode.InnerText.CleanWhiteSpaces();
                     if(!string.IsNullOrEmpty(returnStr)) return returnStr;
@@ -79,14 +79,14 @@ namespace InsanityLib.Contexts.Documentation
             description.AppendLine();
 
             var defaultAttr = Member.GetCustomAttribute<DefaultValueAttribute>();
-            if(defaultAttr != null) description.AppendLine($"Default: {defaultAttr.Value}");
+            if(defaultAttr is not null) description.AppendLine($"Default: {defaultAttr.Value}");
 
             var validatorAttributes = Member.GetCustomAttributes<ValidationAttribute>().ToArray();
 
             var primaryType = Member.GetPrimaryType();
             if (primaryType.IsEnum)
             {
-                var isEnumFlag = primaryType.GetCustomAttribute<FlagsAttribute>() != null;
+                var isEnumFlag = primaryType.GetCustomAttribute<FlagsAttribute>() is not null;
                 if (isEnumFlag) description.Append("Valid Values (Combination): ");
                 else description.Append("Valid Values: ");
                 var parser = new EnumNameValueMapping(primaryType);

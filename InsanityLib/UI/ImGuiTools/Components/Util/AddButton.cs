@@ -31,7 +31,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
             var dictTypes = containerType.FindGenericInterfaceDefinition(typeof(IDictionary<,>))?.GenericTypeArguments;
             var listTypes = containerType.FindGenericInterfaceDefinition(typeof(ICollection<>))?.GenericTypeArguments;
             
-            if(dictTypes != null)
+            if(dictTypes is not null)
             {
                 KeyType = dictTypes[0];
                 ValueType = dictTypes[1];
@@ -41,7 +41,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                 KeyType = typeof(int);
                 ValueType = containerType.GetElementType();
             }
-            else if(listTypes != null)
+            else if(listTypes is not null)
             {
                 ValueType = listTypes[0];
             }
@@ -101,10 +101,11 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
             {
                 ExistsInDictionary = existsInDictionary
             };
+            collection.ValidationResulProvider = keyContext.KeyValidation;
 
             if (!keyContext.ExistsInDictionary)
             {
-                keyContext.LastValidationResult = "Duplicate Key!";
+                keyContext.KeyValidation.LastValidationResult = "Duplicate Key!";
             }
 
             collection.Components.Add(new RemoveButton(ComponentContainer, collection, keyContext)
@@ -117,7 +118,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
             if (container is IDictionary)
             {
                 var keyComponent = ImGuiComposer.TryCompose(keyContext, KeyType);
-                if(keyComponent != null)
+                if(keyComponent is not null)
                 {
                     collection.Spread[collection.Components.Count] = 200; //Set width for key column
                     collection.Components.Add(keyComponent);
@@ -125,7 +126,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
             }
             
             var valueComponent = ImGuiComposer.TryCompose(keyContext.ValueContext, ValueType);
-            if(valueComponent != null)
+            if(valueComponent is not null)
             {
                 collection.Components.Add(valueComponent);
             }

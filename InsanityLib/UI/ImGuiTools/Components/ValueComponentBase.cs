@@ -33,7 +33,7 @@ namespace InsanityLib.UI.ImGuiTools.Components
         {
             if(!Context.TryGetValue(out var obj)) return;
 
-            isNull = IsNullable && obj == null;
+            isNull = IsNullable && obj is null;
             if (!IsNull) value = obj.AutoConvert<T>();
 
             Validate();
@@ -52,7 +52,7 @@ namespace InsanityLib.UI.ImGuiTools.Components
         protected ValueComponentBase(ImGuiContext context) : base(context)
         {
             ValidationAttributes = context.Member.GetCustomAttributes<ValidationAttribute>().ToArray();
-            IsNullable = Nullable.GetUnderlyingType(context.Member.GetPrimaryType()) != null;
+            IsNullable = Nullable.GetUnderlyingType(context.Member.GetPrimaryType()) is not null;
             ValidationContext = new(context.TargetObject)
             {
                 MemberName = context.Member.Name,
@@ -72,6 +72,7 @@ namespace InsanityLib.UI.ImGuiTools.Components
         
         public virtual bool Validate()
         {
+            //TODO some way to check if the problem was solved, so we can notify other components to check as well
             if (ValidationAttributes.Length == 0) return true;
             if(!Context.TryGetValue(out var value)) return false;
             
@@ -82,8 +83,7 @@ namespace InsanityLib.UI.ImGuiTools.Components
                 var result = attribute.GetValidationResult(value, ValidationContext);
                 if(result != ValidationResult.Success)
                 {
-                    if(builder.Length > 0) builder.Append(Environment.NewLine);
-                    builder.Append(result.ToString());
+                    builder.AppendLine(result.ToString());
                 }
             }
             
@@ -128,7 +128,7 @@ namespace InsanityLib.UI.ImGuiTools.Components
             }
 
 
-            if(Context.Description != null) Editors.DrawHint(Context.Description);
+            if(Context.Description is not null) Editors.DrawHint(Context.Description);
             
             ImGui.EndDisabled();
             

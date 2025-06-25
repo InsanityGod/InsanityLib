@@ -28,7 +28,7 @@ namespace InsanityLib.Attributes.Auto
                 try
                 {
                     attr = assembly.GetCustomAttribute<AutoPatcherAttribute>();
-                    if (attr == null || Harmony.HasAnyPatches(attr.HarmonyId)) continue;
+                    if (attr is null || Harmony.HasAnyPatches(attr.HarmonyId)) continue;
 
                     var harmony = new Harmony(attr.HarmonyId);
                     harmony.PatchAllUncategorized(assembly);
@@ -47,7 +47,7 @@ namespace InsanityLib.Attributes.Auto
                 }
                 catch (Exception ex)
                 {
-                    logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoPatch), attr != null ? attr.HarmonyId : assembly, ex);
+                    logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoPatch), attr is not null ? attr.HarmonyId : assembly, ex);
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace InsanityLib.Attributes.Auto
                 try
                 {
                     attr = assembly.GetCustomAttribute<AutoPatcherAttribute>();
-                    if (attr != null)
+                    if (attr is not null)
                     {
                         var harmony = new Harmony(attr.HarmonyId);
                         harmony.UnpatchAll(attr.HarmonyId);
@@ -70,7 +70,7 @@ namespace InsanityLib.Attributes.Auto
                 }
                 catch (Exception ex)
                 {
-                    logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoHarmonyDisposal), attr != null ? attr.HarmonyId : assembly, ex);
+                    logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoHarmonyDisposal), attr is not null ? attr.HarmonyId : assembly, ex);
                 }
             }
         }

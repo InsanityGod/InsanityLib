@@ -50,7 +50,7 @@ namespace InsanityLib.Util
         public static string GetHumanReadableName(this MemberInfo member)
         {
             var displayNameAttr = member.GetCustomAttribute<DisplayNameAttribute>();
-            if(displayNameAttr != null) return Lang.Get(displayNameAttr.DisplayName);
+            if(displayNameAttr is not null) return Lang.Get(displayNameAttr.DisplayName);
             return member.Name.ToHumanReadable();
         }
 
@@ -100,11 +100,12 @@ namespace InsanityLib.Util
 
         public static bool TryRemoveFrom(this string prefix, ref string str)
         {
-            if(str == null || !str.StartsWith(prefix)) return false;
+            if(str is null || !str.StartsWith(prefix)) return false;
             str = str[prefix.Length..];
             return true;
         }
 
+        //TODO spans
         public static string RemoveSuffix(this string str, string suffix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(suffix) || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
         public static string RemovePrefix(this string str, string prefix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(prefix) || !str.StartsWith(prefix) ? str : str[prefix.Length..];
         public static string RemoveAffix(this string str, string affix) => str.RemovePrefix(affix).RemoveSuffix(affix);

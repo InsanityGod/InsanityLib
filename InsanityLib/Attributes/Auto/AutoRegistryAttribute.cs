@@ -31,7 +31,7 @@ namespace InsanityLib.Attributes.Auto
                 }
                 catch (Exception ex)
                 {
-                    logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoRegistryAttribute), attr != null ? attr.Domain : assembly, ex);
+                    logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoRegistryAttribute), attr is not null ? attr.Domain : assembly, ex);
                 }
             }
         }

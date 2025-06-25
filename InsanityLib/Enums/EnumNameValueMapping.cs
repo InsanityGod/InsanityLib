@@ -18,7 +18,7 @@ namespace InsanityLib.Enums
         public EnumNameValueMapping(Type enumType, bool includeExtended = true)
         {
             EnumType = enumType;
-            IsEnumFlag = enumType.GetCustomAttribute<FlagsAttribute>() != null;
+            IsEnumFlag = enumType.GetCustomAttribute<FlagsAttribute>() is not null;
             
 
             StrValues = Enum.GetNames(enumType);

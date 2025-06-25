@@ -21,13 +21,13 @@ namespace InsanityLib.UI.Composers.Complex
         public override void ComposeValueRenderer(GuiComposer composer, IDialogContext context, MemberInfo member, AssetLocation value)
         {
             string strValue = null;
-            if (value != null) strValue = value.HasDomain() ? value.ToString() : value.Path;
+            if (value is not null) strValue = value.HasDomain() ? value.ToString() : value.Path;
             
             if (context.IsMemberEditable(member))
             {
                 var inputBounds = ElementBounds.FixedSize(300, 40);
 
-                if (member != null) inputBounds.FixedRightOf(composer.LastAddedElement.Bounds, GuiStyle.HalfPadding);
+                if (member is not null) inputBounds.FixedRightOf(composer.LastAddedElement.Bounds, GuiStyle.HalfPadding);
                 context.Cursor.Y += inputBounds.fixedHeight;
 
                 var element = new GuiElementTextInput(context.GetService<ICoreClientAPI>(), inputBounds, value => member.SetValue(value.ToAssetLocation(), context.TargetObject), CairoFont.TextInput());

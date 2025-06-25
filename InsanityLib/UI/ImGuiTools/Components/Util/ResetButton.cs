@@ -19,7 +19,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
         public readonly string DescriptionStr;
         public static ResetButton TryCreate(ImGuiContext context)
         {
-            if(!context.CanWrite || context.Member.GetCustomAttribute<DefaultValueAttribute>() == null) return null;
+            if(!context.CanWrite || context.Member.GetCustomAttribute<DefaultValueAttribute>() is null) return null;
 
             return new ResetButton(context.New("reset-button", name: "~"));
         }

@@ -1,4 +1,5 @@
 ﻿using ImGuiNET;
+using InsanityLib.Util;
 using InsanityLib.Util.SpanUtil;
 using System;
 using System.Collections.Generic;
@@ -14,24 +15,48 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
     {
         public AssetLocationComponent(ImGuiContext context) : base(context)
         {
+            
         }
+        
+        private AssetLocation location;
 
         public override void RenderValue()
         {
-            if (ImGui.InputText(Context.Label, ref value, 128))
+            if (ImGui.InputText(Context.Label, ref value, 128)) //TODO
             {
-                var components = value.Split(new[] { ':' }, 2);
+                //TODO dropdown search box for domain (to avoid bad interning)
+
+                if (string.IsNullOrEmpty(value) || value == ":")
+                {
+                    value = string.Empty;
+                    Context.TrySetValue(null, this);
+                    return;
+                }
+                
+                var components = value.Split(':', 2, StringSplitOptions.RemoveEmptyEntries);
+
+                location.Domain = components.Length > 1 ? components[0] : string.Empty;
+                location.Path = components[^1];
 
                 //TODO validator/warning attribute for checking for valid matches
-                //TODO maybe just retrieve the assetlocation instead
-                //TODO null assignment
-                Context.TryAutoSetValue(components.Length > 1 ? new AssetLocation(components[0], components[1]) : new AssetLocation(string.Empty, components[0]), this);
+
+                Context.TryAutoSetValue(location, this);
             }
         }
 
         protected override void OnValueChanged(object sender, PropertyChangedEventArgs args)
         {
-            base.OnValueChanged(sender, args);
+            if(!Context.TryGetValue(out var obj)) return;
+
+            if (obj is not null)
+            {
+                location = obj as AssetLocation;
+                value = location.ToStringSimple();
+            }
+            else location ??= new AssetLocation(); //Initialize to avoid null reference exceptions
+
+            Validate();
+
             value ??= string.Empty;
         }
     }

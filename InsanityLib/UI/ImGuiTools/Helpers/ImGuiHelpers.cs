@@ -3,7 +3,7 @@ using System;
 using System.Numerics;
 using VSImGui;
 
-namespace InsanityLib.UI.ImGuiTools
+namespace InsanityLib.UI.ImGuiTools.Helpers
 {
     public static class ImGuiHelpers
     {

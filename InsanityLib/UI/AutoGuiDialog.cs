@@ -100,7 +100,7 @@ namespace InsanityLib.UI
         {
             try
             {
-                if(SingleComposer == null) Compose();
+                if(SingleComposer is null) Compose();
                 return base.TryOpen(withFocus);
             }
             catch(Exception ex)
@@ -150,7 +150,7 @@ namespace InsanityLib.UI
 
         public bool EnsureUnique(object obj)
         {
-            if(obj == null || !obj.GetType().IsClass) return true;
+            if(obj is null || !obj.GetType().IsClass) return true;
             return recursionPrevention.Add(obj);
         }
     }

@@ -18,7 +18,7 @@ namespace InsanityLib.PathResolvers.Implementations
 
         public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object result)
         {
-            foreach((ReadOnlySpan<char> configPath, var config) in AutoConfig.LoadedConfigs) //Sadly can't use AlternativeLookup yet
+            foreach((ReadOnlySpan<char> configPath, var config) in AutoConfigUtil.LoadedConfigs) //Sadly can't use AlternativeLookup yet
             {
                 var configName = configPath.WithoutSuffix(".json");
                 if (!path.StartsWith(configName)) continue;

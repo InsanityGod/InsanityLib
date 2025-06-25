@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="AutoConfigLib">
+      <HintPath>..\..\AutoConfigLib\AutoConfigLib\bin\Debug\Mods\mod\AutoConfigLib.dll</HintPath>
+	  <Private>false</Private>
+    </Reference>
     <Reference Include="configlib">
       <HintPath>..\..\Dep\configlib_1.4.1\configlib.dll</HintPath>
 		<Private>false</Private>

@@ -36,7 +36,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
         {
             if (IsPercentage && MinPercentageValue != float.NegativeInfinity && MaxPercentageValue != float.PositiveInfinity)
             {
-                var percentageValue = value * 100; //TODO a way to type this in aside from having a slider
+                var percentageValue = value * 100; //TODO context menu that allowes turning off percentage input mode
                 if(ImGui.SliderFloat(Context.Label, ref percentageValue, MinPercentageValue, MaxPercentageValue, FormatString))
                 {
                     value = percentageValue / 100;

@@ -33,11 +33,6 @@ namespace InsanityLib.Attributes.Auto.Config
         public bool CreateIfNotExist { get; init; } = true;
 
         /// <summary>
-        /// Whether the config should get an automatically generated configlib implementation
-        /// </summary>
-        public EConfigLibMode ConfigLibMode { get; init; } = EConfigLibMode.Always;
-
-        /// <summary>
         /// Whether the config file should be synced from server to client
         /// </summary>
         public bool ServerSync { get; init; }

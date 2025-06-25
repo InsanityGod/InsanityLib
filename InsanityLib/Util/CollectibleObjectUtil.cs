@@ -10,14 +10,14 @@ namespace InsanityLib.Util
         /// </summary>
         public static CollectibleObject GetPlacedByItem(this Block block, ICoreAPI api)
         {
-            if (block.Attributes != null)
+            if (block.Attributes is not null)
             {
                 var redirect = block.Attributes["PlacedByItem"].AsString();
-                if (redirect != null)
+                if (redirect is not null)
                 {
                     CollectibleObject placedByItem = api.World.GetBlock(redirect);
                     placedByItem ??= api.World.GetItem(redirect);
-                    if (placedByItem != null) return placedByItem;
+                    if (placedByItem is not null) return placedByItem;
                     
                     api.Logger.Error($"[InsanityLib] Invalid PlacedByItem redirect {block.Code} -> {redirect}");
                 }
@@ -32,13 +32,13 @@ namespace InsanityLib.Util
         /// </summary>
         public static Block GetPlacedBlock(this CollectibleObject collectible, ICoreAPI api)
         {
-            if (collectible.Attributes != null)
+            if (collectible.Attributes is not null)
             {
                 var redirect = collectible.Attributes["PlacedBlock"].AsString();
-                if (redirect != null)
+                if (redirect is not null)
                 {
                     Block block = api.World.GetBlock(redirect);
-                    if (block != null) return block;
+                    if (block is not null) return block;
                     
                     api.GetService<ILogger>().Error($"[WearAndTear] Invalid PlacedBlock redirect {collectible.Code} -> {redirect}");
                 }

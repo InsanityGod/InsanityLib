@@ -25,7 +25,7 @@ namespace InsanityLib.Commands
         public static TextCommandResult ModInfo(ICoreAPI api, [CommandParameter] string ModID)
         {
             var mod = api.ModLoader.GetMod(ModID);
-            if (mod != null) return TextCommandResult.Success($"{mod.Info.Name} ({mod.Info.ModID} {mod.Info.Version})\n{mod.Info.Description}");
+            if (mod is not null) return TextCommandResult.Success($"{mod.Info.Name} ({mod.Info.ModID} {mod.Info.Version})\n{mod.Info.Description}");
 
             var closestMatch = api.ModLoader.Mods
                     .OrderBy(m => m.Info.ModID.LevenshteinDistance(ModID))

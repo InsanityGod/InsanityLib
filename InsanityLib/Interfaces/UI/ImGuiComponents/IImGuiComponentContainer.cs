@@ -10,7 +10,7 @@ namespace InsanityLib.Interfaces.UI.ImGuiComponents
 {
     public interface IImGuiComponentContainer : IImGuiComponent, IEnumerable<IImGuiComponent>
     {
-        public IList<IImGuiComponent> Components { get; }
+        public List<IImGuiComponent> Components { get; }
         
         /// <summary>
         /// Wether the children should be visiblke

@@ -16,9 +16,9 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
             var stringLengthAttr = context.Member.GetCustomAttribute<StringLengthAttribute>();
             var maxLengthAttr = context.Member.GetCustomAttribute<MaxLengthAttribute>();
             
-            if(stringLengthAttr != null && maxLengthAttr != null) MaxStringLength = (uint)Math.Min(stringLengthAttr.MaximumLength, maxLengthAttr.Length);
-            else if(stringLengthAttr != null) MaxStringLength = (uint)stringLengthAttr.MaximumLength;
-            else if(maxLengthAttr != null) MaxStringLength = (uint)maxLengthAttr.Length;
+            if(stringLengthAttr is not null && maxLengthAttr is not null) MaxStringLength = (uint)Math.Min(stringLengthAttr.MaximumLength, maxLengthAttr.Length);
+            else if(stringLengthAttr is not null) MaxStringLength = (uint)stringLengthAttr.MaximumLength;
+            else if(maxLengthAttr is not null) MaxStringLength = (uint)maxLengthAttr.Length;
         }
 
         protected override void OnValueChanged(object sender, PropertyChangedEventArgs args)

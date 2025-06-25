@@ -16,7 +16,7 @@ namespace InsanityLib.UI.ImGuiTools.Composers
 
         public IImGuiComponent Compose(ImGuiContext context, Type type)
         {
-            if(context.Member is not MethodBase || context.Member.GetCustomAttribute<ConfigMethodAttribute>() == null) return null;
+            if(context.Member is not MethodBase || context.Member.GetCustomAttribute<ConfigMethodAttribute>() is null) return null;
             return new Button(context);
         }
     }

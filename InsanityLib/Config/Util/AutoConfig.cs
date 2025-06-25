@@ -6,7 +6,10 @@ using InsanityLib.Enums.Auto.Config;
 using InsanityLib.Enums.Auto.Config.UI;
 using InsanityLib.Interfaces.UI.ImGuiComponents;
 using InsanityLib.UI.ImGuiTools;
+using InsanityLib.UI.ImGuiTools.Components;
+using InsanityLib.UI.ImGuiTools.Components.Util;
 using InsanityLib.Util;
+using InsanityLib.Util.AutoRegistry;
 using Newtonsoft.Json;
 using System;
 using System.Text;
@@ -15,7 +18,7 @@ using YamlDotNet.Core.Tokens;
 
 namespace InsanityLib.Config.Util
 {
-    public class AutoConfigLib
+    public class AutoConfig
     {
         /// <summary>
         /// The actual config instance
@@ -26,7 +29,7 @@ namespace InsanityLib.Config.Util
         /// A copy of the config instance, to which we apply edits
         /// </summary>
         [ConfigDisplay(Hierarchy = EHierarchyDisplay.None)]
-        public object EditConfigInstance { get; set; } //TODO disposal
+        public object EditConfigInstance { get; set; } //TODO disposal?
 
         public readonly ICoreAPI Api;
 
@@ -40,21 +43,28 @@ namespace InsanityLib.Config.Util
         /// </summary>
         public readonly bool ServerSync;
 
-        public readonly EConfigLibMode ConfigLibMode;
-
-        public AutoConfigLib(ICoreAPI api, object instance, AutoConfigAttribute attr)
+        public AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
         {
             Api = api;
             ConfigInstance = instance;
             Path = attr.Path;
             ServerSync = attr.ServerSync;
-            ConfigLibMode = attr.ConfigLibMode;
         }
 
-        public bool Validate()
+        public bool Validate(out string result)
         {
-            //TODO
-            return true;
+            var validationResult = EditConfigInstance.TryNestedValidate(Api.GetServiceContainer());
+            //TODO Collect unsaved changes (due to keys not being added to dictionary yet)
+            if (!validationResult.IsValid)
+            {
+                result = string.Join(Environment.NewLine, validationResult.Results);
+                return false;
+            }
+            else
+            {
+                result = string.Empty;
+                return true;
+            }
         }
 
         /// <summary>
@@ -62,7 +72,32 @@ namespace InsanityLib.Config.Util
         /// </summary>
         public void Save()
         {
+            if(!Validate(out var validationResult))
+            {
+                var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(Save)), id: "ValidationPopup", serviceProvider: Api.GetServiceContainer());
+                AutoConfigUtil.BlockingPopup = new Popup(context)
+                {
+                    Title = "Validation Failed",
+                    AcceptLabel = "Save Anyway##ValidationPopup-accept",
+                    AcceptCallback = SaveInternal,
+                    RejectLabel = "Cancel##ValidationPopup-cancel",
+                    Text = validationResult.ReplaceSpecialSymbolsWithText(),
+                };
+            }
+            else SaveInternal();
+            //TODO collect validation messages
+        }
 
+        private void SaveInternal()
+        {
+            try
+            {
+                AutoConfigUtil.StoreModConfig(Api, EditConfigInstance, Path);
+            }
+            catch
+            {
+                //TODO open error popup
+            }
         }
 
         /// <summary>
@@ -98,7 +133,7 @@ namespace InsanityLib.Config.Util
             try
             {
                 Restore();
-                var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(EditConfigInstance)), id: Path, serviceProvider: Api.GetServiceContainer());
+                var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(EditConfigInstance)), id: Path, serviceProvider: Api.GetServiceContainer());
                 Component = ImGuiComposer.TryCompose(context, ConfigInstance.GetType());
                 ComposeError = null;
             }
@@ -129,7 +164,7 @@ namespace InsanityLib.Config.Util
                 return;
             }
             
-            if (Component == null) ReCompose();
+            if (Component is null) ReCompose();
 
             Component?.SafeRender();
             ContextMenuOpen = false;
@@ -138,7 +173,7 @@ namespace InsanityLib.Config.Util
 
             PostRenderCallback = null; //reset after render
             
-            if(ContextMenuOwner != null && CurrentContextMenuClaim == null) ImGui.CloseCurrentPopup(); //Close the current popup
+            if(ContextMenuOwner is not null && CurrentContextMenuClaim is null) ImGui.CloseCurrentPopup(); //Close the current popup
 
             ContextMenuOwner = CurrentContextMenuClaim;
             CurrentContextMenuClaim = null; //reset after render

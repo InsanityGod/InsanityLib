@@ -1,6 +1,7 @@
 ﻿using ImGuiNET;
 using InsanityLib.Config.Util;
 using InsanityLib.Interfaces.UI.ImGuiComponents;
+using InsanityLib.Util.AutoRegistry;
 using System;
 
 namespace InsanityLib.UI.ImGuiTools.Components
@@ -15,7 +16,7 @@ namespace InsanityLib.UI.ImGuiTools.Components
 
         public void SafeRender()
         {
-            if(Error != null) return; //TODO maybe a way to make it still show up but disabled instead
+            if(Error is not null) return; //TODO maybe a way to make it still show up but disabled instead
 
             try
             {
@@ -52,23 +53,23 @@ namespace InsanityLib.UI.ImGuiTools.Components
 
         public void RenderContextMenu()
         {
-            if(AutoConfigLib.ContextMenuOwner == this)
+            if(AutoConfig.ContextMenuOwner == this)
             {
                 if(!ImGui.BeginPopupContextItem()) return; //Begin the context menu popup
 
-                AutoConfigLib.CurrentContextMenuClaim = this; //Set the current context menu claim
+                AutoConfig.CurrentContextMenuClaim = this; //Set the current context menu claim
 
                 RenderContextMenuContent(); //Render the context menu content
                 ImGui.EndPopup(); //End the context menu popup
                 return;
             }
             
-            if (!ContextMenuEnabled || (AutoConfigLib.ContextMenuOwner != null && AutoConfigLib.ContextMenuOwner != this)) return; //Context Menu is in use by another component or disabled
+            if (!ContextMenuEnabled || (AutoConfig.ContextMenuOwner is not null && AutoConfig.ContextMenuOwner != this)) return; //Context Menu is in use by another component or disabled
 
             if (ImGui.BeginPopupContextItem()) //Begin the context menu popup
             {
-                AutoConfigLib.ContextMenuOwner = this;
-                AutoConfigLib.CurrentContextMenuClaim = this; //Set the current context menu claim
+                AutoConfig.ContextMenuOwner = this;
+                AutoConfig.CurrentContextMenuClaim = this; //Set the current context menu claim
 
                 RenderContextMenuContent(); //Render the context menu content
                 ImGui.EndPopup(); //End the context menu popup

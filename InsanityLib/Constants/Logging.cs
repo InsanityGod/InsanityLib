@@ -29,5 +29,6 @@ namespace InsanityLib.Constants
         public const string PathResolverFailed = "[InsanityLib] [{0}] Resolved: '{1}', Unresolved: '{2}', Reason: {3}";
 
         public const string ModRequirementNotMet = "[InsanityLib] Mod requirement not met for using [{0}], Missing mod: '{1}'";
+        public const string ModRequirementNotMetDefaulting = "[InsanityLib] Mod requirement not met for using [{0}] defaulting to [{1}], Missing mod: '{2}'";
     }
 }

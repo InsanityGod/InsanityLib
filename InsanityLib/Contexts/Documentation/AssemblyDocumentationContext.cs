@@ -12,6 +12,6 @@ namespace InsanityLib.Contexts.Documentation
     {
         public XmlDocument Document { get; internal set; }
 
-        public bool HasXmlDocumentation => Document != null;
+        public bool HasXmlDocumentation => Document is not null;
     }
 }

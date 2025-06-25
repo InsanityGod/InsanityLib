@@ -16,7 +16,7 @@ namespace InsanityLib.UI.Composers.Value
         public override void ComposeValueRenderer(GuiComposer composer, IDialogContext context, MemberInfo member, bool value)
         {
             var inputBounds = ElementBounds.FixedSize(300, 40);
-            if (member != null) inputBounds.FixedRightOf(composer.LastAddedElement.Bounds, GuiStyle.HalfPadding);
+            if (member is not null) inputBounds.FixedRightOf(composer.LastAddedElement.Bounds, GuiStyle.HalfPadding);
             context.Cursor.Y += inputBounds.fixedHeight;
             var element = new GuiElementSwitch(composer.Api, value => member.SetValue(value, context.TargetObject), inputBounds)
             {

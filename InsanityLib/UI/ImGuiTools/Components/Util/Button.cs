@@ -26,7 +26,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
         {
             try
             {
-                if(Action != null)
+                if(Action is not null)
                 {
                     Action();
                 }
@@ -44,7 +44,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
 
         public override void Render()
         {
-            ImGui.BeginDisabled(LastError != null || !Context.CanWrite);
+            ImGui.BeginDisabled(LastError is not null || !Context.CanWrite);
 
             if (ImGui.Button(Context.Label, FixedWidth ?? (FullWidth ? new(ImGui.GetContentRegionAvail().X, 0) : default)))
             {

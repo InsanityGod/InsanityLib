@@ -1,4 +1,5 @@
 ﻿using Cairo;
+using InsanityLib.UI.ImGuiTools.Helpers;
 using InsanityLib.Util;
 using System;
 using System.Collections;
@@ -21,9 +22,12 @@ namespace InsanityLib.UI.ImGuiTools.Contexts
         public bool ExistsInDictionary { get; internal set; }
 
         public object LastValidKey { get; internal set; }
+
+        public readonly ValidationResultHolder KeyValidation = new();
+
         public object CurrentKey { get; internal set; }
         
-        public override ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member == null ? TargetObject : CurrentKey, member ?? Member, this, id, name);
+        public override ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member is null ? TargetObject : CurrentKey, member ?? Member, this, id, name);
 
         public KeyContext(object targetObject, MemberInfo member, Type keyType, object currentKey, Type valueType, ImGuiContext parentContext, string id = null, string name = null, IServiceProvider serviceProvider = null) : base(targetObject, member, parentContext, id, name, serviceProvider)
         {
@@ -49,7 +53,7 @@ namespace InsanityLib.UI.ImGuiTools.Contexts
 
         public override bool TrySetValue(object value, object ChangedBy)
         {
-            LastValidationResult = null;
+            KeyValidation.LastValidationResult = null;
 
             if(!CanWrite) return false;
             
@@ -60,7 +64,7 @@ namespace InsanityLib.UI.ImGuiTools.Contexts
             {
                 if (dict.Contains(value))
                 {
-                    LastValidationResult = $"Duplicate Key!";
+                    KeyValidation.LastValidationResult = $"Duplicate Key!";
                     return false;
                 }
 
@@ -78,13 +82,13 @@ namespace InsanityLib.UI.ImGuiTools.Contexts
                 }
                 catch(Exception ex)
                 {
-                    LastValidationResult = ex.ToString();
+                    KeyValidation.LastValidationResult = ex.ToString();
                     return false;
                 }
             }
             else
             {
-                LastValidationResult = $"Could net set key for non IDictionary object '{value?.GetType()}'";
+                KeyValidation.LastValidationResult = $"Could net set key for non IDictionary object '{value?.GetType()}'";
                 return false;
             }
         }

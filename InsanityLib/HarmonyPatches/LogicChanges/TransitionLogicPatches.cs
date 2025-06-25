@@ -66,7 +66,7 @@ namespace InsanityLib.HarmonyPatches.LogicChanges
 			foreach (ItemSlot slot in inputSlots)
 			{
                 TransitionState state = slot.Itemstack?.Collectible?.UpdateAndGetTransitionState(api.World, slot, EnumTransitionType.Perish);
-                if(state == null) continue;
+                if(state is null) continue;
 
 				quantity++;
 
@@ -82,13 +82,13 @@ namespace InsanityLib.HarmonyPatches.LogicChanges
             var dummySlot = new DummySlot();
             foreach (var outStack in outStacks)
             {
-                if(outStack == null) continue;
+                if(outStack is null) continue;
 
                 dummySlot.Itemstack = outStack;
                 var transitions = outStack.Collectible?.GetTransitionableProperties(api.World, outStack, null);
-                if(transitions == null) continue;
+                if(transitions is null) continue;
                 var states = outStack?.Collectible?.UpdateAndGetTransitionStates(api.World, dummySlot);
-                if(states == null) continue;
+                if(states is null) continue;
 
                 for (int transitionIndex = 0; transitionIndex < transitions.Length; transitionIndex++)
                 {
