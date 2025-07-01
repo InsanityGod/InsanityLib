@@ -61,8 +61,8 @@ namespace InsanityLib.PathResolvers.Implementations
             api.Logger.Warning(
                 Logging.PathResolverFailed,
                 nameof(AutoConfigResolver),
-                path.ToString(),
                 string.Empty,
+                path.ToString(),
                 "Config not found"
             );
 

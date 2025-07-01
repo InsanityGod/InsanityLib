@@ -20,23 +20,27 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
         public readonly IImGuiComponentContainer ComponentContainer;
 
         public readonly KeyContext KeyContext;
+        public readonly SetItemContext SetItemContext;
 
-        public RemoveButton(IImGuiComponentContainer parentContainer, IImGuiComponentContainer componentContainer, KeyContext keyContext) : base(keyContext.ParentContext.New($"{keyContext.Id}-removebutton", name: "X"), null)
+        private RemoveButton(IImGuiComponentContainer parentContainer, IImGuiComponentContainer componentContainer, ImGuiContext context) : base(context.ParentContext.New($"{context.Id}-removebutton", name: "X"), null)
         {
             ComponentContainer = componentContainer;
             Action = Remove;
             ParentContainer = parentContainer;
-            KeyContext = keyContext;
         }
+        public RemoveButton(IImGuiComponentContainer parentContainer, IImGuiComponentContainer componentContainer, KeyContext keyContext) : this(parentContainer, componentContainer, keyContext as ImGuiContext) => KeyContext = keyContext;
+        public RemoveButton(IImGuiComponentContainer parentContainer, IImGuiComponentContainer componentContainer, SetItemContext setItemContext) : this(parentContainer, componentContainer, setItemContext as ImGuiContext) => SetItemContext = setItemContext;
 
-        private void Detach() => ParentContainer.Components.Remove(ComponentContainer);
-
-        //TODO initialization/removal for Complex Types?
         public void Remove()
         {
             if(!Context.TryGetValue(out var container)) return;
 
             ParentContainer.Components.Remove(ComponentContainer);
+            if(SetItemContext is not null)
+            {
+                SetItemContext.Remove();
+                return;
+            }
 
             if (container is IDictionary dict)
             {
@@ -52,7 +56,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                 {
                     var newArray = Array.CreateInstance(KeyContext.ValueContext.ValueType, list.Count - 1);
 
-                    var index = 0; //TODO
+                    var index = 0;
                     for(var i = 0; i < list.Count; i++)
                     {
                         if(i == currentKey) continue;
@@ -63,7 +67,6 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
 
                 ShiftKeys(currentKey);
             }
-
         }
 
         private void ShiftKeys(int fromKey)

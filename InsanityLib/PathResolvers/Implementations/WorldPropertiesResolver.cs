@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using InsanityLib.Constants;
 using InsanityLib.Util.SpanUtil;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,13 @@ namespace InsanityLib.PathResolvers.Implementations
                 return true;
             }
 
-            //TODO logger
+            api.Logger.Warning(
+                Logging.PathResolverFailed,
+                nameof(AutoConfigResolver),
+                string.Empty,
+                path.ToString(),
+                "Worldproperty not found"
+            );
 
             result = null;
             return false;

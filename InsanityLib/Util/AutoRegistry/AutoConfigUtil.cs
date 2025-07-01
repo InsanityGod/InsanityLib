@@ -8,6 +8,7 @@ using InsanityLib.Config.Util;
 using InsanityLib.Constants;
 using InsanityLib.Enums.Auto.Config;
 using InsanityLib.Interfaces.UI.ImGuiComponents;
+using InsanityLib.UI.ImGuiTools;
 using InsanityLib.UI.ImGuiTools.Components.Util;
 using Newtonsoft.Json;
 using System;
@@ -15,6 +16,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -26,7 +28,7 @@ namespace InsanityLib.Util.AutoRegistry
 {
     public static class AutoConfigUtil
     {
-        [AutoClear] //TODO move config tracking code to this library from AutoConfigLib
+        [AutoClear]
         internal static Dictionary<string, AutoConfig> LoadedConfigs { get; } = new();
 
         private static bool TryAssignFromCache(string path, MemberInfo member)
@@ -57,12 +59,20 @@ namespace InsanityLib.Util.AutoRegistry
 			File.WriteAllText(fileInfo.FullName, json);
         }
 
+        public static void RegisterConfigLibEvents(ICoreAPI api)
+        {
+            if(api.Side == EnumAppSide.Server) return;
+
+            var configLib = api.ModLoader.GetModSystem<ConfigLibModSystem>();
+            configLib.ConfigWindowClosed += AutoConfig.Cleanup;
+        }
+
 
         internal static void LoadAll(IServiceProvider provider)
         {
             var api = provider.GetService<ICoreAPI>();
             var loadModConfig = AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.LoadModConfig) && method.IsGenericMethod);
-            
+            if(api.ModLoader.IsModEnabled("configlib")) RegisterConfigLibEvents(api);
             foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<AutoConfigAttribute>().OrderByDescending(config => config.Item1.GetPrimaryType() == typeof(InsanityLibConfig))) //Ensure primary config is loaded first
             {
                 try
@@ -79,7 +89,6 @@ namespace InsanityLib.Util.AutoRegistry
                         {
                             var jsonBase64 = clientApi.World.Config.GetOrAddTreeAttribute("insanitylib").GetString(attr.Path);
 
-                            //TODO check optimization
                             value = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(Convert.FromBase64String(jsonBase64)), configType) ?? throw new InvalidOperationException($"Config is configured to be synced from server but no config was sent for '{attr.Path}'");
                             member.SetValue(value);
                         }
@@ -150,7 +159,7 @@ namespace InsanityLib.Util.AutoRegistry
             
             foreach ((_, var config) in LoadedConfigs)
             {
-                RegisterToConfigLib(api, config, config.ConfigInstance is InsanityLibConfig ? EConfigEditorMode.AutoConfigLibEditor : mode);
+                RegisterToConfigLib(api, config, config.ConfigInstance is InsanityLibConfig ? EConfigEditorMode.InsanityLibConfigEditor : mode);
             }
         }
 
@@ -161,7 +170,21 @@ namespace InsanityLib.Util.AutoRegistry
                 .Invoke(null, new object[] { api, path, instance });
         }
 
-        public static Popup BlockingPopup {get; set; }
+        public static Popup BlockingPopup { get; set; }
+
+        public static void NotifyUserOfException(Exception ex, IImGuiComponent component)
+        {
+            var clientApi = InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>();
+            var context = new ImGuiContext(component, null, id: "ErrorPopup", serviceProvider: clientApi.GetServiceContainer());
+            BlockingPopup = new Popup(context)
+            {
+                Title = ex.Message,
+                Text = ex.ToString(),
+                AcceptLabel = "Continue##ErrorPopup-Continue",
+                RejectLabel = "Copy Error And Continue##ErrorPopup-Copy-Continue",
+                RejectCallback = () => clientApi.Forms.SetClipboardText(ex.ToString())
+            };
+        }
 
         private static void RegisterToConfigLib(ICoreAPI api, AutoConfig config, EConfigEditorMode UIMode)
         {
@@ -176,11 +199,21 @@ namespace InsanityLib.Util.AutoRegistry
 
                     configLib.RegisterCustomConfig(config.Path, (domain, buttons) =>
                     {
+                        var serverConfigOnClient = !ReflectionUtil.SideLoaded(EnumAppSide.Server) && config.ServerSync;
+                        
+                        ImGui.BeginDisabled(serverConfigOnClient);
+                        if (serverConfigOnClient)
+                        {
+                            ImGui.Text("Client side editing of server config is not supported yet");
+                            ImGui.NewLine();
+                        }
+
                         if (buttons.Save) config.Save();
-                        if (buttons.Restore) config.Restore();
+                        if (buttons.Restore) config.Restore(true);
+                        
+                        //TODO discard changes method
                         if (buttons.Defaults) config.Defaults();
                         if (buttons.Reload) config.Reload();
-                        //TODO handle server and client difference
 
                         config.Render();
                         if(BlockingPopup is not null)
@@ -188,6 +221,15 @@ namespace InsanityLib.Util.AutoRegistry
                             BlockingPopup.SafeRender();
                             if(!BlockingPopup.IsOpen) BlockingPopup = null;
                         }
+
+                        ImGui.EndDisabled();
+                        return new ControlButtons
+                        {
+                            Save = !serverConfigOnClient, //Only server can save for now
+                            Restore = !serverConfigOnClient,
+                            Defaults = !serverConfigOnClient,
+                            Reload = false
+                        };
                     });
                     break;
             }

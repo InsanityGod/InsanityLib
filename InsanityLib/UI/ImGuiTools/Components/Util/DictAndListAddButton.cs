@@ -12,16 +12,16 @@ using Vintagestory.API.Common;
 
 namespace InsanityLib.UI.ImGuiTools.Components.Util
 {
-    public class AddButton : Button
+    public class DictAndListAddButton : Button
     {
         public readonly Type KeyType;
 
         public readonly Type ValueType;
         public readonly IImGuiComponentContainer ComponentContainer;
 
-        private int lastIndex = 0;
+        private int lastIndex = -1;
 
-        public AddButton(ImGuiContext context, IImGuiComponentContainer componentContainer) : base(context.New("addbutton", name: "add"), null)
+        public DictAndListAddButton(ImGuiContext context, IImGuiComponentContainer componentContainer) : base(context.New("addbutton", name: "add"), null)
         {
             ComponentContainer = componentContainer;
             Action = AddItem;
@@ -76,7 +76,13 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                     var newArray = Array.CreateInstance(ValueType, key + 1);
                     list.CopyTo(newArray, 0);
                     newArray.SetValue(value, key);
+
                     Context.ParentContext.TrySetValue(newArray, this);
+                    foreach (var item in ComponentContainer.Where(item => item.Context.TargetObject == container))
+                    {
+                        item.Context.TargetObject = newArray;
+                    }
+
                     AddDisplay(key, value, true);
                 }
                 else
@@ -85,7 +91,6 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                     AddDisplay(key, value, true);
                 }
             }
-            //TODO sets
         }
 
         public void AddDisplay(object key, object item, bool existsInDictionary)
@@ -105,7 +110,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
 
             if (!keyContext.ExistsInDictionary)
             {
-                keyContext.KeyValidation.LastValidationResult = "Duplicate Key!";
+                keyContext.KeyValidation.LastValidationResult = "Could not insert key, as it alrady exists in the dictionary!";
             }
 
             collection.Components.Add(new RemoveButton(ComponentContainer, collection, keyContext)
@@ -130,8 +135,6 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
             {
                 collection.Components.Add(valueComponent);
             }
-
-            //TODO test Set / HashSet
 
             ComponentContainer.Components.Insert(ComponentContainer.Components.IndexOf(this), collection);
         }

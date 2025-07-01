@@ -38,8 +38,6 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
                 location.Domain = components.Length > 1 ? components[0] : string.Empty;
                 location.Path = components[^1];
 
-                //TODO validator/warning attribute for checking for valid matches
-
                 Context.TryAutoSetValue(location, this);
             }
         }

@@ -11,9 +11,16 @@ using InsanityLib.UI.ImGuiTools.Components.Util;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
+using System.IO;
+using System.Net.WebSockets;
+using System.Runtime.InteropServices;
 using System.Text;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
+using Vintagestory.ServerMods.WorldEdit;
 using YamlDotNet.Core.Tokens;
 
 namespace InsanityLib.Config.Util
@@ -72,7 +79,10 @@ namespace InsanityLib.Config.Util
         /// </summary>
         public void Save()
         {
-            if(!Validate(out var validationResult))
+            //TODO permissions for editing on servers
+
+            if (Validate(out var validationResult)) SaveInternal();
+            else
             {
                 var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(Save)), id: "ValidationPopup", serviceProvider: Api.GetServiceContainer());
                 AutoConfigUtil.BlockingPopup = new Popup(context)
@@ -84,8 +94,6 @@ namespace InsanityLib.Config.Util
                     Text = validationResult.ReplaceSpecialSymbolsWithText(),
                 };
             }
-            else SaveInternal();
-            //TODO collect validation messages
         }
 
         private void SaveInternal()
@@ -103,11 +111,24 @@ namespace InsanityLib.Config.Util
         /// <summary>
         /// Discards all changes
         /// </summary>
-        public void Restore()
+        public void Restore(bool loadFromDisk = false)
         {
-            //JSON copy object for editing
-            string json = JsonConvert.SerializeObject(ConfigInstance, Formatting.None);
+            string json = null;
+            if (loadFromDisk)
+            {
+                string path = System.IO.Path.Combine(GamePaths.ModConfig, Path);
+			    if (File.Exists(path))
+                {
+                    json = File.ReadAllText(path);
+                }
+                else Api.Logger.Warning("[InsanityLib] could not restore {0} from disk as it no longer exists, defaulting to loaded config", Path);
+            }
+
+            //Defaulting to loaded config
+            json ??= JsonConvert.SerializeObject(ConfigInstance, Formatting.None); //JSON copy object for editing
+            
             EditConfigInstance = JsonConvert.DeserializeObject(json, ConfigInstance.GetType());
+            ReCompose();
         }
 
         /// <summary>
@@ -115,10 +136,13 @@ namespace InsanityLib.Config.Util
         /// </summary>
         public void Defaults()
         {
+            var newInstance = ConfigInstance.GetType().AutoCreate(Api.GetServiceContainer());
+            if(newInstance is not null) EditConfigInstance = newInstance;
+            ReCompose();
         }
 
         /// <summary>
-        /// Load values from disk / worldconfig
+        /// TODO Allow for hooking live update code (right now it just recomposes the UI)
         /// </summary>
         public void Reload()
         {
@@ -130,9 +154,10 @@ namespace InsanityLib.Config.Util
         /// </summary>
         public void ReCompose()
         {
+            if(EditConfigInstance is null) return; //Nothing to compose
+            Api.Logger.Debug("My Test Message");
             try
             {
-                Restore();
                 var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(EditConfigInstance)), id: Path, serviceProvider: Api.GetServiceContainer());
                 Component = ImGuiComposer.TryCompose(context, ConfigInstance.GetType());
                 ComposeError = null;
@@ -164,7 +189,11 @@ namespace InsanityLib.Config.Util
                 return;
             }
             
-            if (Component is null) ReCompose();
+            if (Component is null)
+            {
+                if(EditConfigInstance is null) Restore();
+                ReCompose();
+            }
 
             Component?.SafeRender();
             ContextMenuOpen = false;
@@ -177,6 +206,15 @@ namespace InsanityLib.Config.Util
 
             ContextMenuOwner = CurrentContextMenuClaim;
             CurrentContextMenuClaim = null; //reset after render
+        }
+
+        public static void Cleanup()
+        {
+            foreach(var config in AutoConfigUtil.LoadedConfigs.Values)
+            {
+                config.EditConfigInstance = null;
+                config.Component = null;
+            }
         }
     }
 }

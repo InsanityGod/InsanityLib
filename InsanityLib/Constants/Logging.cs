@@ -30,5 +30,7 @@ namespace InsanityLib.Constants
 
         public const string ModRequirementNotMet = "[InsanityLib] Mod requirement not met for using [{0}], Missing mod: '{1}'";
         public const string ModRequirementNotMetDefaulting = "[InsanityLib] Mod requirement not met for using [{0}] defaulting to [{1}], Missing mod: '{2}'";
+
+        public const string ComposeFailure = "[InsanityLib] failed to compose {0}: {1}";
     }
 }

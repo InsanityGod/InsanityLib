@@ -26,7 +26,7 @@ namespace InsanityLib
         public override void StartPre(ICoreAPI api)
         {
             ReflectionUtil.LoadedSides ??= api.Side;
-            ReflectionUtil.LoadedSides &= api.Side;
+            ReflectionUtil.LoadedSides |= api.Side;
             if (api is ICoreClientAPI clientApi) GlobalServiceContainer.Register(clientApi);
             if (api is ICoreServerAPI serverApi) GlobalServiceContainer.Register(serverApi);
             

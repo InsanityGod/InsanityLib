@@ -14,7 +14,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
     public class Button : ComponentBase
     {
         public Action Action { get; set; }
-        public string LastError { get; private set; }
+
         public bool FullWidth { get; set; } = true;
         public Vector2? FixedWidth { get; set; }
         public Button(ImGuiContext context, Action action = null) : base(context)
@@ -22,7 +22,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
             Action = action;
         }
 
-        public string SafeExecute()
+        public void SafeExecute()
         {
             try
             {
@@ -37,22 +37,16 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
             }
             catch(Exception ex)
             {
-                return ex.ToString();
+                OnError(ex);
             }
-            return null;
         }
 
         public override void Render()
         {
-            ImGui.BeginDisabled(LastError is not null || !Context.CanWrite);
-
             if (ImGui.Button(Context.Label, FixedWidth ?? (FullWidth ? new(ImGui.GetContentRegionAvail().X, 0) : default)))
             {
-                LastError = SafeExecute();
-                //TODO maybe an error popup
+                SafeExecute();
             }
-
-            ImGui.EndDisabled();
         }
     }
 }

@@ -9,6 +9,8 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Server;
 using VSImGui;
@@ -72,12 +74,11 @@ namespace InsanityLib.UI.ImGuiTools.Components
         
         public virtual bool Validate()
         {
-            //TODO some way to check if the problem was solved, so we can notify other components to check as well
             if (ValidationAttributes.Length == 0) return true;
             if(!Context.TryGetValue(out var value)) return false;
             
             var builder = new StringBuilder();
-
+            
             foreach (var attribute in ValidationAttributes)
             {
                 var result = attribute.GetValidationResult(value, ValidationContext);
@@ -104,7 +105,7 @@ namespace InsanityLib.UI.ImGuiTools.Components
         public override void Render()
         {
             ImGui.BeginDisabled(!Context.AllowedToWrite);
-            
+            ImGui.BeginGroup();
             ResetButton?.SafeRender();
 
             ImGui.BeginDisabled(isNull); //Normal value cannot be changed while null checkbox is checked
@@ -127,13 +128,26 @@ namespace InsanityLib.UI.ImGuiTools.Components
                 }
             }
 
-
             if(Context.Description is not null) Editors.DrawHint(Context.Description);
             
+            ImGui.EndGroup();
             ImGui.EndDisabled();
+            RenderContextMenu();
             
             if(!string.IsNullOrEmpty(LastValidationResult)) ImGui.TextColored(ValidationColor, LastValidationResult);
             if(!string.IsNullOrEmpty(Context.LastValidationResult)) ImGui.TextColored(ValidationColor, Context.LastValidationResult);
         }
+
+        public override void RenderContextMenuContent()
+        {
+            ImGui.SeparatorText("Value Options");
+            
+            if(ImGui.MenuItem("Copy")) Copy();
+            if(ImGui.MenuItem("Paste")) Paste();
+        }
+
+        public virtual void Copy() => InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>().Forms.SetClipboardText(ValueAsObject?.ToString() ?? string.Empty);
+
+        public virtual void Paste() => Context.TryAutoSetValue(InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>().Forms.GetClipboardText(), this);
     }
 }

@@ -1,14 +1,17 @@
 ﻿using ImGuiNET;
 using InsanityLib.Config.Util;
+using InsanityLib.Enums.Auto.Config.UI;
 using InsanityLib.Interfaces.UI.ImGuiComponents;
+using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using System;
+using Vintagestory.API.Client;
 
 namespace InsanityLib.UI.ImGuiTools.Components
 {
     public abstract class ComponentBase : IImGuiComponent
     {
-        public object Error { get; protected set; }
+        public object Error { get; protected set; } //TODO turn into exception class
         
         public ImGuiContext Context { get; private set; }
 
@@ -16,7 +19,7 @@ namespace InsanityLib.UI.ImGuiTools.Components
 
         public void SafeRender()
         {
-            if(Error is not null) return; //TODO maybe a way to make it still show up but disabled instead
+            if(Error is not null) return;
 
             try
             {
@@ -36,19 +39,20 @@ namespace InsanityLib.UI.ImGuiTools.Components
             }
         }
 
-        public virtual void OnError(object error)
+        public virtual void OnError(Exception exception)
         {
-            if (HandleError(error)) return;
+            if (HandleError(exception)) return;
             
-            Error = error;
+            Error = exception;
             //Logging
+            AutoConfigUtil.NotifyUserOfException(exception, this);
         }
 
         public virtual bool ContextMenuEnabled => true;
 
         public virtual void RenderContextMenuContent()
         {
-
+            //Empty
         }
 
         public void RenderContextMenu()
@@ -74,11 +78,9 @@ namespace InsanityLib.UI.ImGuiTools.Components
                 RenderContextMenuContent(); //Render the context menu content
                 ImGui.EndPopup(); //End the context menu popup
             }
-
-            //TODO global context menu items (like reload)
         }
 
-        protected virtual bool HandleError(object error) => false;
+        protected virtual bool HandleError(Exception exception) => false;
 
         public abstract void Render();
     }

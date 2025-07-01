@@ -92,11 +92,13 @@ namespace InsanityLib.Enums
             }
         }
 
-        public string[] GetStringValues(object value)
+        public string GetStringValue(object value)
         {
             if (!EnumType.IsInstanceOfType(value)) value = value.AutoConvert(EnumType);
-            return Enum.Format(EnumType, value, "G").Split(", ");
+            return Enum.Format(EnumType, value, "G");
         }
+
+        public string[] GetStringValues(object value) => GetStringValue(value).Split(", ");
 
         public int[] GetIndexes(long value) => GetStringValues(value)
                 .Select(str => Array.IndexOf(StrValues, str))

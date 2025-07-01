@@ -22,7 +22,7 @@ namespace InsanityLib.UI.ImGuiTools
         public readonly IServiceProvider ServiceProvider;
 
         private object targetObject;
-        public object TargetObject { get => targetObject; protected set => targetObject = value; }
+        public object TargetObject { get => targetObject; internal set => targetObject = value; }
 
         public readonly MemberInfo Member;
 

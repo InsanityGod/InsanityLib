@@ -16,6 +16,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
         public float MinPercentageValue { get; set; }
         public float MaxPercentageValue { get; set; }
         public bool IsPercentage { get; set; }
+        public bool UsePreciseInput { get; set; }
         public string FormatString { get; set;}
 
         public FloatComponent(ImGuiContext context) : base(context)
@@ -36,10 +37,13 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
         {
             if (IsPercentage && MinPercentageValue != float.NegativeInfinity && MaxPercentageValue != float.PositiveInfinity)
             {
-                var percentageValue = value * 100; //TODO context menu that allowes turning off percentage input mode
-                if(ImGui.SliderFloat(Context.Label, ref percentageValue, MinPercentageValue, MaxPercentageValue, FormatString))
+                var percentageValue = value * 100;
+
+                if(UsePreciseInput
+                    ? ImGui.InputFloat(Context.Label, ref percentageValue, 0, 0, FormatString)
+                    : ImGui.SliderFloat(Context.Label, ref percentageValue, MinPercentageValue, MaxPercentageValue, FormatString))
                 {
-                    value = percentageValue / 100;
+                   value = percentageValue / 100;
                     Context.TryAutoSetValue(value, this);
                 }
             }
@@ -50,6 +54,29 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
                     Context.TryAutoSetValue(value, this);
                 }
             }
+        }
+
+        public override void RenderContextMenuContent()
+        {
+            if (IsPercentage)
+            {
+                if (UsePreciseInput)
+                {
+                    if (ImGui.MenuItem("Use Percentage Input"))
+                    {
+                        UsePreciseInput = false;
+                    }
+                }
+                else
+                {
+                    if (ImGui.MenuItem("Use Precise Input"))
+                    {
+                        UsePreciseInput = true;
+                    }
+                }
+            }
+
+            base.RenderContextMenuContent();
         }
     }
 }

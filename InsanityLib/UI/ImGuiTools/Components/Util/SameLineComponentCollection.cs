@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace InsanityLib.UI.ImGuiTools.Components.Util
 {
-    public class SameLineComponentCollection : ComponentCollection //TODO maybe make table component instead
+    public class SameLineComponentCollection : ComponentCollection
     {
         public int?[] Spread { get; set;}
 
@@ -23,8 +23,6 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
         {
             DisplayProperties.Hierarchy = EHierarchyDisplay.None;
         }
-
-        //TODO late render (for dropdowns) where only 1 can be active at a time
 
         public override void RenderChildren()
         {

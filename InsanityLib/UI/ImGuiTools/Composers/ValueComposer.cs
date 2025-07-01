@@ -1,4 +1,5 @@
-﻿using InsanityLib.Interfaces.UI.ImGuiComponents;
+﻿using InsanityLib.Constants;
+using InsanityLib.Interfaces.UI.ImGuiComponents;
 using InsanityLib.UI.ImGuiTools.Components.Values;
 using InsanityLib.Util;
 using System;
@@ -21,7 +22,6 @@ namespace InsanityLib.UI.ImGuiTools.Composers
             { typeof(float), typeof(FloatComponent) },
             { typeof(double), typeof(DoubleComponent) },
             { typeof(AssetLocation), typeof(AssetLocationComponent) },
-            //TODO assetlocation
         };
 
         public bool CanComposeType(Type type) => Renderers.ContainsKey(type) || type.IsEnum || (Nullable.GetUnderlyingType(type) is Type underLyingType && CanComposeType(underLyingType));
@@ -42,9 +42,9 @@ namespace InsanityLib.UI.ImGuiTools.Composers
             {
                 return componentType.AutoCreate(context) as IImGuiComponent;
             }
-            catch
+            catch(Exception ex)
             {
-                //TODO logging
+                context.GetService<ICoreAPI>().Logger.Error(Logging.ComposeFailure, type, ex);
                 return null;
             }
         }

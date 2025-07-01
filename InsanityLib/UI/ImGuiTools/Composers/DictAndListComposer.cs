@@ -13,17 +13,15 @@ using YamlDotNet.Core.Tokens;
 
 namespace InsanityLib.UI.ImGuiTools.Composers
 {
-    internal class EnumerableComposer : IImGuiComposer
+    internal class DictAndListComposer : IImGuiComposer
     {
         public bool CanComposeType(Type type) => type.IsArray || typeof(IDictionary).IsAssignableFrom(type) || typeof(IList).IsAssignableFrom(type);
 
         public IImGuiComponent Compose(ImGuiContext context, Type type)
         {
             var componentContainer = new ComponentCollection(context);
-            var addButton = new AddButton(context, componentContainer);
+            var addButton = new DictAndListAddButton(context, componentContainer);
             componentContainer.Components.Add(addButton);
-            
-            //TODO sperator component
 
             if(context.TryGetValue(out var container))
             {

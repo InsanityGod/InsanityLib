@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Vintagestory.API.Client;
 using Vintagestory.API.Util;
 
 namespace InsanityLib.UI.ImGuiTools.Components.Values
@@ -72,6 +73,32 @@ namespace InsanityLib.UI.ImGuiTools.Components.Values
                     }
                 }
                 ImGui.EndCombo();
+            }
+        }
+
+        public override void Copy() => InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>().Forms.SetClipboardText(Mapping.GetStringValue(value));
+
+        public override void Paste()
+        {
+            int strIndex;
+            var clipboard = InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>().Forms.GetClipboardText();
+            if (Mapping.IsEnumFlag)
+            {
+                var strings = clipboard.Split(", ");
+                long flag = 0;
+                foreach(var str in strings)
+                {
+                    strIndex = Array.IndexOf(Mapping.StrValues, str);
+                    if(strIndex == -1) return;
+                    flag |= Mapping.NumericValues[strIndex];
+                }
+
+                Context.TryAutoSetValue(flag, this);
+            }
+            else
+            {
+                strIndex = Array.IndexOf(Mapping.StrValues, clipboard);
+                if(strIndex != -1) Context.TryAutoSetValue(Mapping.NumericValues[strIndex] ,this);
             }
         }
     }

@@ -64,7 +64,7 @@ namespace InsanityLib.UI.ImGuiTools.Contexts
             {
                 if (dict.Contains(value))
                 {
-                    KeyValidation.LastValidationResult = $"Duplicate Key!";
+                    KeyValidation.LastValidationResult = "Could not insert key, as it alrady exists in the dictionary!";
                     return false;
                 }
 

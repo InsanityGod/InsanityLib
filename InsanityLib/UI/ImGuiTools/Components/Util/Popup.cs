@@ -67,7 +67,6 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
                 ImGui.Spacing();
             }
 
-            //TODO Buttons end up at the top of the popup but they should atleast be at the bottom of the minSize window
             ImGui.Dummy(new Vector2(0, ImGui.GetContentRegionAvail().Y - ImGui.GetFrameHeight() - ImGui.GetStyle().ItemSpacing.Y));
             ImGui.SetCursorPosY(ImGui.GetWindowHeight() - ImGui.GetFrameHeight() - ImGui.GetStyle().WindowPadding.Y);
 

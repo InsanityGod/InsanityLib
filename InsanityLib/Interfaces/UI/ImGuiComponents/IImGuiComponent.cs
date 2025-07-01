@@ -15,6 +15,6 @@ namespace InsanityLib.Interfaces.UI.ImGuiComponents
         public void SafeRender();
         public void Render();
 
-        void OnError(object error);
+        void OnError(Exception exception);
     }
 }
