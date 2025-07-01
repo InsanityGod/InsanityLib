@@ -3,15 +3,24 @@ using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 
 namespace InsanityLib.Util
 {
-    public static class Naming
+    public static partial class Naming
     {
-        public static readonly char[] TrimCharacters = new char[] { ' ', '\n', '\r', '\t' };
+        //public static readonly char[] TrimCharacters = new char[] { ' ', '\n', '\r', '\t' };
         public static readonly char[] ReadableSplitIdentifiers = new char[] { '-', '_', ':' };
+
+        [GeneratedRegex(@"[^\S\r\n]+")]
+        public static partial Regex WhiteSpaceRegex();
+
+        public static string CleanWhiteSpaces(this string input) => WhiteSpaceRegex()
+            .Replace(input, " ")
+            .Replace("\n ", "\n")
+            .Trim();
 
         public static string ToHumanReadable(this string str)
         {
@@ -22,7 +31,7 @@ namespace InsanityLib.Util
 
             for (int i = 1; i < str.Length; i++)
             {
-                if (char.IsUpper(str[i]) && str[i - 1] != ' ')
+                if (char.IsUpper(str[i]) && !char.IsUpper(str[i - 1]) && str[i - 1] != ' ')
                 {
                     newText.Append(' ');
                 }
@@ -41,7 +50,7 @@ namespace InsanityLib.Util
         public static string GetHumanReadableName(this MemberInfo member)
         {
             var displayNameAttr = member.GetCustomAttribute<DisplayNameAttribute>();
-            if(displayNameAttr != null) return Lang.Get(displayNameAttr.DisplayName);
+            if(displayNameAttr is not null) return Lang.Get(displayNameAttr.DisplayName);
             return member.Name.ToHumanReadable();
         }
 
@@ -91,13 +100,16 @@ namespace InsanityLib.Util
 
         public static bool TryRemoveFrom(this string prefix, ref string str)
         {
-            if(str == null || !str.StartsWith(prefix)) return false;
+            if(str is null || !str.StartsWith(prefix)) return false;
             str = str[prefix.Length..];
             return true;
         }
 
+        //TODO spans
         public static string RemoveSuffix(this string str, string suffix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(suffix) || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
         public static string RemovePrefix(this string str, string prefix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(prefix) || !str.StartsWith(prefix) ? str : str[prefix.Length..];
         public static string RemoveAffix(this string str, string affix) => str.RemovePrefix(affix).RemoveSuffix(affix);
+
+        public static string ReplaceSpecialSymbolsWithText(this string input) => input.Replace("∞", "Infinity");
     }
 }

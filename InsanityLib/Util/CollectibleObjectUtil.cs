@@ -10,16 +10,16 @@ namespace InsanityLib.Util
         /// </summary>
         public static CollectibleObject GetPlacedByItem(this Block block, ICoreAPI api)
         {
-            if (block.Attributes != null)
+            if (block.Attributes is not null)
             {
                 var redirect = block.Attributes["PlacedByItem"].AsString();
-                if (redirect != null)
+                if (redirect is not null)
                 {
                     CollectibleObject placedByItem = api.World.GetBlock(redirect);
                     placedByItem ??= api.World.GetItem(redirect);
-                    if (placedByItem != null) return placedByItem;
+                    if (placedByItem is not null) return placedByItem;
                     
-                    api.GetService<ILogger>()?.Error($"[InsanityLib] Invalid PlacedByItem redirect {block.Code} -> {redirect}");
+                    api.Logger.Error($"[InsanityLib] Invalid PlacedByItem redirect {block.Code} -> {redirect}");
                 }
             }
 
@@ -32,19 +32,38 @@ namespace InsanityLib.Util
         /// </summary>
         public static Block GetPlacedBlock(this CollectibleObject collectible, ICoreAPI api)
         {
-            if (collectible.Attributes != null)
+            if (collectible.Attributes is not null)
             {
                 var redirect = collectible.Attributes["PlacedBlock"].AsString();
-                if (redirect != null)
+                if (redirect is not null)
                 {
                     Block block = api.World.GetBlock(redirect);
-                    if (block != null) return block;
+                    if (block is not null) return block;
                     
                     api.GetService<ILogger>().Error($"[WearAndTear] Invalid PlacedBlock redirect {collectible.Code} -> {redirect}");
                 }
             }
 
             return collectible as Block;
+        }
+
+        public static int GetOrientationVariantIndex(this RegistryObject obj)
+        {
+            int index = obj.VariantStrict.IndexOfKey("side");
+
+            if (index == -1) index = obj.VariantStrict.IndexOfKey("rotation");
+            if (index == -1) index = obj.VariantStrict.IndexOfKey("orientation");
+
+            return index;
+        }
+
+        public static CollectibleObject GetCollectibleObject(this IWorldAccessor world, AssetLocation code, EnumItemClass? itemType = null)
+        {
+            CollectibleObject result = null;
+            if(itemType != EnumItemClass.Block) result = world.GetItem(code);
+            if(itemType != EnumItemClass.Item) result ??= world.GetBlock(code);
+            
+            return result;
         }
     }
 }

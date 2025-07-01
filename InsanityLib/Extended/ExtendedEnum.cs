@@ -12,12 +12,12 @@ namespace InsanityLib.Extended
     {
         public Type EnumType { get; }
 
-        protected readonly OrderedDictionary<object, int> OffsetLookup = new();
+        internal readonly OrderedDictionary<object, int> OffsetLookup = new();
         protected int currentOffset;
 
         public ExtendedEnum(Type enumType)
         {
-            if(enumType.GetCustomAttribute<FlagsAttribute>() != null) throw new InvalidOperationException($"Cannot extend {enumType}: Enum extension is not supported for flags");
+            if(enumType.GetCustomAttribute<FlagsAttribute>() is not null) throw new InvalidOperationException($"Cannot extend {enumType}: Enum extension is not supported for flags");
             EnumType = enumType;
             currentOffset = Enum.GetValues(enumType).Cast<int>().Max() + 1;
 
@@ -27,7 +27,7 @@ namespace InsanityLib.Extended
         {
             var enumType = typeof(T);
             if (OffsetLookup.ContainsKey(enumType)) return;
-            if(enumType.GetCustomAttribute<FlagsAttribute>() != null) throw new InvalidOperationException($"Cannot extend {enumType}: Enum extension is not supported for flags");
+            if(enumType.GetCustomAttribute<FlagsAttribute>() is not null) throw new InvalidOperationException($"Cannot extend {enumType}: Enum extension is not supported for flags");
             
             var offset = Enum.GetValues(enumType).Cast<int>().Max() + 1;
             OffsetLookup[enumType] = currentOffset;
@@ -57,7 +57,7 @@ namespace InsanityLib.Extended
                 
                 if(obj is not Type type) continue;
                 var name =  Array.Find(Enum.GetNames(type), name => string.Equals(name, value, StringComparison.OrdinalIgnoreCase));
-                if(name == null) continue;
+                if(name is null) continue;
 
                 return (int)Enum.Parse(type, name) + offset;
             }

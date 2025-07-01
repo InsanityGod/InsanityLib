@@ -14,12 +14,19 @@ namespace InsanityLib.Util
         [AutoDefaultValue(null)]
         public static EnumAppSide? LoadedSides { get; internal set; }
 
-        public static bool SideLoaded(EnumAppSide side) => LoadedSides != null && LoadedSides.Value.Is(side);
+        public static bool SideLoaded(EnumAppSide side) => LoadedSides is not null && LoadedSides.Value.Is(side);
+
+        public static ICoreAPI GetApi(bool prioritizeServer = true)
+        {
+            ICoreAPI result = prioritizeServer ? InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreServerAPI>() : InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>();
+            result ??= prioritizeServer ? InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>() : InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreServerAPI>();
+            return result;
+        }
 
         // Backing field name pattern: "<PropertyName>k__BackingField"
         public static bool IsBackingField(this MemberInfo field) => field.Name.StartsWith('<') && field.Name.Contains("k__BackingField");
         
-        public static bool IsComplexClassType(this Type type) => !type.IsValueType && type != typeof(string) && type != typeof(Delegate);
+        public static bool IsComplexClassType(this Type type) => !type.IsValueType && type != typeof(string) && type != typeof(Delegate) && !typeof(MethodBase).IsAssignableFrom(type);
 
         public static bool IsStatic(this MemberInfo info) => info switch
         {
@@ -118,21 +125,25 @@ namespace InsanityLib.Util
         public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(BindingFlags? flags = null) where T : Attribute => AccessTools.AllTypes()
             .SelectMany(type => type.GetMembers(flags ?? AccessTools.all))
             .Select(member => (member, member.TryGetCustomAttribute<T>()))
-            .Where(pair => pair.Item2 != null);
+            .Where(pair => pair.Item2 is not null);
 
         public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
             .GetMembers(flags ?? AccessTools.all)
             .Select(member => (member, member.TryGetCustomAttribute<T>()))
-            .Where(pair => pair.Item2 != null);
+            .Where(pair => pair.Item2 is not null);
 
         public static IEnumerable<(Type, T)> FindAllClasses<T>() where T : Attribute => AccessTools.AllTypes()
             .Select(type => (type, type.TryGetCustomAttribute<T>()))
-            .Where(pair => pair.Item2 != null);
+            .Where(pair => pair.Item2 is not null);
 
 
         public static IEnumerable<Type> FindImplementations<T>(this Assembly assembly, bool includeSelf = false) =>
             AccessTools.GetTypesFromAssembly(assembly)
             .Where(type =>  !type.IsAbstract && !type.IsInterface && typeof(T).IsAssignableFrom(type) && (includeSelf || type != typeof(T)));
+
+        public static Type FindGenericInterfaceDefinition(this Type type, Type genericInterfaceType) =>
+            type.GetInterfaces()
+            .SingleOrDefault(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == genericInterfaceType);
 
         public static object Invoke<T>(this T method, object instance = null, object[] parameters = null) where T : MemberInfo => method switch
         {
@@ -147,7 +158,7 @@ namespace InsanityLib.Util
             foreach(var param in parameters)
             {
                 var service = provider.GetService(param.ParameterType);
-                if (service == null && !param.HasDefaultValue) return false;
+                if (service is null && !param.HasDefaultValue) return false;
             }
             return true;
         }
@@ -179,7 +190,7 @@ namespace InsanityLib.Util
         //TODO method for just getting the auto default value (so we can use this on method parameters)
         public static void SetAutoDefaultValue(this MemberInfo member, DefaultValueAttribute defaultAttr, object instance, IServiceProvider provider)
         {
-            if(defaultAttr != null)
+            if(defaultAttr is not null)
             {
                 var value = defaultAttr is AutoDefaultValueAttribute autoDefaultAttr
                     ? autoDefaultAttr.GetAutoDefaultValue(provider, instance)
@@ -193,6 +204,9 @@ namespace InsanityLib.Util
 
         public static object AutoCreate(this Type type, IServiceProvider provider, bool returnNullOnFailure = true)
         {
+            if (type.IsValueType) return type.Default();
+            if(type == typeof(string)) return string.Empty;
+
             //TODO maybe create a custom attribute to specify default auto constructor
             var constructors = type.GetConstructors();
             ConstructorInfo bestConstructor = null;
@@ -210,7 +224,7 @@ namespace InsanityLib.Util
                     var param = parameters[i];
                     var service = provider.GetService(param.ParameterType);
 
-                    if(service != null) paramValues[i] = service;
+                    if(service is not null) paramValues[i] = service;
                     else if (param.HasDefaultValue) paramValues[i] = param.DefaultValue;
                     else break;
                     paramCount++;
@@ -223,7 +237,7 @@ namespace InsanityLib.Util
                 maxParams = paramCount;
             }
 
-            if (bestConstructor == null)
+            if (bestConstructor is null)
             {
                 if(returnNullOnFailure) return null;
                 throw new InvalidOperationException($"No suitable constructor found for type {type.FullName}");
@@ -258,7 +272,7 @@ namespace InsanityLib.Util
         /// Helper method to check if an object is null (only usefull if you need a prediction delegate)
         /// </summary>
         /// <returns>True if the object is not null else false.</returns>
-        public static bool IsNotNull(this object value) => value != null;
+        public static bool IsNotNull(this object value) => value is not null;
 
         /// <summary>
         /// Finds the best match for a type in a list of objects.
@@ -273,7 +287,7 @@ namespace InsanityLib.Util
 
             foreach(var obj in objects)
             {
-                if(filter != null && !filter.Invoke(obj)) continue;
+                if(filter is not null && !filter.Invoke(obj)) continue;
 
                 var objType = obj.GetType();
                 if (objType == type) return obj; //Exact match
@@ -288,31 +302,38 @@ namespace InsanityLib.Util
         /// Recursively searches for a property or field by its name in the given object and retrieves its value.
         /// </summary>
         /// <param name="obj">The object to crawl through.</param>
-        /// <param name="target">The target path, with properties/fields separated by '/'.</param>
-        /// <param name="result">The resulting value if found, otherwise null.</param>
-        /// <returns>True if the target is found and its value retrieved, otherwise false.</returns>
-        public static bool TryCrawl(this object obj, string target, out object result)
+        /// <param name="path">The target path, with properties/fields separated by '/'.</param>
+        /// <param name="result">The last found value while crawling the path, this may contain an exception if failure occured during retrieval property/field</param>
+        /// <param name="flags">The flags used to search for members that can be traversed</param>
+        /// <returns>The part that could not be crawled</returns>
+        public static ReadOnlySpan<char> TryCrawl(this object obj, ReadOnlySpan<char> path, out object result, BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.GetProperty)
         {
-            result = null;
-            if (obj == null || string.IsNullOrWhiteSpace(target)) return false;
-
-            var parts = target.Split('/');
-            var current = obj;
-
-            foreach (var part in parts)
+            while (!path.IsEmpty)
             {
-                if (current == null) return false;
+                if (obj is null) break;
 
-                var type = current.GetType();
-                var member = type.GetMember(part, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
+                var seperatorIndex = path.IndexOf('/');
+                var nextPart = seperatorIndex == -1 ? path : path[..seperatorIndex];
 
-                if (member == null || !member.CanGetValue()) return false;
+                var member = obj.GetType().GetMember(nextPart.ToString(), flags).SingleOrDefault();
+                if(member is null) break;
+                
+                //TODO indexer support?
+                try
+                {
+                    obj = member.GetValue(obj);
+                }
+                catch(Exception ex)
+                {
+                    obj = ex;
+                    break;
+                }
 
-                current = member.GetValue(current);
+                path = seperatorIndex == -1 ? ReadOnlySpan<char>.Empty : path[(seperatorIndex + 1)..]; //Skip the seperator
             }
-
-            result = current;
-            return true;
+            
+            result = obj;
+            return path;
         }
 
         public static int GetRandom<T>(bool allowExtendedValues = false, Random random = null) where T : Enum

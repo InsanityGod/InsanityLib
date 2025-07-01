@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using InsanityLib.Constants;
+using InsanityLib.Enums.Auto.Config;
 using InsanityLib.Util;
 using System;
 using System.Collections.Generic;

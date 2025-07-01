@@ -63,14 +63,14 @@ namespace InsanityLib.Attributes.Auto.Command
             foreach(var param in parameters)
             {
                 var attr = param.GetCustomAttribute<CommandParameterAttribute>();
-                if(attr == null)
+                if(attr is null)
                 {
                     argSources.Add(EParamProvider.ServiceProvider);
                     continue;
                 }
 
                 var parser = attr.FindParser(param, provider);
-                if(parser != null)
+                if(parser is not null)
                 {
                     args.Add(parser);
                     argSources.Add(EParamProvider.ArgumentParser);

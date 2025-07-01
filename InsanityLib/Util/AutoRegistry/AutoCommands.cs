@@ -21,7 +21,7 @@ namespace InsanityLib.Util.AutoRegistry
                     if((attr.Side & api.Side) == 0) continue;
                     var parentCommand = GetParentCommand(api, attr.Path);
                     
-                    var command = parentCommand != null ? parentCommand.GetOrCreateChildStub(attr.Name) : GetOrCreateStub(api, attr.Name);
+                    var command = parentCommand is not null ? parentCommand.GetOrCreateChildStub(attr.Name) : GetOrCreateStub(api, attr.Name);
                     attr.ConfigureCommand(command, api.GetServiceContainer(), method);
                 }
                 catch(Exception ex)

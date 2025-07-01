@@ -22,7 +22,7 @@ namespace InsanityLib.HarmonyPatches.Temporary
         public static void FixGuiElementList(GuiElementListMenu __instance)
         {
             var texts = Traverse.Create(__instance).Field<GuiElementRichtext[]>("richtTextElem").Value;
-            if(texts != null)
+            if(texts is not null)
             {
                 foreach (var item in texts)
                 {
@@ -32,7 +32,7 @@ namespace InsanityLib.HarmonyPatches.Temporary
 
             var switches = Traverse.Create(__instance).Field<GuiElementSwitch[]>("switches").Value;
 
-            if(switches != null)
+            if(switches is not null)
             {
                 foreach(var item in switches)
                 {

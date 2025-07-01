@@ -26,14 +26,14 @@ namespace InsanityLib.Util
                 Identifier = identifier ?? obj?.ToString() ?? "Unknown Object",
             };
 
-            if(obj != null) NestedValidate(obj, nestedContext, string.Empty);
+            if(obj is not null) NestedValidate(obj, nestedContext, string.Empty);
 
             return nestedContext;
         }
 
         private static void NestedValidate(object obj, NestedValidationContext nestedContext, string path)
         {
-            if(obj == null || !obj.GetType().IsComplexClassType()) return;
+            if(obj is null || !obj.GetType().IsComplexClassType()) return;
             if(obj is IDictionary dictionary)
             {
                 nestedContext.ScannedObjects.Add(obj);
@@ -84,7 +84,7 @@ namespace InsanityLib.Util
             {
                 if(!member.CanGetValue()) continue;
                 var value = member.GetValue(obj);
-                if(value == null || !value.GetType().IsComplexClassType() ||nestedContext.ScannedObjects.Contains(value)) continue;
+                if(value is null || !value.GetType().IsComplexClassType() ||nestedContext.ScannedObjects.Contains(value)) continue;
 
                 NestedValidate(value, nestedContext, $"{path}/{member.Name}");
             }

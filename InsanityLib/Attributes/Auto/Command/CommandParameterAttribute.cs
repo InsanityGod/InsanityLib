@@ -21,7 +21,7 @@ namespace InsanityLib.Attributes.Auto.Command
             Type paramType = param.ParameterType;
             
             var displayNameAttr = param.GetCustomAttribute<DisplayNameAttribute>();
-            var argName = displayNameAttr != null ? displayNameAttr.DisplayName : param.Name;
+            var argName = displayNameAttr is not null ? displayNameAttr.DisplayName : param.Name;
 
             //TODO non mandetory parameters?
 
@@ -78,7 +78,7 @@ namespace InsanityLib.Attributes.Auto.Command
             {
                 var stack = (ItemStack)value;
                 var collectible = stack?.Collectible;
-                if(collectible == null || paramInfo.ParameterType.IsInstanceOfType(collectible)) return collectible;
+                if(collectible is null || paramInfo.ParameterType.IsInstanceOfType(collectible)) return collectible;
                 else throw new ValidationException($"Expected '{paramInfo.ParameterType}' as target collectible but got '{collectible.GetType()}'");
             }
             else return paramInfo.ParameterType.IsInstanceOfType(value) ? value : Convert.ChangeType(value, paramInfo.ParameterType);

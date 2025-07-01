@@ -27,7 +27,7 @@ namespace InsanityLib.Util
         /// <exception cref="InvalidCastException">If conversion failed</exception>
         public static object AutoConvert(this object value, Type targetType)
         {
-            if(value == null || targetType.IsInstanceOfType(value)) return value;
+            if(value is null || targetType.IsInstanceOfType(value)) return value;
 
             // Handle enums
             if (targetType.IsEnum && value is string str && Enum.TryParse(targetType, str, out var result)) return result;
@@ -57,12 +57,12 @@ namespace InsanityLib.Util
             catch
             {
                 var notNullableType = Nullable.GetUnderlyingType(targetType);
-                if(notNullableType != null) return value.AutoConvert(notNullableType);
+                if(notNullableType is not null) return value.AutoConvert(notNullableType);
                 else throw;
             }
         }
 
-        private static T CastWrapper<T>(object value) => (T)value;
+        private static T CastWrapper<T>(dynamic value) => (T)value;
 
         /// <summary>
         /// Dynamicly cast to gived type

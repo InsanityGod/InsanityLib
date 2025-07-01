@@ -25,7 +25,7 @@ namespace InsanityLib.UI.Composers.Value
             }
 
             var inputBounds = ElementBounds.FixedSize(300, 40);
-            if (member != null) inputBounds.FixedRightOf(composer.LastAddedElement.Bounds, GuiStyle.HalfPadding);
+            if (member is not null) inputBounds.FixedRightOf(composer.LastAddedElement.Bounds, GuiStyle.HalfPadding);
             context.Cursor.Y += inputBounds.fixedHeight;
             
             var mapper = new EnumNameValueMapping(value.GetType());
@@ -65,7 +65,7 @@ namespace InsanityLib.UI.Composers.Value
 
             composer.AddInteractiveElement(element, context.ExtendPath<string>(member));
             element.listMenu.ComposeDynamicElements();
-            context.RegisterAfterComposeCallback(() => element.SetSelectedValue(mapper.GetStringValues(value)));
+            context.RegisterAfterComposeCallback(() => element.SetSelectedValue(mapper.GetStringValues(Convert.ToInt64(value))));
         }
 
         public bool IsValidForCompose(Type type) => type.IsEnum;

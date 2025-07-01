@@ -23,7 +23,7 @@ namespace InsanityLib.UI.Contexts
 
         public string Path => $"{Context.Path}/@Descriptor";
 
-        public string ExtendPath(MemberInfo member, Type type) => member == null ? $"{Path}/{Member.Name}" : throw new InvalidOperationException("Descriptor should not have memberInfo passed");
+        public string ExtendPath(MemberInfo member, Type type) => member is null ? $"{Path}/{Member.Name}" : throw new InvalidOperationException("Descriptor should not have memberInfo passed");
 
         public static string GetDescriptorPath(MemberContext memberContext, MemberInfo member) => $"{memberContext.Path}/@Descriptor/{member.Name}";
     }

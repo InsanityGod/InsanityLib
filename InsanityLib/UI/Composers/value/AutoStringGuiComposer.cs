@@ -26,7 +26,7 @@ namespace InsanityLib.UI.Composers.Value
                 //TODO a way to specify text area as well
                 var inputBounds = ElementBounds.FixedSize(300, 40);
 
-                if (member != null) inputBounds.FixedRightOf(composer.LastAddedElement.Bounds, GuiStyle.HalfPadding);
+                if (member is not null) inputBounds.FixedRightOf(composer.LastAddedElement.Bounds, GuiStyle.HalfPadding);
                 context.Cursor.Y += inputBounds.fixedHeight;
                 var element = new GuiElementTextInput(context.GetService<ICoreClientAPI>(), inputBounds, value => member.SetValue(value, context.TargetObject), CairoFont.TextInput());
 

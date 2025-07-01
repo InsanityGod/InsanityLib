@@ -50,7 +50,7 @@ namespace InsanityLib.HarmonyPatches.Extended
         {
             var handler = CustomTransition.ExtendedEnum.FindHandler(prop.Type);
 
-            if (handler == null) return;
+            if (handler is null) return;
             addedItemStack = true;
 
             handler.AddProccessIntoInfoToHandbook(capi, components, verticalSpace, openDetailPageFor, prop);
@@ -61,7 +61,7 @@ namespace InsanityLib.HarmonyPatches.Extended
         public static void PostTransition(CollectibleObject __instance, ItemSlot slot, TransitionableProperties props, ref ItemStack __result)
         {
             var handler = CustomTransition.ExtendedEnum.FindHandler(props.Type);
-            if (handler == null) return;
+            if (handler is null) return;
 
             handler.PostOnTransitionNow(__instance, slot, props, ref __result);
         }
@@ -71,7 +71,7 @@ namespace InsanityLib.HarmonyPatches.Extended
         public static void GetTransitionRateMul(IWorldAccessor world, ItemSlot inSlot, EnumTransitionType transType, ref float __result)
         {
             var handler = CustomTransition.ExtendedEnum.FindHandler(transType);
-            if (handler == null) return;
+            if (handler is null) return;
 
             __result = handler.GetTransitionRateMul(world, inSlot, __result);
         }
@@ -81,7 +81,7 @@ namespace InsanityLib.HarmonyPatches.Extended
         public static bool GetDefaultTransitionSpeedMul(EnumTransitionType transitionType, ref float __result)
         {
             var handler = CustomTransition.ExtendedEnum.FindHandler(transitionType);
-            if (handler == null) return true;
+            if (handler is null) return true;
 
             __result = handler.DefaultTransitionSpeedMul;
             return false;
@@ -92,7 +92,7 @@ namespace InsanityLib.HarmonyPatches.Extended
         public static bool AppendPerishableInfoText(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, TransitionState state, bool nowSpoiling)
         {
             var handler = CustomTransition.ExtendedEnum.FindHandler(state.Props.Type);
-            if (handler == null) return true;
+            if (handler is null) return true;
 
             handler.AppendAppendPerishableInfoText(inSlot, dsc, world, state, nowSpoiling);
 
@@ -104,14 +104,14 @@ namespace InsanityLib.HarmonyPatches.Extended
         public static void PerishableInfoCompact(ICoreAPI Api, ItemSlot contentSlot, ref string __result)
         {
             TransitionState[] transitionStates = contentSlot.Itemstack.Collectible.UpdateAndGetTransitionStates(Api.World, contentSlot);
-            if(transitionStates == null) return;
+            if(transitionStates is null) return;
             var builder = new StringBuilder(__result);
             builder.AppendLine();
             
             foreach(var transitionState in transitionStates)
             {
                 var handler = CustomTransition.ExtendedEnum.FindHandler(transitionState.Props.Type);
-                if(handler == null) continue;
+                if(handler is null) continue;
 
                 //TODO figure out what to do with nowSpoiling
                 //TODO maybe a seperate method for compact info

@@ -27,7 +27,7 @@ namespace InsanityLib.Util.AutoRegistry
                 .Select(type =>
                 {
                     var result = type.AutoCreate(provider, true);
-                    if (result == null) logger?.Warning($"[InsanityLib] Failed to create AutoUI composer instance of '{type}'");
+                    if (result is null) logger?.Warning($"[InsanityLib] Failed to create AutoUI composer instance of '{type}'");
                     return result;
                 })
                 .OfType<IAutoGuiComposer>()
@@ -37,7 +37,7 @@ namespace InsanityLib.Util.AutoRegistry
         public static IAutoGuiComposer FindAutoGuiComposer(this Type type)
         {
             var reflectionMatch = typeof(IAutoGuiComposer<>).MakeGenericType(type).FindMatch(Composers, composer => composer.IsValidForCompose(type));
-            if (reflectionMatch != null) return reflectionMatch;
+            if (reflectionMatch is not null) return reflectionMatch;
             return Array.Find(Composers, composer => composer.IsValidForCompose(type));
         }
 
