@@ -25,7 +25,7 @@ namespace InsanityLib.PathResolvers.Implementations
 
                 path = path[configName.Length..].WithoutPrefix(".json").WithoutPrefix("/");
 
-                var remainder = config.ConfigInstance.TryCrawl2(path, out result);
+                var remainder = config.ConfigInstance.TryCrawl(path, out result);
                 if (remainder.IsEmpty) return true;
 
                 object reason;

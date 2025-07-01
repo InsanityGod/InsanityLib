@@ -307,42 +307,11 @@ namespace InsanityLib.Util
         /// Recursively searches for a property or field by its name in the given object and retrieves its value.
         /// </summary>
         /// <param name="obj">The object to crawl through.</param>
-        /// <param name="target">The target path, with properties/fields separated by '/'.</param>
-        /// <param name="result">The resulting value if found, otherwise null.</param>
-        /// <returns>True if the target is found and its value retrieved, otherwise false.</returns>
-        public static bool TryCrawl(this object obj, string target, out object result)
-        {
-            result = null;
-            if (obj is null || string.IsNullOrWhiteSpace(target)) return false;
-
-            var parts = target.Split('/');
-            var current = obj;
-
-            foreach (var part in parts)
-            {
-                if (current is null) return false;
-
-                var type = current.GetType();
-                var member = type.GetMember(part, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
-
-                if (member is null || !member.CanGetValue()) return false;
-
-                current = member.GetValue(current);
-            }
-
-            result = current;
-            return true;
-        }
-
-        /// <summary>
-        /// Recursively searches for a property or field by its name in the given object and retrieves its value.
-        /// </summary>
-        /// <param name="obj">The object to crawl through.</param>
         /// <param name="path">The target path, with properties/fields separated by '/'.</param>
         /// <param name="result">The last found value while crawling the path, this may contain an exception if failure occured during retrieval property/field</param>
         /// <param name="flags">The flags used to search for members that can be traversed</param>
         /// <returns>The part that could not be crawled</returns>
-        public static ReadOnlySpan<char> TryCrawl2(this object obj, ReadOnlySpan<char> path, out object result, BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.GetProperty)
+        public static ReadOnlySpan<char> TryCrawl(this object obj, ReadOnlySpan<char> path, out object result, BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.GetProperty)
         {
             while (!path.IsEmpty)
             {
