@@ -28,7 +28,7 @@ namespace InsanityLib.UI.Composers
 
         protected virtual bool TryAddDescriptor(GuiComposer composer, IDialogContext dialogContext, MemberInfo member)
         {
-            if (member == null) return false;
+            if (member is null) return false;
 
             var y = dialogContext.Cursor.Y;
             if (y != 0) y += GuiStyle.HalfPadding;

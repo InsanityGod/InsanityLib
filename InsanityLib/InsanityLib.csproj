@@ -10,7 +10,19 @@
   <ItemGroup>
     <Reference Include="AutoConfigLib">
       <HintPath>..\..\AutoConfigLib\AutoConfigLib\bin\Debug\Mods\mod\AutoConfigLib.dll</HintPath>
-      <Private>false</Private>
+	  <Private>false</Private>
+    </Reference>
+    <Reference Include="configlib">
+      <HintPath>..\..\Dep\configlib_1.4.1\configlib.dll</HintPath>
+		<Private>false</Private>
+	</Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>..\..\Dep\vsimgui_1.1.7\ImGui.NET.dll</HintPath>
+		<Private>false</Private>
+	</Reference>
+    <Reference Include="VSImGui">
+      <HintPath>..\..\Dep\vsimgui_1.1.7\VSImGui.dll</HintPath>
+	<Private>false</Private>
     </Reference>
 	  <Reference Include="xlib">
 		  <HintPath>..\..\Dep\xlib_v0.8.16\xlib.dll</HintPath>
@@ -68,6 +80,10 @@
 	<Content Include="..\LICENSE">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+</ItemGroup>
+
+<ItemGroup>
+  <Folder Include="UI\ImGuiTools\Components\Complex\" />
 </ItemGroup>
 
 </Project>

@@ -17,29 +17,29 @@ using Vintagestory.API.Common;
 using Vintagestory.Common;
 using ProtoBuf;
 
-namespace InsanityLib.Config
+namespace InsanityLib.Config.Util
 {
     public class JsonConverterWithCommentInjection : JsonConverter
     {
         public static DefaultContractResolver DefaultResolver { get; } = new DefaultContractResolver();
-        public override bool CanConvert(Type objectType) => 
+        public override bool CanConvert(Type objectType) =>
             objectType.IsComplexClassType()
-            && !typeof(Array).IsAssignableFrom(objectType) 
+            && !typeof(Array).IsAssignableFrom(objectType)
             && !typeof(IEnumerable).IsAssignableFrom(objectType)
             && DefaultResolver.ResolveContract(objectType).GetType() != typeof(JsonStringContract); //Ignore classes that would normally be saved as a string (like AssetLocations)
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
-        
+
             IEnumerable<MemberInfo> props = value.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                 .Where(p => p.CanRead);
-        
+
             IEnumerable<MemberInfo> fields = value.GetType()
                 .GetFields(BindingFlags.Public | BindingFlags.Instance)
                 ;//.Where(f => !f.IsStatic); //TODO test
-        
+
             foreach (var member in props.Union(fields))
             {
                 WritePropertyNameWithDescription(writer, member);
@@ -56,7 +56,7 @@ namespace InsanityLib.Config
             var currentState = writerTraverse.Field("_currentState");
             var currentPositionObj = writerTraverse.Field("_currentPosition").GetValue();
             currentPositionObj.GetType().GetField("PropertyName", AccessTools.all).SetValue(currentPositionObj, member.Name);
-            
+
             var tokenBeingWritten = JsonToken.PropertyName;
 
             var stateArray = writerTraverse.Field("StateArray");
@@ -65,7 +65,7 @@ namespace InsanityLib.Config
             if ((int)newState == 9) throw new JsonWriterException($"Token {tokenBeingWritten} in state {currentState.GetValue()} would result in an invalid JSON object.");
 
             var currentStateInt = (int)currentState.GetValue();
-            if ((currentStateInt == 3 || currentStateInt == 5 || currentStateInt == 7))
+            if (currentStateInt == 3 || currentStateInt == 5 || currentStateInt == 7)
             {
                 writerTraverse.Method("WriteValueDelimiter").GetValue();
             }
@@ -85,10 +85,10 @@ namespace InsanityLib.Config
 
             var doc = member.GetDocumentationContext();
             var description = doc.GetExtendedDescription();
-            if(currentStateInt != 2 && !string.IsNullOrEmpty(description)) writer.WriteWhitespace(Environment.NewLine);
+            if (currentStateInt != 2 && !string.IsNullOrEmpty(description)) writer.WriteWhitespace(Environment.NewLine);
 
             writeIndent.GetValue();
-    
+
             if (!string.IsNullOrEmpty(description))
             {
                 foreach (var line in description.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
@@ -97,7 +97,7 @@ namespace InsanityLib.Config
                     writeIndent.GetValue();
                 }
             }
-            
+
             currentState.SetValue(newState.Cast(currentState.GetValueType()));
 
             writerTraverse.Method("WriteEscapedString", member.Name, true).GetValue();

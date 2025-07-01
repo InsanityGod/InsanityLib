@@ -26,7 +26,7 @@ namespace InsanityLib.Util
             //TODO check if embedded xml files where a thing
             context = new AssemblyDocumentationContext();
 
-            if (assembly != null && !assembly.IsDynamic)
+            if (assembly is not null && !assembly.IsDynamic)
             {
                 var xmlPath = Path.Combine(
                     Path.GetDirectoryName(assembly.Location),
@@ -53,7 +53,7 @@ namespace InsanityLib.Util
         }
 
         //TODO figure out what to do with the Localizable attribute
-        public static AssemblyDocumentationContext GetDocumentationContext(this Type type) => type == null || type.Assembly == null ? null : type.Assembly.GetDocumentationContext();
+        public static AssemblyDocumentationContext GetDocumentationContext(this Type type) => type is null || type.Assembly is null ? null : type.Assembly.GetDocumentationContext();
         public static MemberDocumentationContext GetDocumentationContext(this MemberInfo member)
         {
             var context = member.DeclaringType.GetDocumentationContext();

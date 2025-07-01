@@ -25,7 +25,7 @@ namespace InsanityLib.UI.Composers.Complex
             if (provider is MemberContext) return;
             //TODO skipping sub complex classes for now
             //TODO do something with member
-            if (value == null) return;
+            if (value is null) return;
             var memberContext = new MemberContext(provider, member, value);
             var recursiveProtection = provider.GetService<IRecursivePrevention>();
             
@@ -82,13 +82,13 @@ namespace InsanityLib.UI.Composers.Complex
 
             var descriptors = members.Select(member => DescriptorContext.GetDescriptorPath(memberContext, member))
                 .Select(key => (Key: key, Element: composer.GetElement(key)))
-                .Where(pair => pair.Element != null)
+                .Where(pair => pair.Element is not null)
                 .ToList();
             var xAllignment = descriptors.Max(pair => pair.Element.Bounds.fixedX + pair.Element.Bounds.fixedWidth);
             foreach (var descriptor in descriptors)
             {
                 var matchingContent = composer.GetElement(descriptor.Key.Replace("/@Descriptor", string.Empty));
-                if (matchingContent != null)//BlockSoil/RemapToLiquidsLayer
+                if (matchingContent is not null)//BlockSoil/RemapToLiquidsLayer
                 {
                     matchingContent.Bounds.fixedX = xAllignment;
                 }

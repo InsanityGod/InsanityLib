@@ -26,7 +26,7 @@ namespace InsanityLib
         public override void StartPre(ICoreAPI api)
         {
             ReflectionUtil.LoadedSides ??= api.Side;
-            ReflectionUtil.LoadedSides &= api.Side;
+            ReflectionUtil.LoadedSides |= api.Side;
             if (api is ICoreClientAPI clientApi) GlobalServiceContainer.Register(clientApi);
             if (api is ICoreServerAPI serverApi) GlobalServiceContainer.Register(serverApi);
             
@@ -37,7 +37,7 @@ namespace InsanityLib
             EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
             AssetCategoryAttribute.Load();
             AutoRegistryAttribute.RegisterAll(api); //TODO see about allowing for config values to be used in patching
-            AutoConfig.LoadAll(ServiceContainer);
+            AutoConfigUtil.LoadAll(ServiceContainer);
         }
 
         public override void AssetsLoaded(ICoreAPI api)

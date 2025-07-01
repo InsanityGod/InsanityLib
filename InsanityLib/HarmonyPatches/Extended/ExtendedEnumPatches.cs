@@ -13,7 +13,7 @@ namespace InsanityLib.HarmonyPatches.Extended
         public static bool ExtendedEnumParsingPrefix(Type enumType, string value, ref object __result)
         {
             var result = EnumExtensionUtil.TryParse(enumType, value);
-            if(result != null)
+            if(result is not null)
             {
                 __result = result.Value;
                 return false; //Prevent default execution

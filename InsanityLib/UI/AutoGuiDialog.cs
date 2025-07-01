@@ -100,12 +100,12 @@ namespace InsanityLib.UI
         {
             try
             {
-                if(SingleComposer == null) Compose();
+                if(SingleComposer is null) Compose();
                 return base.TryOpen(withFocus);
             }
             catch(Exception ex)
             {
-                capi.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(AutoGuiDialog), TargetObject, ex);
+                capi.Logger.Error(Logging.ExecutionFailedTemplate, nameof(AutoGuiDialog), TargetObject, ex);
                 return false;
             }
         }
@@ -121,7 +121,7 @@ namespace InsanityLib.UI
                 }
                 catch (Exception ex)
                 {
-                    capi.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(OnClose), OnClose, ex);
+                    capi.Logger.Error(Logging.ExecutionFailedTemplate, nameof(OnClose), OnClose, ex);
                 }
 
                 return true;
@@ -150,7 +150,7 @@ namespace InsanityLib.UI
 
         public bool EnsureUnique(object obj)
         {
-            if(obj == null || !obj.GetType().IsClass) return true;
+            if(obj is null || !obj.GetType().IsClass) return true;
             return recursionPrevention.Add(obj);
         }
     }

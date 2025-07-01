@@ -51,14 +51,14 @@ namespace InsanityLib.Attributes.Auto
         {
             if (!string.IsNullOrEmpty(AutoMethodName))
             {
-                var method = (AutoType == null ?
+                var method = (AutoType is null ?
                     AccessTools.Method(AutoMethodName) :
                     AccessTools.Method(AutoType, AutoMethodName))
                     ?? throw new InvalidOperationException($"Combination of AutoMethodName: '{AutoMethodName}' and AutoType: '{AutoType}' could not be resolved");
 
                 return method.AutoInvoke(provider, (method.DeclaringType?.IsInstanceOfType(instance) ?? false) ? instance : null);
             }
-            if(AutoType != null)
+            if(AutoType is not null)
             {
                 return AutoType.AutoCreate(provider, false);
             }

@@ -42,7 +42,7 @@ namespace InsanityLib.Commands
                 Context = args;
                 var result = command.Invoke(null, GetParameters());
                 if (result is TextCommandResult textCommandResult) return textCommandResult;
-                return TextCommandResult.Success(result == null ? string.Empty : result.ToString(), result);
+                return TextCommandResult.Success(result is null ? string.Empty : result.ToString(), result);
             }
             catch (ValidationException ex)
             {
