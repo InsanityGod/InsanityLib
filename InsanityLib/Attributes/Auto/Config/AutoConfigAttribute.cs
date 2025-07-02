@@ -20,7 +20,7 @@ namespace InsanityLib.Attributes.Auto.Config
         /// The path to the config file. <br />
         /// (relative to the config folder)
         /// </summary>
-        public string Path { get; set; }
+        public string Path { get; init; }
 
         /// <summary>
         /// Whether it should load default values if the config file encounters an error while loading. <br />

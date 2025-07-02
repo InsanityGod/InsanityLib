@@ -1,16 +1,13 @@
 ﻿using HarmonyLib;
 using InsanityLib.Attributes.Auto;
-using InsanityLib.Interfaces.UI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
-using Vintagestory.ServerMods;
 
 namespace InsanityLib.Util
 {
@@ -128,9 +125,7 @@ namespace InsanityLib.Util
         }
 
         public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(BindingFlags? flags = null) where T : Attribute => AccessTools.AllTypes()
-            .SelectMany(type => type.GetMembers(flags ?? AccessTools.all))
-            .Select(member => (member, member.TryGetCustomAttribute<T>()))
-            .Where(pair => pair.Item2 is not null);
+            .SelectMany(type => FindAllMembers<T>(type, flags));
 
         public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
             .GetMembers(flags ?? AccessTools.all)

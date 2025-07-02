@@ -20,6 +20,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
     {
         public ConfigDisplayAttribute DisplayProperties { get; set; }
 
+        public bool HideDescription { get; set; }
         public string LabelOverride { get; set; }
         public bool Spacing { get; set; }
 
@@ -98,7 +99,7 @@ namespace InsanityLib.UI.ImGuiTools.Components.Util
 
         private void Seperator()
         {
-            ImGuiHelpers.Seperator(LabelOverride ?? Context.Text, Context.Description);
+            ImGuiHelpers.Seperator(LabelOverride ?? Context.Text,  HideDescription ? default : Context.Description);
             
             RenderContextMenu();
             

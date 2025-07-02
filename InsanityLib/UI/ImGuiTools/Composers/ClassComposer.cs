@@ -39,6 +39,7 @@ namespace InsanityLib.UI.ImGuiTools.Composers
                     groupContainer = new ComponentCollection(context)
                     {
                         LabelOverride = group.Key,
+                        HideDescription = true,
                         Spacing = true
                     };
                     groupContainer.DisplayProperties.Hierarchy = group.Key is null ? EHierarchyDisplay.None : EHierarchyDisplay.Seperator;
