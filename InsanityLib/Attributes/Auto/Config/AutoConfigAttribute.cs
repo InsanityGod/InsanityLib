@@ -14,7 +14,7 @@ using Vintagestory.API.Common;
 namespace InsanityLib.Attributes.Auto.Config
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-    public class AutoConfigAttribute : AutoDefaultValueAttribute
+    public class AutoConfigAttribute : Attribute
     {
         /// <summary>
         /// The path to the config file. <br />

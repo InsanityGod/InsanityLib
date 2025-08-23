@@ -155,7 +155,6 @@ namespace InsanityLib.Config.Util
         public void ReCompose()
         {
             if(EditConfigInstance is null) return; //Nothing to compose
-            Api.Logger.Debug("My Test Message");
             try
             {
                 var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(EditConfigInstance)), id: Path, serviceProvider: Api.GetServiceContainer());

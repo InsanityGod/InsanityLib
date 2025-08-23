@@ -80,7 +80,7 @@ namespace InsanityLib.Util.AutoRegistry
                     if(!(member is FieldInfo || member is PropertyInfo) || !member.IsStatic() || !member.GetPrimaryType().IsComplexClassType()) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
 
                     var value = member.GetValue();
-                    if (value is not null || TryAssignFromCache(attr.Path, member)) continue;
+                    if ((api.Side == EnumAppSide.Client && value is not null) || TryAssignFromCache(attr.Path, member)) continue;
                     var configType = member.GetPrimaryType();
 
                     try
