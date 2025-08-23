@@ -7,109 +7,108 @@ using System.Text.RegularExpressions;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 
-namespace InsanityLib.Util
+namespace InsanityLib.Util;
+
+public static partial class Naming
 {
-    public static partial class Naming
+    //public static readonly char[] TrimCharacters = new char[] { ' ', '\n', '\r', '\t' };
+    public static readonly char[] ReadableSplitIdentifiers = new char[] { '-', '_', ':' };
+
+    [GeneratedRegex(@"[^\S\r\n]+")]
+    public static partial Regex WhiteSpaceRegex();
+
+    public static string CleanWhiteSpaces(this string input) => WhiteSpaceRegex()
+        .Replace(input, " ")
+        .Replace("\n ", "\n")
+        .Trim();
+
+    public static string ToHumanReadable(this string str)
     {
-        //public static readonly char[] TrimCharacters = new char[] { ' ', '\n', '\r', '\t' };
-        public static readonly char[] ReadableSplitIdentifiers = new char[] { '-', '_', ':' };
+        if (string.IsNullOrWhiteSpace(str)) return string.Empty;
 
-        [GeneratedRegex(@"[^\S\r\n]+")]
-        public static partial Regex WhiteSpaceRegex();
+        StringBuilder newText = new(str.Length * 2);
+        newText.Append(str[0]);
 
-        public static string CleanWhiteSpaces(this string input) => WhiteSpaceRegex()
-            .Replace(input, " ")
-            .Replace("\n ", "\n")
-            .Trim();
-
-        public static string ToHumanReadable(this string str)
+        for (int i = 1; i < str.Length; i++)
         {
-            if (string.IsNullOrWhiteSpace(str)) return string.Empty;
-
-            StringBuilder newText = new(str.Length * 2);
-            newText.Append(str[0]);
-
-            for (int i = 1; i < str.Length; i++)
+            if (char.IsUpper(str[i]) && !char.IsUpper(str[i - 1]) && str[i - 1] != ' ')
             {
-                if (char.IsUpper(str[i]) && !char.IsUpper(str[i - 1]) && str[i - 1] != ' ')
-                {
-                    newText.Append(' ');
-                }
-
-                newText.Append(str[i]);
+                newText.Append(' ');
             }
 
-            foreach (var delimiter in ReadableSplitIdentifiers)
-            {
-                newText.Replace(delimiter, ' ');
-            }
-
-            return newText.ToString();
+            newText.Append(str[i]);
         }
 
-        public static string GetHumanReadableName(this MemberInfo member)
+        foreach (var delimiter in ReadableSplitIdentifiers)
         {
-            var displayNameAttr = member.GetCustomAttribute<DisplayNameAttribute>();
-            if(displayNameAttr is not null) return Lang.Get(displayNameAttr.DisplayName);
-            return member.Name.ToHumanReadable();
+            newText.Replace(delimiter, ' ');
         }
 
-        public static readonly string[] RegistryAffixes = new string[]
-        {
-            "Item",
-            "Block",
-            "BlockEntity",
-            "Entity",
-            "Behavior",
-            "CollectibleBehavior",
-            "BlockBehavior",
-            "BlockEntityBehavior",
-            "TransitionHandler"
-        };
-
-        public static string GetRegistryName(this MemberInfo member, string domain = null, bool removeComminAffixes = false)
-        {
-            //TODO attributes
-            var memberName = member.Name;
-
-            if(removeComminAffixes) foreach(var affix in RegistryAffixes) memberName = memberName.RemoveAffix(affix);
-
-            if(!string.IsNullOrEmpty(domain)) return $"{domain}:{memberName}";
-            return memberName;
-        }
-
-        /// <summary>
-        /// Converts a string to an AssetLocation in a way that does not automatically add the default domain <br/>
-        /// Meaning that if you parse it back it will be the same as the input string
-        /// </summary>
-        public static AssetLocation ToAssetLocation(this string str)
-        {
-            if(string.IsNullOrWhiteSpace(str)) return null;
-            return str.Contains(':') ? (AssetLocation)str : new AssetLocation(null, str);
-        }
-
-        public static string EnsureFileExtension(this string str, string extension)
-        {
-            if (string.IsNullOrWhiteSpace(str) || string.IsNullOrWhiteSpace(extension)) return str;
-            if (!extension.StartsWith('.')) extension = '.' + extension;
-
-            string currentExtension = Path.GetExtension(str);
-            if (string.IsNullOrEmpty(currentExtension)) return str + extension;
-            return string.Concat(str.AsSpan(0, str.Length - currentExtension.Length), extension);
-        }
-
-        public static bool TryRemoveFrom(this string prefix, ref string str)
-        {
-            if(str is null || !str.StartsWith(prefix)) return false;
-            str = str[prefix.Length..];
-            return true;
-        }
-
-        //TODO spans
-        public static string RemoveSuffix(this string str, string suffix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(suffix) || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
-        public static string RemovePrefix(this string str, string prefix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(prefix) || !str.StartsWith(prefix) ? str : str[prefix.Length..];
-        public static string RemoveAffix(this string str, string affix) => str.RemovePrefix(affix).RemoveSuffix(affix);
-
-        public static string ReplaceSpecialSymbolsWithText(this string input) => input.Replace("∞", "Infinity");
+        return newText.ToString();
     }
+
+    public static string GetHumanReadableName(this MemberInfo member)
+    {
+        var displayNameAttr = member.GetCustomAttribute<DisplayNameAttribute>();
+        if(displayNameAttr is not null) return Lang.Get(displayNameAttr.DisplayName);
+        return member.Name.ToHumanReadable();
+    }
+
+    public static readonly string[] RegistryAffixes = new string[]
+    {
+        "Item",
+        "Block",
+        "BlockEntity",
+        "Entity",
+        "Behavior",
+        "CollectibleBehavior",
+        "BlockBehavior",
+        "BlockEntityBehavior",
+        "TransitionHandler"
+    };
+
+    public static string GetRegistryName(this MemberInfo member, string domain = null, bool removeComminAffixes = false)
+    {
+        //TODO attributes
+        var memberName = member.Name;
+
+        if(removeComminAffixes) foreach(var affix in RegistryAffixes) memberName = memberName.RemoveAffix(affix);
+
+        if(!string.IsNullOrEmpty(domain)) return $"{domain}:{memberName}";
+        return memberName;
+    }
+
+    /// <summary>
+    /// Converts a string to an AssetLocation in a way that does not automatically add the default domain <br/>
+    /// Meaning that if you parse it back it will be the same as the input string
+    /// </summary>
+    public static AssetLocation ToAssetLocation(this string str)
+    {
+        if(string.IsNullOrWhiteSpace(str)) return null;
+        return str.Contains(':') ? (AssetLocation)str : new AssetLocation(null, str);
+    }
+
+    public static string EnsureFileExtension(this string str, string extension)
+    {
+        if (string.IsNullOrWhiteSpace(str) || string.IsNullOrWhiteSpace(extension)) return str;
+        if (!extension.StartsWith('.')) extension = '.' + extension;
+
+        string currentExtension = Path.GetExtension(str);
+        if (string.IsNullOrEmpty(currentExtension)) return str + extension;
+        return string.Concat(str.AsSpan(0, str.Length - currentExtension.Length), extension);
+    }
+
+    public static bool TryRemoveFrom(this string prefix, ref string str)
+    {
+        if(str is null || !str.StartsWith(prefix)) return false;
+        str = str[prefix.Length..];
+        return true;
+    }
+
+    //TODO spans
+    public static string RemoveSuffix(this string str, string suffix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(suffix) || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
+    public static string RemovePrefix(this string str, string prefix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(prefix) || !str.StartsWith(prefix) ? str : str[prefix.Length..];
+    public static string RemoveAffix(this string str, string affix) => str.RemovePrefix(affix).RemoveSuffix(affix);
+
+    public static string ReplaceSpecialSymbolsWithText(this string input) => input.Replace("∞", "Infinity");
 }

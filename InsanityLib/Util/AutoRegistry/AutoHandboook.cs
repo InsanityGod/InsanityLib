@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace InsanityLib.Util.AutoRegistry;
 
-namespace InsanityLib.Util.AutoRegistry
+public static class AutoHandboook
 {
-    public static class AutoHandboook
-    {
-        //TODO
-    }
+    //TODO
 }

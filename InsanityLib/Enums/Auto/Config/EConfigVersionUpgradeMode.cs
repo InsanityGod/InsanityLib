@@ -1,26 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace InsanityLib.Enums.Auto.Config;
 
-namespace InsanityLib.Enums.Auto.Config
+public enum EConfigVersionUpgradeMode
 {
-    public enum EConfigVersionUpgradeMode
-    {
-        /// <summary>
-        /// Creates a new instance of the config and then merges the old instance into the new one. <br />
-        /// </summary>
-        MergeIntoNew,
+    /// <summary>
+    /// Creates a new instance of the config and then merges the old instance into the new one. <br />
+    /// </summary>
+    MergeIntoNew,
 
-        /// <summary>
-        /// Throw an exception if the version is not valid.
-        /// </summary>
-        Throw,
+    /// <summary>
+    /// Throw an exception if the version is not valid.
+    /// </summary>
+    Throw,
 
-        /// <summary>
-        /// Log a warning if the version is not valid.
-        /// </summary>
-        Warning
-    }
+    /// <summary>
+    /// Log a warning if the version is not valid.
+    /// </summary>
+    Warning
 }

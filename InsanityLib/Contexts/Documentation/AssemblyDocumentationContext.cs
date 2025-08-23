@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
+﻿using System.Xml;
 
-namespace InsanityLib.Contexts.Documentation
+namespace InsanityLib.Contexts.Documentation;
+
+public class AssemblyDocumentationContext
 {
-    public class AssemblyDocumentationContext
-    {
-        public XmlDocument Document { get; internal set; }
+    public XmlDocument Document { get; internal set; }
 
-        public bool HasXmlDocumentation => Document is not null;
-    }
+    public bool HasXmlDocumentation => Document is not null;
 }

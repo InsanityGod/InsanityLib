@@ -6,137 +6,133 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using Vintagestory.API.Common;
 
-namespace InsanityLib.UI.ImGuiTools.Components.Util
+namespace InsanityLib.UI.ImGuiTools.Components.Util;
+
+public class DictAndListAddButton : Button
 {
-    public class DictAndListAddButton : Button
+    public readonly Type KeyType;
+
+    public readonly Type ValueType;
+    public readonly IImGuiComponentContainer ComponentContainer;
+
+    private int lastIndex = -1;
+
+    public DictAndListAddButton(ImGuiContext context, IImGuiComponentContainer componentContainer) : base(context.New("addbutton", name: "add"), null)
     {
-        public readonly Type KeyType;
+        ComponentContainer = componentContainer;
+        Action = AddItem;
+        if(!Context.TryGetValue(out var container)) return;
 
-        public readonly Type ValueType;
-        public readonly IImGuiComponentContainer ComponentContainer;
-
-        private int lastIndex = -1;
-
-        public DictAndListAddButton(ImGuiContext context, IImGuiComponentContainer componentContainer) : base(context.New("addbutton", name: "add"), null)
+        var containerType = container.GetType();
+        var dictTypes = containerType.FindGenericInterfaceDefinition(typeof(IDictionary<,>))?.GenericTypeArguments;
+        var listTypes = containerType.FindGenericInterfaceDefinition(typeof(ICollection<>))?.GenericTypeArguments;
+        
+        if(dictTypes is not null)
         {
-            ComponentContainer = componentContainer;
-            Action = AddItem;
-            if(!Context.TryGetValue(out var container)) return;
+            KeyType = dictTypes[0];
+            ValueType = dictTypes[1];
+        }
+        else if(container is Array)
+        {
+            KeyType = typeof(int);
+            ValueType = containerType.GetElementType();
+        }
+        else if(listTypes is not null)
+        {
+            ValueType = listTypes[0];
+        }
+    }
 
-            var containerType = container.GetType();
-            var dictTypes = containerType.FindGenericInterfaceDefinition(typeof(IDictionary<,>))?.GenericTypeArguments;
-            var listTypes = containerType.FindGenericInterfaceDefinition(typeof(ICollection<>))?.GenericTypeArguments;
-            
-            if(dictTypes is not null)
+    public void AddItem()
+    {
+        if(!Context.TryGetValue(out var container))
+        {
+            Context.ParentContext.TrySetValue(Context.ParentContext.Member.GetPrimaryType().AutoCreate(Context.ParentContext), this);
+            if(!Context.TryGetValue(out container)) return;
+        }
+        
+        var value = ValueType?.AutoCreate(Context, false);
+
+        if (container is IDictionary dict)
+        {
+            var key = KeyType?.AutoCreate(Context, false);
+
+            if (!dict.Contains(key))
             {
-                KeyType = dictTypes[0];
-                ValueType = dictTypes[1];
+                dict.Add(key, value);
+                AddDisplay(key, value, true);
             }
-            else if(container is Array)
+            else AddDisplay(key, value, false);
+        }
+        else if(container is IList list)
+        {
+            var key = list.Count;
+            if(container is Array)
             {
-                KeyType = typeof(int);
-                ValueType = containerType.GetElementType();
+                var newArray = Array.CreateInstance(ValueType, key + 1);
+                list.CopyTo(newArray, 0);
+                newArray.SetValue(value, key);
+
+                Context.ParentContext.TrySetValue(newArray, this);
+                foreach (var item in ComponentContainer.Where(item => item.Context.TargetObject == container))
+                {
+                    item.Context.TargetObject = newArray;
+                }
+
+                AddDisplay(key, value, true);
             }
-            else if(listTypes is not null)
+            else
             {
-                ValueType = listTypes[0];
+                list.Add(value);
+                AddDisplay(key, value, true);
             }
         }
+    }
 
-        public void AddItem()
+    public void AddDisplay(object key, object item, bool existsInDictionary)
+    {
+        if(!Context.TryGetValue(out var container)) return;
+        
+        var collection = new SameLineComponentCollection(Context)
         {
-            if(!Context.TryGetValue(out var container))
-            {
-                Context.ParentContext.TrySetValue(Context.ParentContext.Member.GetPrimaryType().AutoCreate(Context.ParentContext), this);
-                if(!Context.TryGetValue(out container)) return;
-            }
-            
-            var value = ValueType?.AutoCreate(Context, false);
+            Spread = new int?[3]
+        };
 
-            if (container is IDictionary dict)
-            {
-                var key = KeyType?.AutoCreate(Context, false);
+        KeyContext keyContext = new(Context.TargetObject, Context.Member, KeyType, key, ValueType, Context, $"key-{lastIndex++}", string.Empty)
+        {
+            ExistsInDictionary = existsInDictionary
+        };
+        collection.ValidationResulProvider = keyContext.KeyValidation;
 
-                if (!dict.Contains(key))
-                {
-                    dict.Add(key, value);
-                    AddDisplay(key, value, true);
-                }
-                else AddDisplay(key, value, false);
-            }
-            else if(container is IList list)
-            {
-                var key = list.Count;
-                if(container is Array)
-                {
-                    var newArray = Array.CreateInstance(ValueType, key + 1);
-                    list.CopyTo(newArray, 0);
-                    newArray.SetValue(value, key);
-
-                    Context.ParentContext.TrySetValue(newArray, this);
-                    foreach (var item in ComponentContainer.Where(item => item.Context.TargetObject == container))
-                    {
-                        item.Context.TargetObject = newArray;
-                    }
-
-                    AddDisplay(key, value, true);
-                }
-                else
-                {
-                    list.Add(value);
-                    AddDisplay(key, value, true);
-                }
-            }
+        if (!keyContext.ExistsInDictionary)
+        {
+            keyContext.KeyValidation.LastValidationResult = "Could not insert key, as it alrady exists in the dictionary!";
         }
 
-        public void AddDisplay(object key, object item, bool existsInDictionary)
+        collection.Components.Add(new RemoveButton(ComponentContainer, collection, keyContext)
         {
-            if(!Context.TryGetValue(out var container)) return;
-            
-            var collection = new SameLineComponentCollection(Context)
-            {
-                Spread = new int?[3]
-            };
+            FullWidth = false,
+            FixedWidth = new Vector2(50, 0)
+        });
 
-            KeyContext keyContext = new(Context.TargetObject, Context.Member, KeyType, key, ValueType, Context, $"key-{lastIndex++}", string.Empty)
+        keyContext.ValueContext.CachedObject = item;
+        if (container is IDictionary)
+        {
+            var keyComponent = ImGuiComposer.TryCompose(keyContext, KeyType);
+            if(keyComponent is not null)
             {
-                ExistsInDictionary = existsInDictionary
-            };
-            collection.ValidationResulProvider = keyContext.KeyValidation;
-
-            if (!keyContext.ExistsInDictionary)
-            {
-                keyContext.KeyValidation.LastValidationResult = "Could not insert key, as it alrady exists in the dictionary!";
+                collection.Spread[collection.Components.Count] = 200; //Set width for key column
+                collection.Components.Add(keyComponent);
             }
-
-            collection.Components.Add(new RemoveButton(ComponentContainer, collection, keyContext)
-            {
-                FullWidth = false,
-                FixedWidth = new Vector2(50, 0)
-            });
-
-            keyContext.ValueContext.CachedObject = item;
-            if (container is IDictionary)
-            {
-                var keyComponent = ImGuiComposer.TryCompose(keyContext, KeyType);
-                if(keyComponent is not null)
-                {
-                    collection.Spread[collection.Components.Count] = 200; //Set width for key column
-                    collection.Components.Add(keyComponent);
-                }
-            }
-            
-            var valueComponent = ImGuiComposer.TryCompose(keyContext.ValueContext, ValueType);
-            if(valueComponent is not null)
-            {
-                collection.Components.Add(valueComponent);
-            }
-
-            ComponentContainer.Components.Insert(ComponentContainer.Components.IndexOf(this), collection);
         }
+        
+        var valueComponent = ImGuiComposer.TryCompose(keyContext.ValueContext, ValueType);
+        if(valueComponent is not null)
+        {
+            collection.Components.Add(valueComponent);
+        }
+
+        ComponentContainer.Components.Insert(ComponentContainer.Components.IndexOf(this), collection);
     }
 }

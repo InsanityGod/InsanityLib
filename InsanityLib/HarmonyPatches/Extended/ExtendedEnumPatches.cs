@@ -2,24 +2,23 @@
 using InsanityLib.Util;
 using System;
 
-namespace InsanityLib.HarmonyPatches.Extended
+namespace InsanityLib.HarmonyPatches.Extended;
+
+[HarmonyPatch]
+public static class ExtendedEnumPatches
 {
-    [HarmonyPatch]
-    public static class ExtendedEnumPatches
+
+    [HarmonyPatch("Newtonsoft.Json.Utilities.EnumUtils", "ParseEnum")]
+    [HarmonyPrefix]
+    public static bool ExtendedEnumParsingPrefix(Type enumType, string value, ref object __result)
     {
-
-        [HarmonyPatch("Newtonsoft.Json.Utilities.EnumUtils", "ParseEnum")]
-        [HarmonyPrefix]
-        public static bool ExtendedEnumParsingPrefix(Type enumType, string value, ref object __result)
+        var result = EnumExtensionUtil.TryParse(enumType, value);
+        if(result is not null)
         {
-            var result = EnumExtensionUtil.TryParse(enumType, value);
-            if(result is not null)
-            {
-                __result = result.Value;
-                return false; //Prevent default execution
-            }
-
-            return true;
+            __result = result.Value;
+            return false; //Prevent default execution
         }
+
+        return true;
     }
 }

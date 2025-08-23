@@ -12,56 +12,55 @@ using InsanityLib.Util.ContentFeatures;
 
 [assembly: AutoPatcher("insanitylib")]
 [assembly: AutoRegistry("insanitylib")]
-namespace InsanityLib
+namespace InsanityLib;
+
+public class InsanityLibModSystem : ModSystem, IServiceProvider
 {
-    public class InsanityLibModSystem : ModSystem, IServiceProvider
+    [AutoDefaultValue(AutoType = typeof(ServiceContainer))]
+    public static IServiceContainer GlobalServiceContainer { get; private set; } = new ServiceContainer(); //TODO write a custom service container
+    
+    public IServiceContainer ServiceContainer { get; private set; }
+
+    public object GetService(Type serviceType) => ServiceContainer.GetService(serviceType);
+
+    public override void StartPre(ICoreAPI api)
     {
-        [AutoDefaultValue(AutoType = typeof(ServiceContainer))]
-        public static IServiceContainer GlobalServiceContainer { get; private set; } = new ServiceContainer(); //TODO write a custom service container
+        ReflectionUtil.LoadedSides ??= api.Side;
+        ReflectionUtil.LoadedSides |= api.Side;
+        if (api is ICoreClientAPI clientApi) GlobalServiceContainer.Register(clientApi);
+        if (api is ICoreServerAPI serverApi) GlobalServiceContainer.Register(serverApi);
         
-        public IServiceContainer ServiceContainer { get; private set; }
+        ServiceContainer = new ServiceContainer(GlobalServiceContainer);
+        ServiceContainer.Register(api);
+        ServiceContainer.Register(api.World);
+        ServiceContainer.Register(api.Logger);
+        EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
+        AssetCategoryAttribute.Load();
+        AutoRegistryAttribute.RegisterAll(api); //TODO see about allowing for config values to be used in patching
+        AutoConfigUtil.LoadAll(ServiceContainer);
+    }
 
-        public object GetService(Type serviceType) => ServiceContainer.GetService(serviceType);
+    public override void AssetsLoaded(ICoreAPI api)
+    {
+        CustomTransition.LoadAssets(api);
+    }
 
-        public override void StartPre(ICoreAPI api)
-        {
-            ReflectionUtil.LoadedSides ??= api.Side;
-            ReflectionUtil.LoadedSides |= api.Side;
-            if (api is ICoreClientAPI clientApi) GlobalServiceContainer.Register(clientApi);
-            if (api is ICoreServerAPI serverApi) GlobalServiceContainer.Register(serverApi);
-            
-            ServiceContainer = new ServiceContainer(GlobalServiceContainer);
-            ServiceContainer.Register(api);
-            ServiceContainer.Register(api.World);
-            ServiceContainer.Register(api.Logger);
-            EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
-            AssetCategoryAttribute.Load();
-            AutoRegistryAttribute.RegisterAll(api); //TODO see about allowing for config values to be used in patching
-            AutoConfigUtil.LoadAll(ServiceContainer);
-        }
+    public override void Start(ICoreAPI api)
+    {
+        api.RegisterAutoCommands();
+        AutoPatcherAttribute.AutoPatch(api); //TODO maybe move this to StartPre
 
-        public override void AssetsLoaded(ICoreAPI api)
-        {
-            CustomTransition.LoadAssets(api);
-        }
+        //Clear documentation cache build up by auto registration code
+        DocumentationUtil.ClearCache();
+    }
 
-        public override void Start(ICoreAPI api)
-        {
-            api.RegisterAutoCommands();
-            AutoPatcherAttribute.AutoPatch(api);
+    public override void StartClientSide(ICoreClientAPI api)
+    {
+        ServiceContainer.CollectAutoGuiComposers();
+    }
 
-            //Clear documentation cache build up by auto registration code
-            DocumentationUtil.ClearCache();
-        }
-
-        public override void StartClientSide(ICoreClientAPI api)
-        {
-            ServiceContainer.CollectAutoGuiComposers();
-        }
-
-        public override void Dispose()
-        {
-            DisposalLogicAttribute.DisposeAll(ServiceContainer);
-        }
+    public override void Dispose()
+    {
+        DisposalLogicAttribute.DisposeAll(ServiceContainer);
     }
 }

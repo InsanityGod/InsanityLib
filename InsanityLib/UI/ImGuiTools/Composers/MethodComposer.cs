@@ -2,22 +2,17 @@
 using InsanityLib.Interfaces.UI.ImGuiComponents;
 using InsanityLib.UI.ImGuiTools.Components.Util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace InsanityLib.UI.ImGuiTools.Composers
+namespace InsanityLib.UI.ImGuiTools.Composers;
+
+public class MethodComposer : IImGuiComposer
 {
-    public class MethodComposer : IImGuiComposer
-    {
-        public bool CanComposeType(Type type) => typeof(MethodBase).IsAssignableFrom(type);
+    public bool CanComposeType(Type type) => typeof(MethodBase).IsAssignableFrom(type);
 
-        public IImGuiComponent Compose(ImGuiContext context, Type type)
-        {
-            if(context.Member is not MethodBase || context.Member.GetCustomAttribute<ConfigMethodAttribute>() is null) return null;
-            return new Button(context);
-        }
+    public IImGuiComponent Compose(ImGuiContext context, Type type)
+    {
+        if(context.Member is not MethodBase || context.Member.GetCustomAttribute<ConfigMethodAttribute>() is null) return null;
+        return new Button(context);
     }
 }

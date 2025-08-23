@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace InsanityLib.Attributes.Auto.Config.UI
+namespace InsanityLib.Attributes.Auto.Config.UI;
+
+[AttributeUsage(AttributeTargets.Method)]
+public class ConfigMethodAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Method)]
-    public class ConfigMethodAttribute : Attribute
-    {
-    }
 }

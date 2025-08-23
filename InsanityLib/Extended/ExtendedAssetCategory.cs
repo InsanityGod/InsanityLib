@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 
-namespace InsanityLib.Extended
-{
-    public class ExtendedAssetCategory : AssetCategory
-    {
-        public ExtendedAssetCategory(Type type, string code, bool AffectsGameplay, EnumAppSide SideType) : base(code, AffectsGameplay, SideType) => ClassType = type;
+namespace InsanityLib.Extended;
 
-        public Type ClassType { get; }
-    }
+public class ExtendedAssetCategory : AssetCategory
+{
+    public ExtendedAssetCategory(Type type, string code, bool AffectsGameplay, EnumAppSide SideType) : base(code, AffectsGameplay, SideType) => ClassType = type;
+
+    public Type ClassType { get; }
 }

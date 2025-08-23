@@ -1,27 +1,18 @@
 ﻿using ImGuiNET;
-using InsanityLib.Util;
-using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Numerics;
-using System.Reflection;
-using System.Xml.Linq;
-using VSImGui;
 
-namespace InsanityLib.UI.ImGuiTools.Components.Values
+namespace InsanityLib.UI.ImGuiTools.Components.Values;
+
+public class BooleanComponent : ValueComponentBase<bool>
 {
-    public class BooleanComponent : ValueComponentBase<bool>
+    public BooleanComponent(ImGuiContext context) : base(context)
     {
-        public BooleanComponent(ImGuiContext context) : base(context)
-        {
-        }
+    }
 
-        public override void RenderValue()
+    public override void RenderValue()
+    {
+        if(ImGui.Checkbox(Context.Label, ref value))
         {
-            if(ImGui.Checkbox(Context.Label, ref value))
-            {
-                Context.TryAutoSetValue(value, this);
-            }
+            Context.TryAutoSetValue(value, this);
         }
     }
 }

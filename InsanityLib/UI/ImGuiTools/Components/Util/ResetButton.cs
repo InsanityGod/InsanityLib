@@ -1,60 +1,52 @@
 ﻿using ImGuiNET;
 using InsanityLib.Attributes.Auto;
-using InsanityLib.Interfaces.UI.ImGuiComponents;
 using InsanityLib.Util;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
-using VSImGui;
 
-namespace InsanityLib.UI.ImGuiTools.Components.Util
+namespace InsanityLib.UI.ImGuiTools.Components.Util;
+
+public class ResetButton : ComponentBase
 {
-    public class ResetButton : ComponentBase
+    public readonly string DescriptionStr;
+    public static ResetButton TryCreate(ImGuiContext context)
     {
-        public readonly string DescriptionStr;
-        public static ResetButton TryCreate(ImGuiContext context)
-        {
-            if(!context.CanWrite || context.Member.GetCustomAttribute<DefaultValueAttribute>() is null) return null;
+        if(!context.CanWrite || context.Member.GetCustomAttribute<DefaultValueAttribute>() is null) return null;
 
-            return new ResetButton(context.New("reset-button", name: "~"));
-        }
+        return new ResetButton(context.New("reset-button", name: "~"));
+    }
 
-        protected ResetButton(ImGuiContext context) : base(context)
-        {
-            var defaultAttr = context.Member.GetCustomAttribute<DefaultValueAttribute>();
-            DescriptionStr = $"Reset to default: {(defaultAttr is AutoDefaultValueAttribute ? "RuntimeCalculated" : defaultAttr.Value)}";
-        }
+    protected ResetButton(ImGuiContext context) : base(context)
+    {
+        var defaultAttr = context.Member.GetCustomAttribute<DefaultValueAttribute>();
+        DescriptionStr = $"Reset to default: {(defaultAttr is AutoDefaultValueAttribute ? "RuntimeCalculated" : defaultAttr.Value)}";
+    }
 
-        public override void Render()
+    public override void Render()
+    {
+        if (ImGui.Button(Context.Label))
         {
-            if (ImGui.Button(Context.Label))
+            try
             {
-                try
-                {
-                    Context.Member.SetAutoDefaultValue(Context, Context.TargetObject);
-                    Context.ParentContext.NotifyChanged(this); //Reset button has a sperate context, we should notify the parent context instead
-                }
-                catch(Exception ex)
-                {
-                    OnError(ex);
-                }
+                Context.Member.SetAutoDefaultValue(Context, Context.TargetObject);
+                Context.ParentContext.NotifyChanged(this); //Reset button has a sperate context, we should notify the parent context instead
             }
-
-            if (ImGui.BeginItemTooltip())
+            catch(Exception ex)
             {
-                ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35f);
-                ImGui.TextUnformatted(DescriptionStr);
-                ImGui.PopTextWrapPos();
-
-                ImGui.EndTooltip();
+                OnError(ex);
             }
-
-            ImGui.SameLine();
         }
+
+        if (ImGui.BeginItemTooltip())
+        {
+            ImGui.PushTextWrapPos(ImGui.GetFontSize() * 35f);
+            ImGui.TextUnformatted(DescriptionStr);
+            ImGui.PopTextWrapPos();
+
+            ImGui.EndTooltip();
+        }
+
+        ImGui.SameLine();
     }
 }
