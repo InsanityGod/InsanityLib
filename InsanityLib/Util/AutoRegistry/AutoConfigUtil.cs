@@ -66,80 +66,95 @@ public static class AutoConfigUtil
     }
 
 
-    internal static void LoadAll(IServiceProvider provider)
+    internal static void LoadAll(ICoreAPI api)
     {
-        var api = provider.GetService<ICoreAPI>();
-        var loadModConfig = AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.LoadModConfig) && method.IsGenericMethod);
         if(api.ModLoader.IsModEnabled("configlib")) RegisterConfigLibEvents(api);
         foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<AutoConfigAttribute>().OrderByDescending(config => config.Item1.GetPrimaryType() == typeof(InsanityLibConfig))) //Ensure primary config is loaded first
         {
-            try
-            {
-                if(!(member is FieldInfo || member is PropertyInfo) || !member.IsStatic() || !member.GetPrimaryType().IsComplexClassType()) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
-
-                var value = member.GetValue();
-                if ((api.Side == EnumAppSide.Client && value is not null) || TryAssignFromCache(attr.Path, member)) continue;
-                var configType = member.GetPrimaryType();
-
-                try
-                {
-                    if(attr.ServerSync && api is ICoreClientAPI clientApi && !clientApi.IsSinglePlayer)
-                    {
-                        var jsonBase64 = clientApi.World.Config.GetOrAddTreeAttribute("insanitylib").GetString(attr.Path);
-
-                        value = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(Convert.FromBase64String(jsonBase64)), configType) ?? throw new InvalidOperationException($"Config is configured to be synced from server but no config was sent for '{attr.Path}'");
-                        member.SetValue(value);
-                    }
-                    else
-                    {
-                        value = loadModConfig.MakeGenericMethod(configType)
-                            .Invoke(api, new object[] { attr.Path });
-
-                        if(value is not null) ValidateAndFix(provider, configType, ref value, attr);
-
-                        if (value is null && attr.CreateIfNotExist)
-                        {
-                            value = configType.AutoCreate(provider, false);
-
-                            if(InsanityLibConfig.Instance is null || !InsanityLibConfig.Instance.AutoConfig.SaveOnLoad) StoreModConfig(api, value, attr.Path);
-                        }
-
-                        if (value is not null) member.SetValue(value);
-                    }
-                }
-                catch
-                {
-                    if (attr.DefaultOnError)
-                    {
-                        value = configType.AutoCreate(provider, false);
-                        if (value is not null) member.SetValue(value);
-                    }
-                    throw;
-                }
-                finally
-                {
-                    if(value is not null)
-                    {
-                        LoadedConfigs.Add(attr.Path, new AutoConfig(api, value, attr));
-
-                        if(InsanityLibConfig.Instance.AutoConfig.SaveOnLoad) StoreModConfig(api, value, attr.Path);
-                    }
-
-                    if (attr.ServerSync && api is ICoreServerAPI serverAPI) //Register even if playing singleplayer, since opening to LAN is a thing
-                    {
-                        //TODO use this same mechanism to allow for localizing configs to be world specific
-                        var json = JsonConvert.SerializeObject(value, Formatting.None);
-                        serverAPI.World.Config.GetOrAddTreeAttribute("insanitylib").SetString(attr.Path, Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedDefaultTemplate, nameof(AutoConfigAttribute), attr.Path, ex);
-            }
+            LoadMember(api, member, attr);
         }
 
         if(api is ICoreClientAPI) RegisterToConfigLib(api);
+    }
+
+    /// <summary>
+    /// Ensures InsanityLib config is loaded in case you need it prematurely
+    /// </summary>
+    public static void EnsureInsanityLibConfigPreLoaded(ICoreAPI api)
+    {
+        var member = AccessTools.Property(typeof(InsanityLibConfig), nameof(InsanityLibConfig.Instance));
+        var attr = member.GetCustomAttribute<AutoConfigAttribute>();
+        LoadMember(api, member, attr);
+    }
+
+    public static void LoadMember(ICoreAPI api, MemberInfo member, AutoConfigAttribute attr)
+    {
+        var provider = api.GetServiceContainer();
+        try
+        {
+            if(!(member is FieldInfo || member is PropertyInfo) || !member.IsStatic() || !member.GetPrimaryType().IsComplexClassType()) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
+
+            var value = member.GetValue();
+            if ((api.Side == EnumAppSide.Client && value is not null) || TryAssignFromCache(attr.Path, member)) return;
+            var configType = member.GetPrimaryType();
+
+            try
+            {
+                if(attr.ServerSync && api is ICoreClientAPI clientApi && !clientApi.IsSinglePlayer)
+                {
+                    var jsonBase64 = clientApi.World.Config.GetOrAddTreeAttribute("insanitylib").GetString(attr.Path);
+
+                    value = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(Convert.FromBase64String(jsonBase64)), configType) ?? throw new InvalidOperationException($"Config is configured to be synced from server but no config was sent for '{attr.Path}'");
+                    member.SetValue(value);
+                }
+                else
+                {
+                    var loadModConfig = AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.LoadModConfig) && method.IsGenericMethod);
+                    value = loadModConfig.MakeGenericMethod(configType)
+                        .Invoke(api, new object[] { attr.Path });
+
+                    if(value is not null) ValidateAndFix(provider, configType, ref value, attr);
+
+                    if (value is null && attr.CreateIfNotExist)
+                    {
+                        value = configType.AutoCreate(provider, false);
+
+                        if(InsanityLibConfig.Instance is null || !InsanityLibConfig.Instance.AutoConfig.SaveOnLoad) StoreModConfig(api, value, attr.Path);
+                    }
+
+                    if (value is not null) member.SetValue(value);
+                }
+            }
+            catch
+            {
+                if (attr.DefaultOnError)
+                {
+                    value = configType.AutoCreate(provider, false);
+                    if (value is not null) member.SetValue(value);
+                }
+                throw;
+            }
+            finally
+            {
+                if(value is not null)
+                {
+                    LoadedConfigs.Add(attr.Path, new AutoConfig(api, value, attr));
+
+                    if(InsanityLibConfig.Instance.AutoConfig.SaveOnLoad) StoreModConfig(api, value, attr.Path);
+                }
+
+                if (attr.ServerSync && api is ICoreServerAPI serverAPI) //Register even if playing singleplayer, since opening to LAN is a thing
+                {
+                    //TODO use this same mechanism to allow for localizing configs to be world specific
+                    var json = JsonConvert.SerializeObject(value, Formatting.None);
+                    serverAPI.World.Config.GetOrAddTreeAttribute("insanitylib").SetString(attr.Path, Convert.ToBase64String(Encoding.UTF8.GetBytes(json)));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedDefaultTemplate, nameof(AutoConfigAttribute), attr.Path, ex);
+        }
     }
 
     internal static void RegisterToConfigLib(ICoreAPI api)
@@ -148,24 +163,11 @@ public static class AutoConfigUtil
         
         var mode = InsanityLibConfig.Instance.AutoConfig.ConfigUIMode;
         if(mode == EConfigEditorMode.NoConfigEditor) return;
-
-        if (!api.ModLoader.IsModEnabled("autoconfiglib"))
-        {
-            api.Logger.Warning(Logging.ModRequirementNotMetDefaulting, nameof(EConfigEditorMode.AutoConfigLibEditor), nameof(EConfigEditorMode.InsanityLibConfigEditor), "autoconfiglib");
-            mode = EConfigEditorMode.InsanityLibConfigEditor;
-        }
         
         foreach ((_, var config) in LoadedConfigs)
         {
             RegisterToConfigLib(api, config, config.ConfigInstance is InsanityLibConfig ? EConfigEditorMode.InsanityLibConfigEditor : mode);
         }
-    }
-
-    private static void RegisterToAutoConfigLib(ICoreAPI api, object instance, string path)
-    {
-        AccessTools.Method(typeof(AutoConfigLib.Auto.AutoConfigGenerator), nameof(AutoConfigLib.Auto.AutoConfigGenerator.RegisterOrCollectConfigFile))
-            .MakeGenericMethod(instance.GetType())
-            .Invoke(null, new object[] { api, path, instance });
     }
 
     public static Popup BlockingPopup { get; set; }
@@ -184,14 +186,10 @@ public static class AutoConfigUtil
         };
     }
 
-    private static void RegisterToConfigLib(ICoreAPI api, AutoConfig config, EConfigEditorMode UIMode)
+    public static void RegisterToConfigLib(ICoreAPI api, AutoConfig config, EConfigEditorMode UIMode)
     {
         switch (UIMode)
         {
-            case EConfigEditorMode.AutoConfigLibEditor:
-                RegisterToAutoConfigLib(api, config.ConfigInstance, config.Path);
-                break;
-
             case EConfigEditorMode.InsanityLibConfigEditor:
                 var configLib = api.ModLoader.GetModSystem<ConfigLibModSystem>();
 

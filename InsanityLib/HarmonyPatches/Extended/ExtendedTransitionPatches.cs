@@ -19,29 +19,27 @@ public static class ExtendedTransitionPatches
     [HarmonyTranspiler]
     public static IEnumerable<CodeInstruction> AddHandbookInfo(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
     {
-        var codes = instructions.ToList();
-        var method = AccessTools.Method(typeof(ExtendedTransitionPatches), nameof(AddProccessIntoInfoToHandbook));
+        var matcher = new CodeMatcher(instructions, generator);
+        
+        matcher.MatchEndForward
+        (
+            new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(TransitionableProperties), nameof(TransitionableProperties.Type))),
+            new CodeMatch(),
+            new CodeMatch(),
+            new CodeMatch(OpCodes.Switch)
+        );
+        
+        matcher.InsertAfter(
+            CodeInstruction.LoadArgument(1), //capi
+            CodeInstruction.LoadArgument(4), //components
+            CodeInstruction.LoadLocal(39), //verticalSpace
+            CodeInstruction.LoadArgument(2), //openDetailPageFor
+            CodeInstruction.LoadLocal(42), //props
+            CodeInstruction.LoadLocal(40, true), //addedItemStack
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ExtendedTransitionPatches), nameof(AddProccessIntoInfoToHandbook)))
+        );
 
-        for (int i = 0; i < codes.Count; i++)
-        {
-            var code = codes[i];
-            if (code.opcode == OpCodes.Switch && codes[i-3].operand == AccessTools.Field(typeof(TransitionableProperties), nameof(TransitionableProperties.Type)))
-            {
-                codes.InsertRange(i + 1, new CodeInstruction[]
-                {
-                    new(OpCodes.Ldarg_2),
-                    new(OpCodes.Ldarg_S, 5),
-                    new(OpCodes.Ldloc_S, 25),
-                    new(OpCodes.Ldarg_3),
-                    new(OpCodes.Ldloc_S, 29),
-                    new(OpCodes.Ldloca_S, 26),
-                    new(OpCodes.Call, method),
-                });
-                break;
-            }
-        }
-
-        return codes;
+        return matcher.InstructionEnumeration();
     }
 
     public static void AddProccessIntoInfoToHandbook(ICoreClientAPI capi, List<RichTextComponentBase> components, ClearFloatTextComponent verticalSpace, ActionConsumable<string> openDetailPageFor, TransitionableProperties prop, ref bool addedItemStack)
