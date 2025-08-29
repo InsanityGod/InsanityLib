@@ -3,6 +3,7 @@ using InsanityLib.Enums.Auto.Config.UI;
 using InsanityLib.Interfaces.UI.ImGuiComponents;
 using InsanityLib.UI.ImGuiTools.Components.Util;
 using InsanityLib.Util;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -45,8 +46,8 @@ public class ClassComposer : IImGuiComposer
 
             foreach(var member in group)
             {
-                if(member.DeclaringType == typeof(object)) continue;
-                if(member is not PropertyInfo && member is not FieldInfo && member is not MethodInfo) continue;
+                if(!IsValidMember(member)) continue;
+
 
                 var memberContext = context.New(member.Name, member);
 
@@ -58,6 +59,13 @@ public class ClassComposer : IImGuiComposer
         }
 
         return container;
+    }
+
+    private static bool IsValidMember(MemberInfo member)
+    {
+        if (member.DeclaringType == typeof(object) || (member is not PropertyInfo && member is not FieldInfo && member is not MethodInfo)) return false;
+        if (member.GetCustomAttribute<JsonExtensionDataAttribute>() is not null) return false;
+        return true;
     }
 
     private int SortGroup(IImGuiComponent x, IImGuiComponent y)
