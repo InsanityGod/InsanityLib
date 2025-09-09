@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
+using InsanityLib.Util;
 using InsanityLib.Util.ContentFeatures;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using Vintagestory.API.Client;
@@ -28,14 +28,26 @@ public static class ExtendedTransitionPatches
             new CodeMatch(),
             new CodeMatch(OpCodes.Switch)
         );
+        var switchLoc = matcher.Pos;
         
+        matcher.MatchEndBackwards(typeof(ClearFloatTextComponent).CodeMatchStoresLocal());
+        var verticalSpaceLocalIndex = matcher.Instruction.GetStoredLocalIndex();
+
+        matcher.MatchEndForward(typeof(bool).CodeMatchStoresLocal());
+        var addedItemStackLocalIndex = matcher.Instruction.GetStoredLocalIndex();
+
+        matcher.MatchEndForward(typeof(TransitionableProperties).CodeMatchStoresLocal());
+        var propsLocalIndex = matcher.Instruction.GetStoredLocalIndex();
+
+        matcher.Start();
+        matcher.Advance(switchLoc);
         matcher.InsertAfter(
             CodeInstruction.LoadArgument(1), //capi
             CodeInstruction.LoadArgument(4), //components
-            CodeInstruction.LoadLocal(39), //verticalSpace
+            CodeInstruction.LoadLocal(verticalSpaceLocalIndex), //verticalSpace
             CodeInstruction.LoadArgument(2), //openDetailPageFor
-            CodeInstruction.LoadLocal(42), //props
-            CodeInstruction.LoadLocal(40, true), //addedItemStack
+            CodeInstruction.LoadLocal(propsLocalIndex), //props
+            CodeInstruction.LoadLocal(addedItemStackLocalIndex, true), //addedItemStack
             new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(ExtendedTransitionPatches), nameof(AddProccessIntoInfoToHandbook)))
         );
 
