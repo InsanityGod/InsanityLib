@@ -11,8 +11,7 @@ namespace InsanityLib.Util;
 
 public static partial class Naming
 {
-    //public static readonly char[] TrimCharacters = new char[] { ' ', '\n', '\r', '\t' };
-    public static readonly char[] ReadableSplitIdentifiers = new char[] { '-', '_', ':' };
+    public static readonly char[] ReadableSplitIdentifiers = ['-', '_', ':'];
 
     [GeneratedRegex(@"[^\S\r\n]+")]
     public static partial Regex WhiteSpaceRegex();

@@ -1,8 +1,8 @@
 ﻿using InsanityLib.Constants;
-using InsanityLib.Interfaces;
-using InsanityLib.Interfaces.UI;
+using InsanityLib.UI.Interfaces;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
+using InsanityLib.Util.Interfaces;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Client;

@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Vintagestory.ServerMods.NoObf;
 
-namespace InsanityLib.HarmonyPatches.Extended;
+namespace InsanityLib.Extended.HarmonyPatches;
 
 [HarmonyPatch]
 public static class ExtendedPatchingPatches

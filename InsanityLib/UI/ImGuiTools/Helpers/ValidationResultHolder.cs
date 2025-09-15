@@ -1,4 +1,4 @@
-﻿using InsanityLib.Interfaces.UI;
+﻿using InsanityLib.Util.Interfaces;
 
 namespace InsanityLib.UI.ImGuiTools.Helpers;
 

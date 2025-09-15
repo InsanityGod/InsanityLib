@@ -1,4 +1,4 @@
-﻿using InsanityLib.Interfaces.UI;
+﻿using InsanityLib.UI.Interfaces;
 using System;
 using System.Reflection;
 

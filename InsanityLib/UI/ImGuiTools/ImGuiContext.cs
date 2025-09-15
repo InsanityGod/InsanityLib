@@ -1,6 +1,6 @@
-﻿using InsanityLib.Interfaces.UI;
-using InsanityLib.UI.ImGuiTools.Contexts;
+﻿using InsanityLib.UI.ImGuiTools.Contexts;
 using InsanityLib.Util;
+using InsanityLib.Util.Interfaces;
 using System;
 using System.ComponentModel;
 using System.Reflection;

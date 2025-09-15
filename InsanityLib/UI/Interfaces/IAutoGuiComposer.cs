@@ -2,7 +2,7 @@
 using System.Reflection;
 using Vintagestory.API.Client;
 
-namespace InsanityLib.Interfaces.UI;
+namespace InsanityLib.UI.Interfaces;
 
 public interface IAutoGuiComposer<in T> : IAutoGuiComposer
 {

@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Reflection;
 using Vintagestory.API.MathTools;
 
-namespace InsanityLib.Interfaces.UI;
+namespace InsanityLib.UI.Interfaces;
 
 public interface IDialogContext : IServiceProvider
 {

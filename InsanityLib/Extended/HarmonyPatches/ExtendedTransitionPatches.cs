@@ -9,7 +9,7 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.GameContent;
 
-namespace InsanityLib.HarmonyPatches.Extended;
+namespace InsanityLib.Extended.HarmonyPatches;
 
 [HarmonyPatch]
 public static class ExtendedTransitionPatches

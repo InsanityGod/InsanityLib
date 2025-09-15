@@ -25,6 +25,6 @@ public static class HarmonyUtil
     {
         if(!instruction.IsStloc()) throw new ArgumentException("passed instruction is not for storing locals", nameof(instruction));
         if(instruction.operand is LocalBuilder builder) return builder.LocalIndex;
-        return (int)instruction.operand;
+        return instruction.LocalIndex();
     }
 }

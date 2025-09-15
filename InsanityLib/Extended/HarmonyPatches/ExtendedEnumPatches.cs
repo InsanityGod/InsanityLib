@@ -2,7 +2,7 @@
 using InsanityLib.Util;
 using System;
 
-namespace InsanityLib.HarmonyPatches.Extended;
+namespace InsanityLib.Extended.HarmonyPatches;
 
 [HarmonyPatch]
 public static class ExtendedEnumPatches

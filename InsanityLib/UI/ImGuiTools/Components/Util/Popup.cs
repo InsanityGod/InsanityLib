@@ -1,7 +1,7 @@
 ﻿using ImGuiNET;
 using InsanityLib.Attributes.Auto.Config.UI;
 using InsanityLib.Enums.Auto.Config.UI;
-using InsanityLib.Interfaces.UI.ImGuiComponents;
+using InsanityLib.UI.ImGuiTools.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
