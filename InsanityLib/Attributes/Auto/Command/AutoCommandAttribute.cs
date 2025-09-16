@@ -1,6 +1,6 @@
 ﻿using InsanityLib.Commands;
+using InsanityLib.Documentation;
 using InsanityLib.Enums.Auto.Commands;
-using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

@@ -1,13 +1,14 @@
 ﻿using InsanityLib.Attributes.Auto.Command;
 using InsanityLib.Constants;
+using InsanityLib.Util;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
-namespace InsanityLib.Util.AutoRegistry;
+namespace InsanityLib.Commands;
 
-public static class AutoCommands
+public static class AutoCommandUtil
 {
     internal static void RegisterAutoCommands(this ICoreAPI api)
     {
@@ -41,20 +42,14 @@ public static class AutoCommands
 
         for(var i = 1; i < steps.Length; i++) command = command.GetOrCreateChildStub(steps[i]);
 
-
         return command;
     }
 
-    public static IChatCommand GetOrCreateStub(ICoreAPI api, string name) => api.ChatCommands.GetOrCreate(name)
-        .WithDefaultConfiguration();
-    public static IChatCommand GetOrCreateChildStub(this IChatCommand command, string name) => command.BeginSubCommand(name)
-        .WithDefaultConfiguration();
+    public static IChatCommand GetOrCreateStub(ICoreAPI api, string name) => api.ChatCommands.GetOrCreate(name).WithDefaultConfiguration();
 
-    public static IChatCommand WithDefaultConfiguration(this IChatCommand command)
-    {
-        if(command.Incomplete) command.RequiresPrivilege(Privilege.chat);
-        return command;
-    }
+    public static IChatCommand GetOrCreateChildStub(this IChatCommand command, string name) => command.BeginSubCommand(name).WithDefaultConfiguration();
+
+    public static IChatCommand WithDefaultConfiguration(this IChatCommand command) => command.Incomplete ? command.RequiresPrivilege(Privilege.chat) : command;
 
     public static TextCommandResult NoSuchCommand(TextCommandCallingArgs callingArgs) => new() { Status = EnumCommandStatus.NoSuchCommand };
 }

@@ -14,14 +14,14 @@ using System.IO;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 
-namespace InsanityLib.Config.Util;
+namespace InsanityLib.Config.Auto;
 
-public class AutoConfig
+public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
 {
     /// <summary>
     /// The actual config instance
     /// </summary>
-    public readonly object ConfigInstance;
+    public readonly object ConfigInstance = instance;
 
     /// <summary>
     /// A copy of the config instance, to which we apply edits
@@ -29,25 +29,17 @@ public class AutoConfig
     [ConfigDisplay(Hierarchy = EHierarchyDisplay.None)]
     public object EditConfigInstance { get; set; } //TODO disposal?
 
-    public readonly ICoreAPI Api;
+    public readonly ICoreAPI Api = api;
 
     /// <summary>
     /// Path to the config file
     /// </summary>
-    public readonly string Path;
+    public readonly string Path = attr.Path;
 
     /// <summary>
     /// Wether this config is synced from server
     /// </summary>
-    public readonly bool ServerSync;
-
-    public AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
-    {
-        Api = api;
-        ConfigInstance = instance;
-        Path = attr.Path;
-        ServerSync = attr.ServerSync;
-    }
+    public readonly bool ServerSync = attr.ServerSync;
 
     public bool Validate(out string result)
     {

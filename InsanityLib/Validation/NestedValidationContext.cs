@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace InsanityLib.Contexts;
+namespace InsanityLib.Validation;
 
 public class NestedValidationContext
 {

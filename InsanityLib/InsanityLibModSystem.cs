@@ -9,6 +9,8 @@ using Vintagestory.API.Server;
 using InsanityLib.Attributes;
 using InsanityLib.Extended;
 using InsanityLib.Util.ContentFeatures;
+using InsanityLib.Documentation;
+using InsanityLib.Commands;
 
 [assembly: AutoPatcher("insanitylib")]
 [assembly: AutoRegistry("insanitylib")]
@@ -51,7 +53,7 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
         AutoPatcherAttribute.AutoPatch(api); //TODO maybe move this to StartPre
 
         //Clear documentation cache build up by auto registration code
-        DocumentationUtil.ClearCache();
+        AssemblyDocumentationContext.ClearCache();
     }
 
     public override void StartClientSide(ICoreClientAPI api)

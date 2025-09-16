@@ -7,8 +7,9 @@ using System.Reflection;
 using InsanityLib.Util;
 using HarmonyLib;
 using System.Collections;
+using InsanityLib.Documentation;
 
-namespace InsanityLib.Config.Util;
+namespace InsanityLib.Config.Auto;
 
 public class JsonConverterWithCommentInjection : JsonConverter
 {

@@ -7,14 +7,9 @@ using Vintagestory.API.Common;
 namespace InsanityLib.Attributes.Validators;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-public class CollectibleShouldExistAttribute : ValidationAttribute
+public class CollectibleShouldExistAttribute(EnumItemClass? itemClass = null) : ValidationAttribute
 {
-    public EnumItemClass? ItemClass { get; init; }
-
-    public CollectibleShouldExistAttribute(EnumItemClass? itemClass = null)
-    {
-        ItemClass = itemClass;
-    }
+    public EnumItemClass? ItemClass { get; init; } = itemClass;
 
     public override bool IsValid(object value)
     {

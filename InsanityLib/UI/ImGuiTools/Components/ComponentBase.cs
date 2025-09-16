@@ -1,5 +1,5 @@
 ﻿using ImGuiNET;
-using InsanityLib.Config.Util;
+using InsanityLib.Config.Auto;
 using InsanityLib.UI.ImGuiTools.Interfaces;
 using InsanityLib.Util.AutoRegistry;
 using System;

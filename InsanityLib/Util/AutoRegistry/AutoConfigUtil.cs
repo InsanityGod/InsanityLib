@@ -4,7 +4,7 @@ using ImGuiNET;
 using InsanityLib.Attributes.Auto;
 using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Config;
-using InsanityLib.Config.Util;
+using InsanityLib.Config.Auto;
 using InsanityLib.Constants;
 using InsanityLib.Enums.Auto.Config;
 using InsanityLib.UI.ImGuiTools;

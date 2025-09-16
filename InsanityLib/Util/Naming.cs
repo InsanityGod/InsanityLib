@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InsanityLib.Documentation;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
@@ -16,10 +17,15 @@ public static partial class Naming
     [GeneratedRegex(@"[^\S\r\n]+")]
     public static partial Regex WhiteSpaceRegex();
 
-    public static string CleanWhiteSpaces(this string input) => WhiteSpaceRegex()
-        .Replace(input, " ")
-        .Replace("\n ", "\n")
-        .Trim();
+    public static string CleanWhiteSpaces(this string input)
+    {
+        if(string.IsNullOrEmpty(input)) return input;
+
+        return WhiteSpaceRegex()
+            .Replace(input, " ")
+            .Replace("\n ", "\n")
+            .Trim();
+    }
 
     public static string ToHumanReadable(this string str)
     {
@@ -48,8 +54,14 @@ public static partial class Naming
 
     public static string GetHumanReadableName(this MemberInfo member)
     {
+        var languageStringKey = $"{MemberDocumentationContext.LanguageStringPrefix}-name-{member.DeclaringType?.FullName}.{member.Name}";
+        
+        var languageStringValue = Lang.Get(languageStringKey);
+        if(languageStringValue != languageStringKey && !string.IsNullOrWhiteSpace(languageStringValue)) return languageStringValue;
+
         var displayNameAttr = member.GetCustomAttribute<DisplayNameAttribute>();
         if(displayNameAttr is not null) return Lang.Get(displayNameAttr.DisplayName);
+        
         return member.Name.ToHumanReadable();
     }
 
