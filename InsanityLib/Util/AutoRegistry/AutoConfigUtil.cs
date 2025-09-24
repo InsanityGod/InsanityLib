@@ -95,7 +95,13 @@ public static class AutoConfigUtil
             if(!(member is FieldInfo || member is PropertyInfo) || !member.IsStatic() || !member.GetPrimaryType().IsComplexClassType()) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
 
             var value = member.GetValue();
-            if ((api.Side == EnumAppSide.Client && value is not null) || TryAssignFromCache(attr.Path, member)) return;
+            if (api.Side == EnumAppSide.Client && value is not null)
+            {
+                //Note: this can happen if client hot reloads
+                if (!LoadedConfigs.ContainsKey(attr.Path)) LoadedConfigs[attr.Path] = new AutoConfig(api, value, attr);
+                return;
+            }
+            else if(TryAssignFromCache(attr.Path, member)) return;
             var configType = member.GetPrimaryType();
 
             try

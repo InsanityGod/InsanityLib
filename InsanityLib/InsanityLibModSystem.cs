@@ -64,5 +64,12 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
     public override void Dispose()
     {
         DisposalLogicAttribute.DisposeAll(ServiceContainer);
+        
+        if(ServiceContainer is null) return;
+        var api = ServiceContainer.GetService<ICoreAPI>();
+        if(api is not null && ReflectionUtil.LoadedSides is not null)
+        {
+            ReflectionUtil.LoadedSides &= ~api.Side;
+        }
     }
 }
