@@ -83,7 +83,7 @@ public static partial class Naming
         //TODO attributes
         var memberName = member.Name;
 
-        if(removeComminAffixes) foreach(var affix in RegistryAffixes) memberName = memberName.RemoveAffix(affix);
+        if(removeComminAffixes) foreach(var affix in RegistryAffixes) memberName = memberName.AsSpan().RemoveAffix(affix).ToString();
 
         if(!string.IsNullOrEmpty(domain)) return $"{domain}:{memberName}";
         return memberName;
@@ -117,9 +117,9 @@ public static partial class Naming
     }
 
     //TODO spans
-    public static string RemoveSuffix(this string str, string suffix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(suffix) || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
-    public static string RemovePrefix(this string str, string prefix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(prefix) || !str.StartsWith(prefix) ? str : str[prefix.Length..];
-    public static string RemoveAffix(this string str, string affix) => str.RemovePrefix(affix).RemoveSuffix(affix);
+    internal static ReadOnlySpan<char> RemoveSuffix(this ReadOnlySpan<char> str, ReadOnlySpan<char> suffix) => str.IsWhiteSpace() || suffix.IsWhiteSpace() || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
+    internal static ReadOnlySpan<char> RemovePrefix(this ReadOnlySpan<char> str, ReadOnlySpan<char> prefix) => str.IsWhiteSpace() || prefix.IsWhiteSpace() || !str.StartsWith(prefix) ? str : str[prefix.Length..];
+    internal static ReadOnlySpan<char> RemoveAffix(this ReadOnlySpan<char> str, ReadOnlySpan<char> affix) => str.RemovePrefix(affix).RemoveSuffix(affix);
 
     public static string ReplaceSpecialSymbolsWithText(this string input) => input.Replace("∞", "Infinity");
 }
