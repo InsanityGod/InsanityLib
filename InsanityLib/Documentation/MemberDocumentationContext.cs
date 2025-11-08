@@ -107,7 +107,7 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
         description.AppendLine();
 
         var defaultAttr = Member.GetCustomAttribute<DefaultValueAttribute>();
-        if(defaultAttr is not null) description.AppendLine(Lang.Get($"{LanguageStringPrefix}-attr-defaultvalue", defaultAttr.Value));
+        if(defaultAttr is not null) description.AppendLine($"Default: {defaultAttr.Value}");
 
         var validatorAttributes = Member.GetCustomAttributes<ValidationAttribute>().ToArray();
 
@@ -115,8 +115,8 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
         if (primaryType.IsEnum)
         {
             var isEnumFlag = primaryType.GetCustomAttribute<FlagsAttribute>() is not null;
-            if (isEnumFlag) description.Append(Lang.Get($"{LanguageStringPrefix}-attr-flags"));
-            else description.Append(Lang.Get($"{LanguageStringPrefix}-type-enum"));
+            if (isEnumFlag) description.Append("Valid Values (Combination):");
+            else description.Append("Valid Values: ");
             var parser = new EnumNameValueMapping(primaryType);
             description.AppendLine(parser.GetDescriptionStrings());
             if(validatorAttributes.Length > 0) description.AppendLine();
@@ -128,31 +128,31 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
             switch (attr)
             {
                 case RequiredAttribute requiredAttr:
-                    description.AppendLine(Lang.Get($"{LanguageStringPrefix}-attr-required", requiredAttr.ErrorMessage));
+                    description.AppendLine($"Required: {requiredAttr.ErrorMessage}");
                     break;
 
                 case RangeAttribute rangeAttr:
-                    description.AppendLine(Lang.Get($"{LanguageStringPrefix}-attr-range", rangeAttr.Minimum, rangeAttr.Maximum));
+                    description.AppendLine($"Range: {rangeAttr.Minimum} ~ {rangeAttr.Maximum}");
                     break;
 
                 case StringLengthAttribute stringLengthAttr:
-                    description.AppendLine(Lang.Get($"{LanguageStringPrefix}-attr-stringlength", stringLengthAttr.MinimumLength, stringLengthAttr.MaximumLength));
+                    description.AppendLine($"String Length: {stringLengthAttr.MinimumLength} ~ {stringLengthAttr.MaximumLength}");
                     break;
 
                 case MinLengthAttribute minLengthAttr:
-                    description.AppendLine(Lang.Get($"{LanguageStringPrefix}-attr-minlength", minLengthAttr.Length));
+                    description.AppendLine($"Min Length: {minLengthAttr.Length}");
                     break;
 
                 case MaxLengthAttribute maxLengthAttr:
-                    description.AppendLine(Lang.Get($"{LanguageStringPrefix}-attr-maxlength", maxLengthAttr.Length));
+                    description.AppendLine($"Max Length: {maxLengthAttr.Length}");
                     break;
 
                 case RegularExpressionAttribute regexAttr:
-                    description.AppendLine(Lang.Get($"{LanguageStringPrefix}-attr-regex",regexAttr.Pattern));
+                    description.AppendLine($"Regex: {regexAttr.Pattern}");
                     break;
 
                 case CompareAttribute compareAttr:
-                    description.AppendLine(Lang.Get($"{LanguageStringPrefix}-attr-",compareAttr.OtherProperty, compareAttr.ErrorMessage));
+                    description.AppendLine( $"Compare: {compareAttr.OtherProperty} ({compareAttr.ErrorMessage})");
                     break;
             }
 
