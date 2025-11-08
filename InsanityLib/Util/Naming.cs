@@ -65,8 +65,8 @@ public static partial class Naming
         return member.Name.ToHumanReadable();
     }
 
-    public static readonly string[] RegistryAffixes = new string[]
-    {
+    public static readonly string[] RegistryAffixes =
+    [
         "Item",
         "Block",
         "BlockEntity",
@@ -76,7 +76,7 @@ public static partial class Naming
         "BlockBehavior",
         "BlockEntityBehavior",
         "TransitionHandler"
-    };
+    ];
 
     public static string GetRegistryName(this MemberInfo member, string domain = null, bool removeComminAffixes = false)
     {

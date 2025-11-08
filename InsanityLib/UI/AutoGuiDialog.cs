@@ -43,7 +43,7 @@ public class AutoGuiDialog(ICoreClientAPI capi, object target) : GuiDialog(capi)
     /// <summary>The action to execute when the dialog closed</summary>
     public Action OnClose { get; set; }
 
-    private List<Action> AfterComposeCallbacks { get; } = new();
+    private List<Action> AfterComposeCallbacks { get; } = [];
     public void RegisterAfterComposeCallback(Action action) => AfterComposeCallbacks.Add(action);
 
     public override string ToggleKeyCombinationCode { get; }
@@ -137,7 +137,7 @@ public class AutoGuiDialog(ICoreClientAPI capi, object target) : GuiDialog(capi)
         return serviceProvider.GetService(serviceType);
     }
 
-    private readonly HashSet<object> recursionPrevention = new();
+    private readonly HashSet<object> recursionPrevention = [];
 
     public bool EnsureUnique(object obj)
     {

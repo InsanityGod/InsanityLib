@@ -9,7 +9,7 @@ public class ExtendedEnum
 {
     public Type EnumType { get; }
 
-    internal readonly OrderedDictionary<object, int> OffsetLookup = new();
+    internal readonly OrderedDictionary<object, int> OffsetLookup = [];
     protected int currentOffset;
 
     public ExtendedEnum(Type enumType)

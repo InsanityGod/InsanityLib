@@ -25,7 +25,7 @@ public class Popup : ComponentBase, IImGuiComponentContainer
     public string RejectLabel { get; set; }
     public Vector4? TextColor { get; set; }
 
-    public List<IImGuiComponent> Components { get; init; } = new List<IImGuiComponent>();
+    public List<IImGuiComponent> Components { get; init; } = [];
 
     public bool IsDropDownOpen { get; set; } = true;
     public bool ShouldRenderChildren { get; set; } = true;

@@ -22,7 +22,7 @@ public class ComponentCollection : ComponentBase, IImGuiComponentContainer
         DisplayProperties = context.Member?.GetCustomAttribute<ConfigDisplayAttribute>() ?? new();
     }
 
-    public List<IImGuiComponent> Components { get; set; } = new List<IImGuiComponent>();
+    public List<IImGuiComponent> Components { get; set; } = [];
 
     public bool IsDropDownOpen { get; set; }
 

@@ -12,7 +12,7 @@ namespace InsanityLib.Util.ContentFeatures;
 public static class CustomTransition
 {
     [AutoClear]
-    internal readonly static Dictionary<AssetLocation, Type> ClassRegistry = new();
+    internal readonly static Dictionary<AssetLocation, Type> ClassRegistry = [];
     
     public static void RegisterHandler<T>(AssetLocation code) where T : ITransitionHandler => RegisterHandler(code, typeof(T));
     

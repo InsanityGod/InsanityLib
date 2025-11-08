@@ -95,7 +95,7 @@ public static class ExtendedTransitionPatches
         return false;
     }
 
-    [HarmonyPatch(typeof(CollectibleObject), "AppendPerishableInfoText", argumentTypes: new Type[] { typeof(ItemSlot), typeof(StringBuilder), typeof(IWorldAccessor), typeof(TransitionState) , typeof(bool) })]
+    [HarmonyPatch(typeof(CollectibleObject), "AppendPerishableInfoText", argumentTypes: [typeof(ItemSlot), typeof(StringBuilder), typeof(IWorldAccessor), typeof(TransitionState) , typeof(bool)])]
     [HarmonyPrefix]
     public static bool AppendPerishableInfoText(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, TransitionState state, bool nowSpoiling)
     {

@@ -65,7 +65,7 @@ public static class ConversionUtil
     /// <exception cref="InvalidCastException">When the cast failed</exception>
     public static object Cast(this object value, Type targetType) => AccessTools.Method(typeof(ConversionUtil), nameof(CastWrapper))
         .MakeGenericMethod(targetType)
-        .Invoke(null, new object[] { value });
+        .Invoke(null, [value]);
 
     private static T DefaultWrapper<T>() => default;
 

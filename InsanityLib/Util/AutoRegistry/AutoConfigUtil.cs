@@ -27,7 +27,7 @@ namespace InsanityLib.Util.AutoRegistry;
 public static class AutoConfigUtil
 {
     [AutoClear]
-    internal static Dictionary<string, AutoConfig> LoadedConfigs { get; } = new();
+    internal static Dictionary<string, AutoConfig> LoadedConfigs { get; } = [];
 
     private static bool TryAssignFromCache(string path, MemberInfo member)
     {
@@ -42,7 +42,7 @@ public static class AutoConfigUtil
         {
             AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.StoreModConfig) && method.IsGenericMethod)
                 .MakeGenericMethod(value.GetType())
-                .Invoke(api, new object[] { value, filename });
+                .Invoke(api, [value, filename]);
             return;
         }
 
@@ -117,7 +117,7 @@ public static class AutoConfigUtil
                 {
                     var loadModConfig = AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.LoadModConfig) && method.IsGenericMethod);
                     value = loadModConfig.MakeGenericMethod(configType)
-                        .Invoke(api, new object[] { attr.Path });
+                        .Invoke(api, [attr.Path]);
 
                     if(value is not null) ValidateAndFix(provider, configType, ref value, attr);
 

@@ -14,7 +14,7 @@ public sealed class ExtendedTransition : ExtendedEnum
 {
     public ExtendedTransition() : base(typeof(EnumTransitionType)) { }
 
-    private readonly Dictionary<EnumTransitionType, ITransitionHandler> HandlerLookup = new();
+    private readonly Dictionary<EnumTransitionType, ITransitionHandler> HandlerLookup = [];
 
     public void RegisterTransitionType(IServiceProvider provider, TransitionType transitionType)
     {

@@ -47,7 +47,7 @@ public class SetItemContext : ImGuiContext
         return (bool)typeof(SetItemContext)
             .GetMethod(nameof(TrySetValueInternal), AccessTools.allDeclared)
             .MakeGenericMethod(ValueType)
-            .Invoke(this, new object[] { value, ChangedBy });
+            .Invoke(this, [value, ChangedBy]);
     }
 
     private bool TrySetValueInternal<T>(object value, object ChangedBy)
