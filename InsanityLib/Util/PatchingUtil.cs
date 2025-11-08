@@ -89,7 +89,8 @@ internal static class PatchingUtil
                 patchIndex,
                 asset.Location,
                 patch.Condition.When,
-                $"Condition not matched: '{value}' != '{patch.Condition.IsValue}'"
+                value,
+                patch.Condition.IsValue
             );
 
             return false;
