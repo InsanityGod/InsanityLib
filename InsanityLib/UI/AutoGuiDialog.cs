@@ -1,8 +1,9 @@
 ﻿using InsanityLib.Constants;
-using InsanityLib.Interfaces;
-using InsanityLib.Interfaces.UI;
+using InsanityLib.Documentation;
+using InsanityLib.UI.Interfaces;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
+using InsanityLib.Util.Interfaces;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Client;
@@ -12,12 +13,15 @@ using Vintagestory.Client.NoObf;
 namespace InsanityLib.UI;
 
 /// <summary>Class for automated Gui generation.</summary>
-public class AutoGuiDialog : GuiDialog, IDialogContext, IRecursivePrevention, IDisposable
+/// <param name="capi">The client api.</param>
+/// <param name="target">The object to display as a Gui.</param>
+/// <exception cref="ArgumentNullException">If target is null</exception>
+public class AutoGuiDialog(ICoreClientAPI capi, object target) : GuiDialog(capi), IDialogContext, IRecursivePrevention, IDisposable
 {
-    private readonly IServiceProvider serviceProvider;
-    
+    private readonly IServiceProvider serviceProvider = capi.GetServiceContainer();
+
     /// <summary>The the object currently being displayed/edited</summary>
-    public object TargetObject { get; }
+    public object TargetObject { get; } = target ?? throw new ArgumentNullException(nameof(target));
 
     /// <summary>
     /// Whether editing is allowed.<br/>
@@ -39,16 +43,7 @@ public class AutoGuiDialog : GuiDialog, IDialogContext, IRecursivePrevention, ID
     /// <summary>The action to execute when the dialog closed</summary>
     public Action OnClose { get; set; }
 
-    /// <param name="capi">The client api.</param>
-    /// <param name="target">The object to display as a Gui.</param>
-    /// <exception cref="ArgumentNullException">If target is null</exception>
-    public AutoGuiDialog(ICoreClientAPI capi, object target) : base(capi)
-    {
-        TargetObject = target ?? throw new ArgumentNullException(nameof(target));
-        serviceProvider = capi.GetServiceContainer();
-    }
-
-    private List<Action> AfterComposeCallbacks { get; } = new();
+    private List<Action> AfterComposeCallbacks { get; } = [];
     public void RegisterAfterComposeCallback(Action action) => AfterComposeCallbacks.Add(action);
 
     public override string ToggleKeyCombinationCode { get; }
@@ -85,7 +80,7 @@ public class AutoGuiDialog : GuiDialog, IDialogContext, IRecursivePrevention, ID
         //Clean temporary state
         AfterComposeCallbacks.Clear();
         recursionPrevention.Clear();
-        DocumentationUtil.ClearCache();
+        AssemblyDocumentationContext.ClearCache();
         Cursor.X = 0;
         Cursor.Y = 0;
     }
@@ -142,7 +137,7 @@ public class AutoGuiDialog : GuiDialog, IDialogContext, IRecursivePrevention, ID
         return serviceProvider.GetService(serviceType);
     }
 
-    private readonly HashSet<object> recursionPrevention = new();
+    private readonly HashSet<object> recursionPrevention = [];
 
     public bool EnsureUnique(object obj)
     {

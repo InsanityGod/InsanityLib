@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace InsanityLib.Interfaces.UI.ImGuiComponents;
+namespace InsanityLib.UI.ImGuiTools.Interfaces;
 
 public interface IImGuiComponentContainer : IImGuiComponent, IEnumerable<IImGuiComponent>
 {

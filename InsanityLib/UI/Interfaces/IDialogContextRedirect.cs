@@ -1,7 +1,7 @@
 ﻿using System;
 using Vintagestory.API.MathTools;
 
-namespace InsanityLib.Interfaces.UI;
+namespace InsanityLib.UI.Interfaces;
 
 public interface IDialogContextRedirect : IDialogContext
 {

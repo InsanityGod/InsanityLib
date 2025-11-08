@@ -1,4 +1,4 @@
-﻿namespace InsanityLib.Interfaces.UI;
+﻿namespace InsanityLib.Util.Interfaces;
 
 public interface IValidationResultProvider
 {

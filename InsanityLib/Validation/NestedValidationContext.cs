@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace InsanityLib.Contexts;
+namespace InsanityLib.Validation;
 
 public class NestedValidationContext
 {
     internal NestedValidationContext() { }
 
     public IServiceProvider Provider { get; init; }
-    public HashSet<object> ScannedObjects { get; init; } = new HashSet<object>();
-    public List<ValidationResult> Results { get; init; } = new List<ValidationResult>();
+    public HashSet<object> ScannedObjects { get; init; } = [];
+    public List<ValidationResult> Results { get; init; } = [];
     public bool TryAutoFix { get; init; } = false;
     public bool Logging { get; init; } = false;
 

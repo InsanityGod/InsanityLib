@@ -27,7 +27,7 @@ public static class TransitionLogicPatches
                 && codes[i + 2].opcode == OpCodes.Stind_R4)
             {
                 codes.Insert(i + 2, new CodeInstruction(OpCodes.Ldc_R4, 0f));
-                codes.Insert(i + 3, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Math), nameof(Math.Max), new Type[] { typeof(float), typeof(float) })));
+                codes.Insert(i + 3, new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Math), nameof(Math.Max), [typeof(float), typeof(float)])));
                 break;
             }
         }
@@ -53,7 +53,7 @@ public static class TransitionLogicPatches
         return codes;
     }
 
-    [HarmonyPatch(typeof(CollectibleObject), nameof(CollectibleObject.CarryOverFreshness), new Type[] { typeof(ICoreAPI), typeof(ItemSlot[]), typeof(ItemStack[]), typeof(TransitionableProperties)})]
+    [HarmonyPatch(typeof(CollectibleObject), nameof(CollectibleObject.CarryOverFreshness), [typeof(ICoreAPI), typeof(ItemSlot[]), typeof(ItemStack[]), typeof(TransitionableProperties)])]
     [HarmonyPrefix]
     public static bool ReplaceCarryOverFreshness(CollectibleObject __instance, ICoreAPI api, ItemSlot[] inputSlots, ItemStack[] outStacks, TransitionableProperties perishProps)
     {

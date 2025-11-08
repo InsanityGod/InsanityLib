@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Attributes.Auto.Config;
+using InsanityLib.Config.Auto;
 
 namespace InsanityLib.Config;
 

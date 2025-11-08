@@ -82,8 +82,4 @@
 	</Content>
 </ItemGroup>
 
-<ItemGroup>
-  <Folder Include="UI\ImGuiTools\Components\Complex\" />
-</ItemGroup>
-
 </Project>

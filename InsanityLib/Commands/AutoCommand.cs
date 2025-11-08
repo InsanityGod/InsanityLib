@@ -14,22 +14,15 @@ using Vintagestory.API.MathTools;
 
 namespace InsanityLib.Commands;
 
-public class AutoCommand
+public class AutoCommand(IServiceProvider provider, MethodBase method, IEnumerable<EParamProvider> EArgProviders)
 {
-    public readonly IServiceProvider provider;
+    public readonly IServiceProvider Provider = provider;
 
-    public readonly MethodBase command;
+    public readonly MethodBase command = method;
 
-    public readonly ImmutableArray<EParamProvider> parameterProviders;
+    public readonly ImmutableArray<EParamProvider> parameterProviders = EArgProviders.ToImmutableArray();
 
     public TextCommandCallingArgs Context { get; private set; }
-
-    public AutoCommand(IServiceProvider provider, MethodBase method, IEnumerable<EParamProvider> EArgProviders)
-    {
-        this.provider = provider;
-        command = method;
-        parameterProviders = EArgProviders.ToImmutableArray();
-    }
 
     public TextCommandResult RunCommand(TextCommandCallingArgs args)
     {
@@ -46,7 +39,7 @@ public class AutoCommand
         }
         catch (Exception ex)
         {
-            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(RunCommand), command, ex);
+            Provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(RunCommand), command, ex);
             return TextCommandResult.Error(ex.InnerException?.Message);
         }
         finally
@@ -68,7 +61,7 @@ public class AutoCommand
             switch (parameterProviders[i])
             {
                 case EParamProvider.ServiceProvider:
-                    parameters[i] = provider.GetService(param.ParameterType);
+                    parameters[i] = Provider.GetService(param.ParameterType);
                     break;
 
                 case EParamProvider.ArgumentParser:
@@ -140,7 +133,7 @@ public class AutoCommand
     private Block GetBlock(CommandParameterAttribute attr, ParameterInfo param) => attr.Source switch
     {
         EParamSource.Caller => (Context.Caller.Entity as EntityAgent)?.ActiveHandItemSlot.Itemstack?.Block,
-        EParamSource.CallerTarget => Context.Caller.Player?.CurrentBlockSelection?.GetOrFindBlock(provider.GetService<IWorldAccessor>()),
+        EParamSource.CallerTarget => Context.Caller.Player?.CurrentBlockSelection?.GetOrFindBlock(Provider.GetService<IWorldAccessor>()),
         _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
     };
 
@@ -152,7 +145,7 @@ public class AutoCommand
 
     private BlockEntity GetBlockEntity(CommandParameterAttribute attr, ParameterInfo param) => attr.Source switch
     {
-        EParamSource.CallerTarget => Context.Caller.Player?.CurrentBlockSelection?.FindBlockEntity(provider.GetService<IWorldAccessor>()),
+        EParamSource.CallerTarget => Context.Caller.Player?.CurrentBlockSelection?.FindBlockEntity(Provider.GetService<IWorldAccessor>()),
         _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
     };
 }

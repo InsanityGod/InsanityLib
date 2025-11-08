@@ -1,7 +1,7 @@
 ﻿using InsanityLib.UI.ImGuiTools;
 using System;
 
-namespace InsanityLib.Interfaces.UI.ImGuiComponents;
+namespace InsanityLib.UI.ImGuiTools.Interfaces;
 
 public interface IImGuiComponent
 {

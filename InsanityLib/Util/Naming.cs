@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InsanityLib.Documentation;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
@@ -11,16 +12,20 @@ namespace InsanityLib.Util;
 
 public static partial class Naming
 {
-    //public static readonly char[] TrimCharacters = new char[] { ' ', '\n', '\r', '\t' };
-    public static readonly char[] ReadableSplitIdentifiers = new char[] { '-', '_', ':' };
+    public static readonly char[] ReadableSplitIdentifiers = ['-', '_', ':'];
 
     [GeneratedRegex(@"[^\S\r\n]+")]
     public static partial Regex WhiteSpaceRegex();
 
-    public static string CleanWhiteSpaces(this string input) => WhiteSpaceRegex()
-        .Replace(input, " ")
-        .Replace("\n ", "\n")
-        .Trim();
+    public static string CleanWhiteSpaces(this string input)
+    {
+        if(string.IsNullOrEmpty(input)) return input;
+
+        return WhiteSpaceRegex()
+            .Replace(input, " ")
+            .Replace("\n ", "\n")
+            .Trim();
+    }
 
     public static string ToHumanReadable(this string str)
     {
@@ -49,13 +54,19 @@ public static partial class Naming
 
     public static string GetHumanReadableName(this MemberInfo member)
     {
+        var languageStringKey = $"{MemberDocumentationContext.LanguageStringPrefix}-name-{member.DeclaringType?.FullName}.{member.Name}";
+        
+        var languageStringValue = Lang.Get(languageStringKey);
+        if(languageStringValue != languageStringKey && !string.IsNullOrWhiteSpace(languageStringValue)) return languageStringValue;
+
         var displayNameAttr = member.GetCustomAttribute<DisplayNameAttribute>();
         if(displayNameAttr is not null) return Lang.Get(displayNameAttr.DisplayName);
+        
         return member.Name.ToHumanReadable();
     }
 
-    public static readonly string[] RegistryAffixes = new string[]
-    {
+    public static readonly string[] RegistryAffixes =
+    [
         "Item",
         "Block",
         "BlockEntity",
@@ -65,14 +76,14 @@ public static partial class Naming
         "BlockBehavior",
         "BlockEntityBehavior",
         "TransitionHandler"
-    };
+    ];
 
     public static string GetRegistryName(this MemberInfo member, string domain = null, bool removeComminAffixes = false)
     {
         //TODO attributes
         var memberName = member.Name;
 
-        if(removeComminAffixes) foreach(var affix in RegistryAffixes) memberName = memberName.RemoveAffix(affix);
+        if(removeComminAffixes) foreach(var affix in RegistryAffixes) memberName = memberName.AsSpan().RemoveAffix(affix).ToString();
 
         if(!string.IsNullOrEmpty(domain)) return $"{domain}:{memberName}";
         return memberName;
@@ -106,9 +117,9 @@ public static partial class Naming
     }
 
     //TODO spans
-    public static string RemoveSuffix(this string str, string suffix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(suffix) || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
-    public static string RemovePrefix(this string str, string prefix) => string.IsNullOrEmpty(str) || string.IsNullOrEmpty(prefix) || !str.StartsWith(prefix) ? str : str[prefix.Length..];
-    public static string RemoveAffix(this string str, string affix) => str.RemovePrefix(affix).RemoveSuffix(affix);
+    internal static ReadOnlySpan<char> RemoveSuffix(this ReadOnlySpan<char> str, ReadOnlySpan<char> suffix) => str.IsWhiteSpace() || suffix.IsWhiteSpace() || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
+    internal static ReadOnlySpan<char> RemovePrefix(this ReadOnlySpan<char> str, ReadOnlySpan<char> prefix) => str.IsWhiteSpace() || prefix.IsWhiteSpace() || !str.StartsWith(prefix) ? str : str[prefix.Length..];
+    internal static ReadOnlySpan<char> RemoveAffix(this ReadOnlySpan<char> str, ReadOnlySpan<char> affix) => str.RemovePrefix(affix).RemoveSuffix(affix);
 
     public static string ReplaceSpecialSymbolsWithText(this string input) => input.Replace("∞", "Infinity");
 }

@@ -1,4 +1,5 @@
 ﻿using Cairo;
+using InsanityLib.Handlers.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,10 +11,10 @@ using Vintagestory.GameContent;
 
 namespace InsanityLib.Handlers;
 
-public class TransitionHandler
+public class TransitionHandler : ITransitionHandler
 {
-    public AssetLocation TransitionCode { get; internal set; }
-    public EnumTransitionType TransitionType { get; internal set; }
+    public AssetLocation TransitionCode { get; set; }
+    public EnumTransitionType TransitionType { get; set; }
 
     public virtual void LoadAttributes(JsonObject attributes)
     {

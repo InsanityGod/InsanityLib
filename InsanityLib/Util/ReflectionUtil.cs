@@ -246,6 +246,19 @@ public static class ReflectionUtil
         return bestConstructor.Invoke(bestParameters);
     }
 
+    public static void CopyFieldsFrom<T>(this T destination, T source, bool disposeOriginalFieldValues = true)
+    {
+        foreach(var field in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+        {
+            if(disposeOriginalFieldValues && field.GetValue(destination) is IDisposable originalFieldValue)
+            {
+                originalFieldValue.Dispose();
+            }
+
+            field.SetValue(destination, field.GetValue(source));
+        }
+    }
+
     /// <summary>
     /// Retrieves the parameters for a method, automatically resolving them from the provided service provider.
     /// </summary>

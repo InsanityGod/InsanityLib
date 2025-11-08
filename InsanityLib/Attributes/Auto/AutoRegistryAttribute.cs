@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using InsanityLib.Constants;
 using InsanityLib.Handlers;
+using InsanityLib.Handlers.Interfaces;
 using InsanityLib.Util;
 using InsanityLib.Util.ContentFeatures;
 using System;
@@ -56,6 +57,6 @@ public class AutoRegistryAttribute : Attribute
         foreach (var blockEntityBehaviorClass in assembly.FindImplementations<BlockEntityBehavior>()) api.RegisterBlockEntityBehaviorClass(blockEntityBehaviorClass.GetRegistryName(Domain), blockEntityBehaviorClass);
 
         //Content Featurs
-        foreach (var transitionHandlerClass in assembly.FindImplementations<TransitionHandler>(includeSelf:true)) CustomTransition.RegisterHandler(transitionHandlerClass.GetRegistryName(Domain), transitionHandlerClass);
+        foreach (var transitionHandlerClass in assembly.FindImplementations<ITransitionHandler>()) CustomTransition.RegisterHandler(transitionHandlerClass.GetRegistryName(Domain), transitionHandlerClass);
     }
 }

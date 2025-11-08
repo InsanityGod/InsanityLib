@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Constants;
 using InsanityLib.Handlers;
+using InsanityLib.Handlers.Interfaces;
 using InsanityLib.JsonAssets;
 using InsanityLib.Util;
 using InsanityLib.Util.ContentFeatures;
@@ -13,7 +14,7 @@ public sealed class ExtendedTransition : ExtendedEnum
 {
     public ExtendedTransition() : base(typeof(EnumTransitionType)) { }
 
-    private readonly Dictionary<EnumTransitionType, TransitionHandler> HandlerLookup = new();
+    private readonly Dictionary<EnumTransitionType, ITransitionHandler> HandlerLookup = [];
 
     public void RegisterTransitionType(IServiceProvider provider, TransitionType transitionType)
     {
@@ -26,7 +27,7 @@ public sealed class ExtendedTransition : ExtendedEnum
         }
 
 
-        if (transitionHandlerType.AutoCreate(provider, true) is not TransitionHandler handler)
+        if (transitionHandlerType.AutoCreate(provider, true) is not ITransitionHandler handler)
         {
             provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(RegisterTransitionType), transitionType.Code, $"Could not instantiate '{transitionHandlerType.FullName}'");
             return;
@@ -34,18 +35,19 @@ public sealed class ExtendedTransition : ExtendedEnum
 
         try
         {
+            //TODO see about making these not publicly accessible
             handler.TransitionType = (EnumTransitionType)currentOffset;
             handler.TransitionCode = transitionType.Code;
             handler.LoadAttributes(transitionType.Attributes);
         }
         catch(Exception ex)
         {
-            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(TransitionHandler.LoadAttributes), transitionHandlerType.FullName, ex);
+            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(ITransitionHandler.LoadAttributes), transitionHandlerType.FullName, ex);
             return;
         }
         HandlerLookup[(EnumTransitionType)currentOffset] = handler;
         OffsetLookup[transitionType.Code.ToString()] = currentOffset++;
     }
 
-    public TransitionHandler FindHandler(EnumTransitionType value) => HandlerLookup.GetValueOrDefault(value);
+    public ITransitionHandler FindHandler(EnumTransitionType value) => HandlerLookup.GetValueOrDefault(value);
 }

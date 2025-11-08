@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using InsanityLib.Attributes.Auto;
-using InsanityLib.Interfaces.UI;
+using InsanityLib.UI.Interfaces;
 using System;
 using System.Linq;
 using System.Reflection;

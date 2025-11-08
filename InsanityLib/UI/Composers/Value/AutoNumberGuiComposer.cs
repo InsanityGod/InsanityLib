@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using InsanityLib.Interfaces.UI;
+using InsanityLib.UI.Interfaces;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using System;

@@ -1,6 +1,7 @@
 ﻿using InsanityLib.Attributes.Auto;
 using InsanityLib.Extended;
 using InsanityLib.Handlers;
+using InsanityLib.Handlers.Interfaces;
 using InsanityLib.JsonAssets;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,9 @@ namespace InsanityLib.Util.ContentFeatures;
 public static class CustomTransition
 {
     [AutoClear]
-    internal readonly static Dictionary<AssetLocation, Type> ClassRegistry = new();
+    internal readonly static Dictionary<AssetLocation, Type> ClassRegistry = [];
     
-    public static void RegisterHandler<T>(AssetLocation code) where T : TransitionHandler => RegisterHandler(code, typeof(T));
+    public static void RegisterHandler<T>(AssetLocation code) where T : ITransitionHandler => RegisterHandler(code, typeof(T));
     
     internal static void RegisterHandler(AssetLocation code, Type type) => ClassRegistry[code] = type;
 

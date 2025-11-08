@@ -1,8 +1,8 @@
 ﻿using ImGuiNET;
 using InsanityLib.Attributes.Auto.Config.UI;
 using InsanityLib.Enums.Auto.Config.UI;
-using InsanityLib.Interfaces.UI.ImGuiComponents;
 using InsanityLib.UI.ImGuiTools.Helpers;
+using InsanityLib.UI.ImGuiTools.Interfaces;
 using System.Collections.Generic;
 using System.Reflection;
 using VSImGui;
@@ -22,7 +22,7 @@ public class ComponentCollection : ComponentBase, IImGuiComponentContainer
         DisplayProperties = context.Member?.GetCustomAttribute<ConfigDisplayAttribute>() ?? new();
     }
 
-    public List<IImGuiComponent> Components { get; set; } = new List<IImGuiComponent>();
+    public List<IImGuiComponent> Components { get; set; } = [];
 
     public bool IsDropDownOpen { get; set; }
 

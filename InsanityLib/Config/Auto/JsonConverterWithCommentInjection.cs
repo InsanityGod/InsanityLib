@@ -7,8 +7,9 @@ using System.Reflection;
 using InsanityLib.Util;
 using HarmonyLib;
 using System.Collections;
+using InsanityLib.Documentation;
 
-namespace InsanityLib.Config.Util;
+namespace InsanityLib.Config.Auto;
 
 public class JsonConverterWithCommentInjection : JsonConverter
 {
@@ -82,7 +83,7 @@ public class JsonConverterWithCommentInjection : JsonConverter
 
         if (!string.IsNullOrEmpty(description))
         {
-            foreach (var line in description.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+            foreach (var line in description.Split(["\r\n", "\n", "\r"], StringSplitOptions.None))
             {
                 writer.WriteRaw($"// {line.Trim()}");
                 writeIndent.GetValue();

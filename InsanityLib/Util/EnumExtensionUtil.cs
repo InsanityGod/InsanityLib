@@ -8,7 +8,7 @@ namespace InsanityLib.Util;
 public static class EnumExtensionUtil
 {
     [AutoClear]
-    internal static Dictionary<Type, ExtendedEnum> EnumExtensions = new();
+    internal static Dictionary<Type, ExtendedEnum> EnumExtensions = [];
 
     public static void RegisterEnumExtension<TActual, TExtension>() where TActual : Enum where TExtension : Enum
     {

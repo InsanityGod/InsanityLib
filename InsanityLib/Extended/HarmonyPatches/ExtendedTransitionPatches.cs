@@ -9,7 +9,7 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.GameContent;
 
-namespace InsanityLib.HarmonyPatches.Extended;
+namespace InsanityLib.Extended.HarmonyPatches;
 
 [HarmonyPatch]
 public static class ExtendedTransitionPatches
@@ -95,7 +95,7 @@ public static class ExtendedTransitionPatches
         return false;
     }
 
-    [HarmonyPatch(typeof(CollectibleObject), "AppendPerishableInfoText", argumentTypes: new Type[] { typeof(ItemSlot), typeof(StringBuilder), typeof(IWorldAccessor), typeof(TransitionState) , typeof(bool) })]
+    [HarmonyPatch(typeof(CollectibleObject), "AppendPerishableInfoText", argumentTypes: [typeof(ItemSlot), typeof(StringBuilder), typeof(IWorldAccessor), typeof(TransitionState) , typeof(bool)])]
     [HarmonyPrefix]
     public static bool AppendPerishableInfoText(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, TransitionState state, bool nowSpoiling)
     {

@@ -1,8 +1,8 @@
-﻿using InsanityLib.Interfaces;
-using InsanityLib.Interfaces.UI;
-using InsanityLib.UI.Contexts;
+﻿using InsanityLib.UI.Contexts;
+using InsanityLib.UI.Interfaces;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
+using InsanityLib.Util.Interfaces;
 using System;
 using System.Collections;
 using System.Linq;

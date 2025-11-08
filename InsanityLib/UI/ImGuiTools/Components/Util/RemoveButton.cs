@@ -1,5 +1,5 @@
-﻿using InsanityLib.Interfaces.UI.ImGuiComponents;
-using InsanityLib.UI.ImGuiTools.Contexts;
+﻿using InsanityLib.UI.ImGuiTools.Contexts;
+using InsanityLib.UI.ImGuiTools.Interfaces;
 using System;
 using System.Collections;
 using System.Linq;

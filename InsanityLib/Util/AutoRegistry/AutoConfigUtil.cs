@@ -4,12 +4,12 @@ using ImGuiNET;
 using InsanityLib.Attributes.Auto;
 using InsanityLib.Attributes.Auto.Config;
 using InsanityLib.Config;
-using InsanityLib.Config.Util;
+using InsanityLib.Config.Auto;
 using InsanityLib.Constants;
 using InsanityLib.Enums.Auto.Config;
-using InsanityLib.Interfaces.UI.ImGuiComponents;
 using InsanityLib.UI.ImGuiTools;
 using InsanityLib.UI.ImGuiTools.Components.Util;
+using InsanityLib.UI.ImGuiTools.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -27,7 +27,7 @@ namespace InsanityLib.Util.AutoRegistry;
 public static class AutoConfigUtil
 {
     [AutoClear]
-    internal static Dictionary<string, AutoConfig> LoadedConfigs { get; } = new();
+    internal static Dictionary<string, AutoConfig> LoadedConfigs { get; } = [];
 
     private static bool TryAssignFromCache(string path, MemberInfo member)
     {
@@ -42,7 +42,7 @@ public static class AutoConfigUtil
         {
             AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.StoreModConfig) && method.IsGenericMethod)
                 .MakeGenericMethod(value.GetType())
-                .Invoke(api, new object[] { value, filename });
+                .Invoke(api, [value, filename]);
             return;
         }
 
@@ -95,7 +95,13 @@ public static class AutoConfigUtil
             if(!(member is FieldInfo || member is PropertyInfo) || !member.IsStatic() || !member.GetPrimaryType().IsComplexClassType()) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
 
             var value = member.GetValue();
-            if ((api.Side == EnumAppSide.Client && value is not null) || TryAssignFromCache(attr.Path, member)) return;
+            if (api.Side == EnumAppSide.Client && value is not null)
+            {
+                //Note: this can happen if client hot reloads
+                if (!LoadedConfigs.ContainsKey(attr.Path)) LoadedConfigs[attr.Path] = new AutoConfig(api, value, attr);
+                return;
+            }
+            else if(TryAssignFromCache(attr.Path, member)) return;
             var configType = member.GetPrimaryType();
 
             try
@@ -111,7 +117,7 @@ public static class AutoConfigUtil
                 {
                     var loadModConfig = AccessTools.FirstMethod(typeof(ICoreAPICommon), method => method.Name == nameof(ICoreAPICommon.LoadModConfig) && method.IsGenericMethod);
                     value = loadModConfig.MakeGenericMethod(configType)
-                        .Invoke(api, new object[] { attr.Path });
+                        .Invoke(api, [attr.Path]);
 
                     if(value is not null) ValidateAndFix(provider, configType, ref value, attr);
 

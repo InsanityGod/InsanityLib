@@ -1,7 +1,7 @@
 ﻿using InsanityLib.Enums.Auto.Config;
 using System.ComponentModel;
 
-namespace InsanityLib.Config;
+namespace InsanityLib.Config.Auto;
 
 public class AutoConfigConfig
 {
