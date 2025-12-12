@@ -1,6 +1,5 @@
 ﻿using InsanityLib.Attributes.Auto;
 using InsanityLib.Extended;
-using InsanityLib.Handlers;
 using InsanityLib.Handlers.Interfaces;
 using InsanityLib.JsonAssets;
 using System;

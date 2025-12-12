@@ -1,5 +1,4 @@
 ﻿using InsanityLib.Constants;
-using InsanityLib.Handlers;
 using InsanityLib.Handlers.Interfaces;
 using InsanityLib.JsonAssets;
 using InsanityLib.Util;

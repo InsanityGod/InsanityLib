@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using InsanityLib.Constants;
-using InsanityLib.Handlers;
 using InsanityLib.Handlers.Interfaces;
 using InsanityLib.Util;
 using InsanityLib.Util.ContentFeatures;
