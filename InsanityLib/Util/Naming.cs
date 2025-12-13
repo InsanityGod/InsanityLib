@@ -116,7 +116,6 @@ public static partial class Naming
         return true;
     }
 
-    //TODO spans
     internal static ReadOnlySpan<char> RemoveSuffix(this ReadOnlySpan<char> str, ReadOnlySpan<char> suffix) => str.IsWhiteSpace() || suffix.IsWhiteSpace() || !str.EndsWith(suffix) ? str : str[..^suffix.Length];
     internal static ReadOnlySpan<char> RemovePrefix(this ReadOnlySpan<char> str, ReadOnlySpan<char> prefix) => str.IsWhiteSpace() || prefix.IsWhiteSpace() || !str.StartsWith(prefix) ? str : str[prefix.Length..];
     internal static ReadOnlySpan<char> RemoveAffix(this ReadOnlySpan<char> str, ReadOnlySpan<char> affix) => str.RemovePrefix(affix).RemoveSuffix(affix);

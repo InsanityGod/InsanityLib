@@ -342,7 +342,7 @@ public static class ReflectionUtil
                 break;
             }
 
-            path = seperatorIndex == -1 ? ReadOnlySpan<char>.Empty : path[(seperatorIndex + 1)..]; //Skip the seperator
+            path = seperatorIndex == -1 ? [] : path[(seperatorIndex + 1)..]; //Skip the seperator
         }
         
         result = obj;

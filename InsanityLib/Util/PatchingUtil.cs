@@ -31,7 +31,6 @@ internal static class PatchingUtil
             );
 
             return false;
-
         }
 
         if (resolver.TryResolvePath(path[(scheme.Length + 3)..], api, out var result))

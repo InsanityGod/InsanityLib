@@ -28,7 +28,7 @@ public static class Resolver
     public static ReadOnlySpan<char> FindScheme(ReadOnlySpan<char> pathWithScheme)
     {
         var schemeEndIndex = pathWithScheme.IndexOf("://", StringComparison.Ordinal);
-        if (schemeEndIndex == -1) return ReadOnlySpan<char>.Empty;
+        if (schemeEndIndex == -1) return [];
         
         return pathWithScheme[..schemeEndIndex];
     }

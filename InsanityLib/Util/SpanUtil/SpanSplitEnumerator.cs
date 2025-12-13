@@ -26,7 +26,7 @@ public ref struct SpanSplitEnumerator
         if (index == -1)
         {
             Current = _span;
-            _span = ReadOnlySpan<char>.Empty;
+            _span = [];
             return true;
         }
 
