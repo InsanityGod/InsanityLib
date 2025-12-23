@@ -1,16 +1,17 @@
-﻿using InsanityLib.Attributes.Auto;
-using InsanityLib.Util;
+﻿using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using System;
 using System.ComponentModel.Design;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
-using InsanityLib.Attributes;
-using InsanityLib.Extended;
 using InsanityLib.Util.ContentFeatures;
 using InsanityLib.Documentation;
-using InsanityLib.Commands;
+using InsanityLib.Auto.Command;
+using InsanityLib.Auto.Setup;
+using InsanityLib.Auto.Cleanup;
+using InsanityLib.Extended.AssetCategories;
+using InsanityLib.Extended.Transitions;
 
 [assembly: AutoPatcher("insanitylib")]
 [assembly: AutoRegistry("insanitylib")]

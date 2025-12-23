@@ -1,15 +1,14 @@
 ﻿using ConfigLib;
 using HarmonyLib;
 using ImGuiNET;
-using InsanityLib.Attributes.Auto;
-using InsanityLib.Attributes.Auto.Config;
+using InsanityLib.Auto.Cleanup;
+using InsanityLib.Auto.Config;
+using InsanityLib.Auto.Config.ConfigLib;
+using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools;
+using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
+using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
 using InsanityLib.Config;
-using InsanityLib.Config.Auto;
 using InsanityLib.Constants;
-using InsanityLib.Enums.Auto.Config;
-using InsanityLib.UI.ImGuiTools;
-using InsanityLib.UI.ImGuiTools.Components.Util;
-using InsanityLib.UI.ImGuiTools.Interfaces;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -167,12 +166,9 @@ public static class AutoConfigUtil
     {
         if(!api.ModLoader.IsModEnabled("configlib")) return;
         
-        var mode = InsanityLibConfig.Instance.AutoConfig.ConfigUIMode;
-        if(mode == EConfigEditorMode.NoConfigEditor) return;
-        
         foreach ((_, var config) in LoadedConfigs)
         {
-            RegisterToConfigLib(api, config, config.ConfigInstance is InsanityLibConfig ? EConfigEditorMode.InsanityLibConfigEditor : mode);
+            RegisterToConfigLib(api, config);
         }
     }
 
@@ -192,49 +188,44 @@ public static class AutoConfigUtil
         };
     }
 
-    public static void RegisterToConfigLib(ICoreAPI api, AutoConfig config, EConfigEditorMode UIMode)
+    public static void RegisterToConfigLib(ICoreAPI api, AutoConfig config)
     {
-        switch (UIMode)
+        var configLib = api.ModLoader.GetModSystem<ConfigLibModSystem>();
+
+        configLib.RegisterCustomConfig(config.Path, (domain, buttons) =>
         {
-            case EConfigEditorMode.InsanityLibConfigEditor:
-                var configLib = api.ModLoader.GetModSystem<ConfigLibModSystem>();
+            var serverConfigOnClient = !ReflectionUtil.SideLoaded(EnumAppSide.Server) && config.ServerSync;
+            
+            ImGui.BeginDisabled(serverConfigOnClient);
+            if (serverConfigOnClient)
+            {
+                ImGui.Text("Client side editing of server config is not supported yet");
+                ImGui.NewLine();
+            }
 
-                configLib.RegisterCustomConfig(config.Path, (domain, buttons) =>
-                {
-                    var serverConfigOnClient = !ReflectionUtil.SideLoaded(EnumAppSide.Server) && config.ServerSync;
-                    
-                    ImGui.BeginDisabled(serverConfigOnClient);
-                    if (serverConfigOnClient)
-                    {
-                        ImGui.Text("Client side editing of server config is not supported yet");
-                        ImGui.NewLine();
-                    }
+            if (buttons.Save) config.Save();
+            if (buttons.Restore) config.Restore(true);
+            
+            //TODO discard changes method
+            if (buttons.Defaults) config.Defaults();
+            if (buttons.Reload) config.Reload();
 
-                    if (buttons.Save) config.Save();
-                    if (buttons.Restore) config.Restore(true);
-                    
-                    //TODO discard changes method
-                    if (buttons.Defaults) config.Defaults();
-                    if (buttons.Reload) config.Reload();
+            config.Render();
+            if(BlockingPopup is not null)
+            {
+                BlockingPopup.SafeRender();
+                if(!BlockingPopup.IsOpen) BlockingPopup = null;
+            }
 
-                    config.Render();
-                    if(BlockingPopup is not null)
-                    {
-                        BlockingPopup.SafeRender();
-                        if(!BlockingPopup.IsOpen) BlockingPopup = null;
-                    }
-
-                    ImGui.EndDisabled();
-                    return new ControlButtons
-                    {
-                        Save = !serverConfigOnClient, //Only server can save for now
-                        Restore = !serverConfigOnClient,
-                        Defaults = !serverConfigOnClient,
-                        Reload = false
-                    };
-                });
-                break;
-        }
+            ImGui.EndDisabled();
+            return new ControlButtons
+            {
+                Save = !serverConfigOnClient, //Only server can save for now
+                Restore = !serverConfigOnClient,
+                Defaults = !serverConfigOnClient,
+                Reload = false
+            };
+        });
     }
 
     private static void ValidateAndFix(IServiceProvider provider, Type configType, ref object configInstance, AutoConfigAttribute configAttr)

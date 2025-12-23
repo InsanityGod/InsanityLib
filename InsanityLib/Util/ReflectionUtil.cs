@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using InsanityLib.Attributes.Auto;
+using InsanityLib.Auto.Cleanup;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

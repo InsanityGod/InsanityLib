@@ -1,0 +1,47 @@
+﻿using InsanityLib.Auto.Command;
+using InsanityLib.Auto.Config.ConfigLib.UI;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Vintagestory.API.Client;
+using Vintagestory.API.Common;
+
+namespace InsanityLib.Util;
+
+public static class DebugCommands
+{
+    /// <summary>
+    /// Displays mod information.
+    /// </summary>
+    /// <param name="api"/>
+    /// <param name="ModID">The ID of the mod to search for.</param>
+    /// <example>/modinfo insanitylib</example>
+    /// <returns>ModName (ModID ModVersion) ModDescription</returns>
+    [AutoCommand(Side = EnumAppSide.Universal)]
+    public static TextCommandResult ModInfo(ICoreAPI api, [CommandParameter] string ModID)
+    {
+        var mod = api.ModLoader.GetMod(ModID);
+        if (mod is not null) return TextCommandResult.Success($"{mod.Info.Name} ({mod.Info.ModID} {mod.Info.Version})\n{mod.Info.Description}");
+
+        var closestMatch = api.ModLoader.Mods
+                .OrderBy(m => m.Info.ModID.LevenshteinDistance(ModID))
+                .First();
+
+        return TextCommandResult.Error($"No such ModID, did you mean {closestMatch.Info.ModID}?");
+    }
+
+    #if DEBUG
+
+    /// <summary>
+    /// Opens an AutoGui for the target block.
+    /// </summary>
+    [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Block")]
+    public static void AutoGuiForBlock(ICoreClientAPI api, [CommandParameter(Source = EParamSource.CallerTarget)] [Required(ErrorMessage = "Not targeting a block")] Block block) => new AutoGuiDialog(api, block).TryOpen();
+
+    /// <summary>
+    /// Opens an AutoGui for the target item.
+    /// </summary>
+    [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Item")]
+    public static void AutoGuiForItem(ICoreClientAPI api, [CommandParameter(Source = EParamSource.Caller)] CollectibleObject collectible) => new AutoGuiDialog(api, collectible).TryOpen();
+    
+    #endif
+}

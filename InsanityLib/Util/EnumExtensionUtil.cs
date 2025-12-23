@@ -1,5 +1,5 @@
-﻿using InsanityLib.Attributes.Auto;
-using InsanityLib.Extended;
+﻿using InsanityLib.Auto.Cleanup;
+using InsanityLib.Extended.Enums;
 using System;
 using System.Collections.Generic;
 

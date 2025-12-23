@@ -1,4 +1,4 @@
-﻿using InsanityLib.Attributes.Auto;
+﻿using InsanityLib.Auto.Cleanup;
 using InsanityLib.Util.Interfaces;
 using System.Collections.Generic;
 using System.IO;

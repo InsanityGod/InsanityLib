@@ -1,4 +1,4 @@
-﻿using InsanityLib.Enums;
+﻿using InsanityLib.Extended.Enums;
 using InsanityLib.Util;
 using InsanityLib.Util.Interfaces;
 using System;

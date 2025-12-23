@@ -1,85 +1,122 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>bin\$(Configuration)\Mods\mod</OutputPath>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<!-- Path to your ModInfo file -->
+		<ModInfoFile>modinfo.json</ModInfoFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="AutoConfigLib">
-      <HintPath>..\..\AutoConfigLib\AutoConfigLib\bin\Debug\Mods\mod\AutoConfigLib.dll</HintPath>
-	  <Private>false</Private>
-    </Reference>
-    <Reference Include="configlib">
-      <HintPath>..\..\Dep\configlib_1.4.1\configlib.dll</HintPath>
-		<Private>false</Private>
-	</Reference>
-    <Reference Include="ImGui.NET">
-      <HintPath>..\..\Dep\vsimgui_1.1.7\ImGui.NET.dll</HintPath>
-		<Private>false</Private>
-	</Reference>
-    <Reference Include="VSImGui">
-      <HintPath>..\..\Dep\vsimgui_1.1.7\VSImGui.dll</HintPath>
-	<Private>false</Private>
-    </Reference>
-	  <Reference Include="xlib">
-		  <HintPath>..\..\Dep\xlib_v0.8.16\xlib.dll</HintPath>
-		  <Private>false</Private>
-	  </Reference>
-    <Reference Include="VintagestoryAPI">
-      <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="VSSurvivalMod">
-      <HintPath>$(VINTAGE_STORY)/Mods/VSSurvivalMod.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VSEssentials">
-      <HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VSCreativeMod">
-      <HintPath>$(VINTAGE_STORY)/Mods/VSCreativeMod.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(VINTAGE_STORY)/Lib/Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>$(VINTAGE_STORY)/Lib/0Harmony.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VintagestoryLib">
-      <HintPath>$(VINTAGE_STORY)/VintagestoryLib.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>$(VINTAGE_STORY)/Lib/protobuf-net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="cairo-sharp">
-      <HintPath>$(VINTAGE_STORY)/Lib/cairo-sharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Data.Sqlite">
-      <HintPath>$(VINTAGE_STORY)/Lib/Microsoft.Data.Sqlite.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
+	<Target Name="ReadModInfo" BeforeTargets="BeforeBuild">
+		
+		<!-- Read mod name -->
+		<JsonPeek ContentPath="$(ModInfoFile)" Query="$.name">
+			<Output TaskParameter="Result" PropertyName="ModNameFromJson" />
+		</JsonPeek>
 
-<ItemGroup>
-  <Content Include="modinfo.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </Content>
-	<Content Include="modicon.png">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Content>
-	<Content Include="..\LICENSE">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Content>
-</ItemGroup>
+		<!-- Read description -->
+		<JsonPeek ContentPath="$(ModInfoFile)" Query="$.description">
+			<Output TaskParameter="Result" PropertyName="DescriptionFromJson" />
+		</JsonPeek>
+
+		<!-- Read authors -->
+		<JsonPeek ContentPath="$(ModInfoFile)" Query="$.authors[*]">
+			<Output TaskParameter="Result" PropertyName="AuthorsFromJson" />
+		</JsonPeek>
+
+		<!-- Read version -->
+		<JsonPeek ContentPath="$(ModInfoFile)" Query="$.version">
+			<Output TaskParameter="Result" PropertyName="VersionFromJson" />
+		</JsonPeek>
+
+		<!-- Set all relevant properties -->
+		<PropertyGroup>
+			<Title>$(ModNameFromJson)</Title>
+			<Description>$(DescriptionFromJson)</Description>
+			<Authors>$(AuthorsFromJson)</Authors>
+			<Version>$(VersionFromJson)</Version>
+		</PropertyGroup>
+	</Target>
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<OutputPath>bin\$(Configuration)\Mods\mod</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+		<PackageId>VS-$(AssemblyName)</PackageId>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<IncludeSymbols>True</IncludeSymbols>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageIcon>modicon.png</PackageIcon>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+		<PackageReference Include="JsonPeek" Version="1.2.0" />
+		<Reference Include="AutoConfigLib">
+			<HintPath>..\..\AutoConfigLib\AutoConfigLib\bin\Debug\Mods\mod\AutoConfigLib.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="configlib">
+			<HintPath>..\..\Dep\configlib_1.4.1\configlib.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="ImGui.NET">
+			<HintPath>..\..\Dep\vsimgui_1.1.7\ImGui.NET.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VSImGui">
+			<HintPath>..\..\Dep\vsimgui_1.1.7\VSImGui.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="xlib">
+			<HintPath>..\..\Dep\xlib_v0.8.16\xlib.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VintagestoryAPI">
+			<HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VSSurvivalMod">
+			<HintPath>$(VINTAGE_STORY)/Mods/VSSurvivalMod.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="VSEssentials">
+			<HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="VSCreativeMod">
+			<HintPath>$(VINTAGE_STORY)/Mods/VSCreativeMod.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="Newtonsoft.Json">
+			<HintPath>$(VINTAGE_STORY)/Lib/Newtonsoft.Json.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="0Harmony">
+			<HintPath>$(VINTAGE_STORY)/Lib/0Harmony.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="VintagestoryLib">
+			<HintPath>$(VINTAGE_STORY)/VintagestoryLib.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="cairo-sharp">
+			<HintPath>$(VINTAGE_STORY)/Lib/cairo-sharp.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="modinfo.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="modicon.png;..\LICENSE.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</Content>
+	</ItemGroup>
 
 </Project>

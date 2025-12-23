@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
-using InsanityLib.Attributes.Auto;
-using InsanityLib.UI.Interfaces;
+using InsanityLib.Auto.Cleanup;
+using InsanityLib.Auto.Config.ConfigLib.UI.Interfaces;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -17,7 +17,7 @@ public static class AutoUI
     internal static void CollectAutoGuiComposers(this IServiceProvider provider)
     {
         var logger = provider.GetService<ILogger>();
-        Composers ??= AccessTools.AllTypes()
+        Composers ??= [.. AccessTools.AllTypes()
             .Where(type =>  !type.IsInterface && !type.IsAbstract && typeof(IAutoGuiComposer).IsAssignableFrom(type))
             .Select(type =>
             {
@@ -25,8 +25,7 @@ public static class AutoUI
                 if (result is null) logger?.Warning($"[InsanityLib] Failed to create AutoUI composer instance of '{type}'");
                 return result;
             })
-            .OfType<IAutoGuiComposer>()
-            .ToArray();
+            .OfType<IAutoGuiComposer>()];
     }
 
     public static IAutoGuiComposer FindAutoGuiComposer(this Type type)

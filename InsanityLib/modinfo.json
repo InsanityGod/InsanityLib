@@ -5,7 +5,7 @@
     "authors": [
         "TheInsanityGod"
     ],
-    "description": "Library with shared code for my other mods",
+    "description": "Library with utility code for modding Vintage Story",
     "version": "1.1.0",
     "dependencies": {
         "game": ""

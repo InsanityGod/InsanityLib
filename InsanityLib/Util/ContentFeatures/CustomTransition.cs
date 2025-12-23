@@ -1,7 +1,5 @@
-﻿using InsanityLib.Attributes.Auto;
-using InsanityLib.Extended;
-using InsanityLib.Handlers.Interfaces;
-using InsanityLib.JsonAssets;
+﻿using InsanityLib.Auto.Cleanup;
+using InsanityLib.Extended.Transitions;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
