@@ -41,6 +41,7 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
         AssetCategoryAttribute.Load();
         AutoRegistryAttribute.RegisterAll(api); //TODO see about allowing for config values to be used in patching
         AutoConfigUtil.LoadAll(api);
+        AutoPatcherAttribute.AutoPatch(api);
     }
 
     public override void AssetsLoaded(ICoreAPI api)
@@ -51,7 +52,6 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
     public override void Start(ICoreAPI api)
     {
         api.RegisterAutoCommands();
-        AutoPatcherAttribute.AutoPatch(api); //TODO maybe move this to StartPre
 
         //Clear documentation cache build up by auto registration code
         AssemblyDocumentationContext.ClearCache();
