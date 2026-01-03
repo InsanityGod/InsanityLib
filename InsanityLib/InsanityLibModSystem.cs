@@ -1,17 +1,17 @@
-﻿using InsanityLib.Util;
+﻿using InsanityLib.Auto.Cleanup;
+using InsanityLib.Auto.Command;
+using InsanityLib.Auto.Setup;
+using InsanityLib.Documentation;
+using InsanityLib.Extended.AssetCategories;
+using InsanityLib.Extended.Transitions;
+using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
+using InsanityLib.Util.ContentFeatures;
 using System;
 using System.ComponentModel.Design;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
-using InsanityLib.Util.ContentFeatures;
-using InsanityLib.Documentation;
-using InsanityLib.Auto.Command;
-using InsanityLib.Auto.Setup;
-using InsanityLib.Auto.Cleanup;
-using InsanityLib.Extended.AssetCategories;
-using InsanityLib.Extended.Transitions;
 
 [assembly: AutoPatcher("insanitylib")]
 [assembly: AutoRegistry("insanitylib")]
@@ -19,29 +19,44 @@ namespace InsanityLib;
 
 public class InsanityLibModSystem : ModSystem, IServiceProvider
 {
-    [AutoDefaultValue(AutoType = typeof(ServiceContainer))]
-    public static IServiceContainer GlobalServiceContainer { get; private set; } = new ServiceContainer(); //TODO write a custom service container
+    public static IServiceContainer GlobalServiceContainer { get; private set; } = new ServiceContainer();
     
-    public IServiceContainer ServiceContainer { get; private set; }
+    public IServiceContainer ServiceContainer { get; } = new ServiceContainer(GlobalServiceContainer);
 
-    public object GetService(Type serviceType) => ServiceContainer.GetService(serviceType);
+    private ICoreAPI _api;
+
+    public object GetService(Type serviceType)
+    {
+        var result = ServiceContainer.GetService(serviceType);
+        if (result is not null) return result;
+
+        foreach (var modSystem in _api.ModLoader.Systems)
+        {
+            if(serviceType.IsInstanceOfType(modSystem))
+            {
+                return modSystem;
+            }
+        }
+
+        return null;
+    }
 
     public override void StartPre(ICoreAPI api)
     {
+        _api = api;
         ReflectionUtil.LoadedSides ??= api.Side;
         ReflectionUtil.LoadedSides |= api.Side;
         if (api is ICoreClientAPI clientApi) GlobalServiceContainer.Register(clientApi);
         if (api is ICoreServerAPI serverApi) GlobalServiceContainer.Register(serverApi);
         
-        ServiceContainer = new ServiceContainer(GlobalServiceContainer);
         ServiceContainer.Register(api);
         ServiceContainer.Register(api.World);
         ServiceContainer.Register(api.Logger);
         EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
         AssetCategoryAttribute.Load();
-        AutoRegistryAttribute.RegisterAll(api); //TODO see about allowing for config values to be used in patching
+        AutoRegistryAttribute.RegisterAll(api);
+        AutoPatcherAttribute.AutoPatch(api); //TODO: some patches should go earlier (in regards to patching the JSON reading process)
         AutoConfigUtil.LoadAll(api);
-        AutoPatcherAttribute.AutoPatch(api);
     }
 
     public override void AssetsLoaded(ICoreAPI api)
