@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Constants;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.Reflection;
@@ -21,7 +22,7 @@ public static class AutoCommandUtil
                 var parentCommand = GetParentCommand(api, attr.Path);
                 
                 var command = parentCommand is not null ? parentCommand.GetOrCreateChildStub(attr.Name) : GetOrCreateStub(api, attr.Name);
-                attr.ConfigureCommand(command, api.GetServiceContainer(), method);
+                attr.ConfigureCommand(command, api.GetServiceProvider(), method);
             }
             catch(Exception ex)
             {

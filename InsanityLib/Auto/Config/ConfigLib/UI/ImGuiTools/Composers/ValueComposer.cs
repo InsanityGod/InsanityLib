@@ -1,6 +1,7 @@
 ﻿using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Values;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
 using InsanityLib.Constants;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.Collections.Generic;

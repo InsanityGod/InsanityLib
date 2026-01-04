@@ -1,6 +1,6 @@
 ﻿using ImGuiNET;
 using InsanityLib.Extended.Enums;
-using InsanityLib.Util;
+using InsanityLib.Extensions;
 using System;
 using System.ComponentModel;
 using Vintagestory.API.Client;

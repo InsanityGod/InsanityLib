@@ -1,6 +1,7 @@
 ﻿using InsanityLib.Auto.Config.ConfigLib.UI.Interfaces;
 using InsanityLib.Constants;
 using InsanityLib.Documentation;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using InsanityLib.Util.Interfaces;
@@ -18,7 +19,7 @@ namespace InsanityLib.Auto.Config.ConfigLib.UI;
 /// <exception cref="ArgumentNullException">If target is null</exception>
 public class AutoGuiDialog(ICoreClientAPI capi, object target) : GuiDialog(capi), IDialogContext, IRecursivePrevention, IDisposable
 {
-    private readonly IServiceProvider serviceProvider = capi.GetServiceContainer();
+    private readonly IServiceProvider serviceProvider = capi.GetServiceProvider();
 
     /// <summary>The the object currently being displayed/edited</summary>
     public object TargetObject { get; } = target ?? throw new ArgumentNullException(nameof(target));

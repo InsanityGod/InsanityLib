@@ -9,6 +9,7 @@ using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
 using InsanityLib.Config;
 using InsanityLib.Constants;
+using InsanityLib.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -88,7 +89,7 @@ public static class AutoConfigUtil
 
     public static void LoadMember(ICoreAPI api, MemberInfo member, AutoConfigAttribute attr)
     {
-        var provider = api.GetServiceContainer();
+        var provider = api.GetServiceProvider();
         try
         {
             if(!(member is FieldInfo || member is PropertyInfo) || !member.IsStatic() || !member.GetPrimaryType().IsComplexClassType()) throw new InvalidOperationException($"{nameof(AutoConfigAttribute)} is only allowed on static fields/properties containing a class");
@@ -177,7 +178,7 @@ public static class AutoConfigUtil
     public static void NotifyUserOfException(Exception ex, IImGuiComponent component)
     {
         var clientApi = InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>();
-        var context = new ImGuiContext(component, null, id: "ErrorPopup", serviceProvider: clientApi.GetServiceContainer());
+        var context = new ImGuiContext(component, null, id: "ErrorPopup", serviceProvider: clientApi.GetServiceProvider());
         BlockingPopup = new Popup(context)
         {
             Title = ex.Message,

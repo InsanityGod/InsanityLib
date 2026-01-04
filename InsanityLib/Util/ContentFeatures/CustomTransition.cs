@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Auto.Cleanup;
 using InsanityLib.Extended.Transitions;
+using InsanityLib.Extensions;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
@@ -19,7 +20,7 @@ public static class CustomTransition
 
     public static void LoadAssets(ICoreAPI api)
     {
-        var serviceProvider = api.GetServiceContainer();
+        var serviceProvider = api.GetServiceProvider();
         var logger = serviceProvider.GetService<ILogger>();
         
         foreach (var asset in api.Assets.GetMany("transitiontypes/"))

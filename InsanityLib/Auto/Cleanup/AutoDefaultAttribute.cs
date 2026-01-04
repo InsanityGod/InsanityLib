@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using InsanityLib.Constants;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.ComponentModel;
@@ -40,6 +41,11 @@ public class AutoDefaultValueAttribute(object value = null) : DefaultValueAttrib
         }
     }
 
+    /// <summary>
+    /// Automatically creates a default value based on the attribute settings
+    /// </summary>
+    /// <returns>A new default value</returns>
+    /// <exception cref="InvalidOperationException" />
     public object GetAutoDefaultValue(IServiceProvider provider, object instance)
     {
         if (!string.IsNullOrEmpty(AutoMethodName))
@@ -51,10 +57,8 @@ public class AutoDefaultValueAttribute(object value = null) : DefaultValueAttrib
 
             return method.AutoInvoke(provider, method.DeclaringType?.IsInstanceOfType(instance) ?? false ? instance : null);
         }
-        if(AutoType is not null)
-        {
-            return AutoType.AutoCreate(provider, false);
-        }
+
+        if(AutoType is not null) return AutoType.AutoCreate(provider, false);
 
         return Value;
     }

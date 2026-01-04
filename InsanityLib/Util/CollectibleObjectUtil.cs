@@ -1,4 +1,5 @@
-﻿using Vintagestory.API.Common;
+﻿using InsanityLib.Extensions;
+using Vintagestory.API.Common;
 
 namespace InsanityLib.Util;
 

@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Constants;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.Collections.Generic;

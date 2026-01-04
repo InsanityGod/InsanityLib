@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Auto.Config.ConfigLib.UI.Contexts;
 using InsanityLib.Auto.Config.ConfigLib.UI.Interfaces;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using InsanityLib.Util.Interfaces;

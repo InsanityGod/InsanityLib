@@ -1,5 +1,6 @@
 ﻿using ImGuiNET;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.ComponentModel;

@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Constants;
 using InsanityLib.Extended.Enums;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using InsanityLib.Util.ContentFeatures;
 using System;

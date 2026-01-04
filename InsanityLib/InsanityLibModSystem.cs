@@ -4,6 +4,7 @@ using InsanityLib.Auto.Setup;
 using InsanityLib.Documentation;
 using InsanityLib.Extended.AssetCategories;
 using InsanityLib.Extended.Transitions;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using InsanityLib.Util.ContentFeatures;
@@ -25,6 +26,7 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
 
     private ICoreAPI _api;
 
+    
     public object GetService(Type serviceType)
     {
         var result = ServiceContainer.GetService(serviceType);
@@ -46,12 +48,15 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
         _api = api;
         ReflectionUtil.LoadedSides ??= api.Side;
         ReflectionUtil.LoadedSides |= api.Side;
-        if (api is ICoreClientAPI clientApi) GlobalServiceContainer.Register(clientApi);
-        if (api is ICoreServerAPI serverApi) GlobalServiceContainer.Register(serverApi);
+        if (api is ICoreClientAPI clientApi) GlobalServiceContainer.AddService(clientApi);
+        if (api is ICoreServerAPI serverApi) GlobalServiceContainer.AddService(serverApi);
         
-        ServiceContainer.Register(api);
-        ServiceContainer.Register(api.World);
-        ServiceContainer.Register(api.Logger);
+        ServiceContainer.AddService(api);
+        ServiceContainer.AddService(api.World);
+        
+        //TODO a better way to keep track of relevant mods/context during logging
+        ServiceContainer.AddService(api.Logger);
+
         EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
         AssetCategoryAttribute.Load();
         AutoRegistryAttribute.RegisterAll(api);

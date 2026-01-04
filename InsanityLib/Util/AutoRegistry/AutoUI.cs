@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using InsanityLib.Auto.Cleanup;
 using InsanityLib.Auto.Config.ConfigLib.UI.Interfaces;
+using InsanityLib.Extensions;
 using System;
 using System.Linq;
 using System.Reflection;

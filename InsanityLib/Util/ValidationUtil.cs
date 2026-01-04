@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using InsanityLib.Constants;
+using InsanityLib.Extensions;
 using InsanityLib.Validation;
 using System;
 using System.Collections;

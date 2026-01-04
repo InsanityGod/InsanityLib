@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Constants;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.ComponentModel.Design;
@@ -10,7 +11,9 @@ namespace InsanityLib.Auto.Cleanup;
 [AttributeUsage(AttributeTargets.Method)]
 public class DisposalLogicAttribute : Attribute
 {
-    
+    /// <summary>
+    /// Represents the order in which things have to be disposed (Higher numbers run first)
+    /// </summary>
     public int Priority { get; init; }
 
     /// <summary>
@@ -20,7 +23,7 @@ public class DisposalLogicAttribute : Attribute
 
     /// <summary>
     /// The side on which the disposal logic should run. <br />
-    /// If set to <see cref="EnumAppSide.Universal"/>, the logic is allowed to run on either side but will only run on twice if <seealso cref="MayRunTwice"/> is set to true.
+    /// If set to <see cref="EnumAppSide.Universal"/>, the logic is allowed to run on either side but will only run on twice if <see cref="MayRunTwice"/> is set to true.
     /// </summary>
     public EnumAppSide Side { get; init; } = EnumAppSide.Universal;
     
@@ -28,7 +31,7 @@ public class DisposalLogicAttribute : Attribute
     {
         var api = serviceContainer.GetService<ICoreAPI>();
         var loadedSides = ReflectionUtil.LoadedSides.Value;
-        foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<DisposalLogicAttribute>().OrderBy(pair => pair.Item2.Priority))
+        foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<DisposalLogicAttribute>().OrderByDescending(pair => pair.Item2.Priority))
         {
             try
             {

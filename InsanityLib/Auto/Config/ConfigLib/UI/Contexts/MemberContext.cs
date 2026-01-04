@@ -1,5 +1,5 @@
 ﻿using InsanityLib.Auto.Config.ConfigLib.UI.Interfaces;
-using InsanityLib.Util;
+using InsanityLib.Extensions;
 using System;
 using System.ComponentModel;
 using System.Reflection;

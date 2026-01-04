@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using InsanityLib.Constants;
 using InsanityLib.Extended.Transitions;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using InsanityLib.Util.ContentFeatures;
 using System;

@@ -3,6 +3,7 @@ using ImGuiNET;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using Newtonsoft.Json;
@@ -40,7 +41,7 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
 
     public bool Validate(out string result)
     {
-        var validationResult = EditConfigInstance.TryNestedValidate(Api.GetServiceContainer());
+        var validationResult = EditConfigInstance.TryNestedValidate(Api.GetServiceProvider());
         //TODO Collect unsaved changes (due to keys not being added to dictionary yet)
         if (!validationResult.IsValid)
         {
@@ -64,7 +65,7 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
         if (Validate(out var validationResult)) SaveInternal();
         else
         {
-            var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(Save)), id: "ValidationPopup", serviceProvider: Api.GetServiceContainer());
+            var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(Save)), id: "ValidationPopup", serviceProvider: Api.GetServiceProvider());
             AutoConfigUtil.BlockingPopup = new Popup(context)
             {
                 Title = "Validation Failed",
@@ -116,7 +117,7 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
     /// </summary>
     public void Defaults()
     {
-        var newInstance = ConfigInstance.GetType().AutoCreate(Api.GetServiceContainer());
+        var newInstance = ConfigInstance.GetType().AutoCreate(Api.GetServiceProvider());
         if(newInstance is not null) EditConfigInstance = newInstance;
         ReCompose();
     }
@@ -137,7 +138,7 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
         if(EditConfigInstance is null) return; //Nothing to compose
         try
         {
-            var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(EditConfigInstance)), id: Path, serviceProvider: Api.GetServiceContainer());
+            var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(EditConfigInstance)), id: Path, serviceProvider: Api.GetServiceProvider());
             Component = ImGuiComposer.TryCompose(context, ConfigInstance.GetType());
             ComposeError = null;
         }
