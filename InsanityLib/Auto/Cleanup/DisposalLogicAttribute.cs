@@ -8,6 +8,9 @@ using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Cleanup;
 
+/// <summary>
+/// Used to mark static methods that should be run when the game is doing disposal logic.
+/// </summary>
 [AttributeUsage(AttributeTargets.Method)]
 public class DisposalLogicAttribute : Attribute
 {
@@ -44,7 +47,5 @@ public class DisposalLogicAttribute : Attribute
                 serviceContainer.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(DisposeAll), member, ex);
             }
         }
-
-        //TODO dispose all IDisposable services that actually come from mods
     }
 }

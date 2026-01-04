@@ -6,6 +6,9 @@ using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Cleanup;
 
+/// <summary>
+/// Automatically calls the "Clear" method of a static field or property when the disposal logic runs.
+/// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public class AutoClearAttribute : Attribute
 {

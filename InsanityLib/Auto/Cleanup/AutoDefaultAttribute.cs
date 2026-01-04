@@ -9,6 +9,10 @@ using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Cleanup;
 
+/// <summary>
+/// Automatically assigns a new "default" value of a static field or property when the disposal logic runs. <br />
+/// (for non static members this provides metadata about the default value)
+/// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public class AutoDefaultValueAttribute(object value = null) : DefaultValueAttribute(value)
 {
