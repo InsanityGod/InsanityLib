@@ -1,9 +1,9 @@
 ﻿using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 
-namespace InsanityLib.Util;
+namespace InsanityLib.Extensions;
 
-public static class EntityUtil
+public static class EntityExtensions
 {
     public static EntitySelection GetTargetEntity(this Entity entity)
     {

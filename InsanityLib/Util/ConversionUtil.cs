@@ -81,4 +81,9 @@ public static class ConversionUtil
     /// Returns the value if it is of the target type, otherwise returns the default value
     /// </summary>
     public static object As(this object value, Type targetType, object defaultValue = null) => targetType.IsInstanceOfType(value) ? value : defaultValue;
+
+    /// <summary>
+    /// Returns the value if it is of the target type, otherwise returns the default value
+    /// </summary>
+    public static T As<T>(this object value, Type targetType, object defaultValue = null) where T : class => (targetType.IsInstanceOfType(value) ? value : defaultValue) as T;
 }

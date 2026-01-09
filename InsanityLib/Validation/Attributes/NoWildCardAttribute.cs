@@ -8,7 +8,7 @@ namespace InsanityLib.Validation.Attributes;
 /// <summary>
 /// Validates that the given <see cref="AssetLocation"/> does not use a wildcard.
 /// </summary>
-[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
 public class NoWildCardAttribute(string errorMessage = "'{0}' is not allowed to use a wildcard") : ValidationAttribute(errorMessage)
 {
     public override bool IsValid(object value)

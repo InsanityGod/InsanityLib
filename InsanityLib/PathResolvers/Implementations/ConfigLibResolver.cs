@@ -1,7 +1,7 @@
 ﻿using ConfigLib;
 using HarmonyLib;
 using InsanityLib.Constants;
-using InsanityLib.Util.SpanUtil;
+using InsanityLib.Extensions;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;

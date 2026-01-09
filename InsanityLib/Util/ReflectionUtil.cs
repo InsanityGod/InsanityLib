@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -25,6 +27,21 @@ public static class ReflectionUtil
         result ??= prioritizeServer ? InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>() : InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreServerAPI>();
         return result;
     }
+
+    public static ICoreAPI GetApi(this EnumAppSide side)
+    {
+        if (side == EnumAppSide.Server) return InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreServerAPI>() ?? throw new InvalidOperationException("Server side is not loaded");
+        if (side == EnumAppSide.Client) return InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>() ?? throw new InvalidOperationException("Client side is not loaded");
+
+        throw new ArgumentException("Side must be either Server or Client", nameof(side));
+    }
+
+
+    public static Mod FindMod(this Assembly assembly) => assembly.FindMod(InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreServerAPI>())
+            ?? assembly.FindMod(InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>());
+
+    public static Mod FindMod(this Assembly assembly, ICoreAPI api) => 
+        api.ModLoader.Mods.FirstOrDefault(mod => mod.Systems.Any(system => system.GetType().Assembly == assembly));
 
     // Backing field name pattern: "<PropertyName>k__BackingField"
     public static bool IsBackingField(this MemberInfo field) => field.Name.StartsWith('<') && field.Name.Contains("k__BackingField");

@@ -26,7 +26,6 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
 
     private ICoreAPI _api;
 
-    
     public object GetService(Type serviceType)
     {
         var result = ServiceContainer.GetService(serviceType);
@@ -71,7 +70,7 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
 
     public override void Start(ICoreAPI api)
     {
-        api.RegisterAutoCommands();
+        AutoCommandAttribute.FindAndRegisterAutoCommands(api);
 
         //Clear documentation cache build up by auto registration code
         AssemblyDocumentationContext.ClearCache();

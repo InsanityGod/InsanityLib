@@ -1,6 +1,7 @@
 ﻿using InsanityLib.Documentation;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -10,7 +11,7 @@ using Vintagestory.API.Config;
 
 namespace InsanityLib.Util;
 
-public static partial class Naming
+public static partial class NamingExtensions
 {
     public static readonly char[] ReadableSplitIdentifiers = ['-', '_', ':'];
 
@@ -52,17 +53,41 @@ public static partial class Naming
         return newText.ToString();
     }
 
+    public static string GetDebugDisplayName(this MemberInfo member) => $"{member.DeclaringType?.FullName ?? "unknown"}:{member.Name}";
+
+    private static string GetLangKey(this EDocumentationType type) => type switch
+    {
+        EDocumentationType.Description => "desc",
+        _ => type.ToString().ToLower(),
+    };
+
+    //TODO domain support
+    public static string GetLangKey(this MemberInfo member, EDocumentationType type = EDocumentationType.Name) => $"member{type.GetLangKey()}-{member.DeclaringType?.FullName}:{member.Name}".ToLower();
+    
+    public static string GetLangKey(this ParameterInfo parameter, EDocumentationType type = EDocumentationType.Name) => $"member{type.GetLangKey()}-{parameter.Member.DeclaringType?.FullName}:{parameter.Member.Name}.{parameter.Name}".ToLower();
+
     public static string GetHumanReadableName(this MemberInfo member)
     {
-        var languageStringKey = $"{MemberDocumentationContext.LanguageStringPrefix}-name-{member.DeclaringType?.FullName}.{member.Name}";
-        
+        var languageStringKey = member.GetLangKey(EDocumentationType.Name);
         var languageStringValue = Lang.Get(languageStringKey);
         if(languageStringValue != languageStringKey && !string.IsNullOrWhiteSpace(languageStringValue)) return languageStringValue;
-
+        
         var displayNameAttr = member.GetCustomAttribute<DisplayNameAttribute>();
         if(displayNameAttr is not null) return Lang.Get(displayNameAttr.DisplayName);
         
         return member.Name.ToHumanReadable();
+    }
+
+    public static string GetHumanReadableName(this ParameterInfo parameter)
+    {
+        var languageStringKey = parameter.GetLangKey(EDocumentationType.Name);
+        var languageStringValue = Lang.Get(languageStringKey);
+        if(languageStringValue != languageStringKey && !string.IsNullOrWhiteSpace(languageStringValue)) return languageStringValue;
+        
+        var displayNameAttr = parameter.GetCustomAttribute<DisplayNameAttribute>();
+        if(displayNameAttr is not null) return Lang.Get(displayNameAttr.DisplayName);
+        
+        return parameter.Name.ToHumanReadable();
     }
 
     public static readonly string[] RegistryAffixes =

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InsanityLib.Util.SpanUtil;
+namespace InsanityLib.Util.Span;
 
 public ref struct SpanSplitEnumerator
 {

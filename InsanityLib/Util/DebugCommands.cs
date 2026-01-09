@@ -1,9 +1,11 @@
 ﻿using InsanityLib.Auto.Command;
+using InsanityLib.Auto.Command.Argument;
 using InsanityLib.Auto.Config.ConfigLib.UI;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 
 namespace InsanityLib.Util;
 
@@ -31,17 +33,43 @@ public static class DebugCommands
 
     #if DEBUG
 
+    //GUI tests
+
     /// <summary>
     /// Opens an AutoGui for the target block.
     /// </summary>
-    [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Block")]
-    public static void AutoGuiForBlock(ICoreClientAPI api, [CommandParameter(Source = EParamSource.CallerTarget)] [Required(ErrorMessage = "Not targeting a block")] Block block) => new AutoGuiDialog(api, block).TryOpen();
+    [AutoCommand(Path = "AutoGui", Name = "Block", RequiredPrivelege = "controlserver")]
+    public static void AutoGuiForBlock(ICoreClientAPI api, [Required(ErrorMessage = "Not targeting a block")] Block block) => new AutoGuiDialog(api, block).TryOpen();
 
     /// <summary>
     /// Opens an AutoGui for the target item.
     /// </summary>
-    [AutoCommand(RequiredPrivelege = "controlserver", Path = "AutoGui", Name = "Item")]
-    public static void AutoGuiForItem(ICoreClientAPI api, [CommandParameter(Source = EParamSource.Caller)] CollectibleObject collectible) => new AutoGuiDialog(api, collectible).TryOpen();
-    
+    [AutoCommand(Path = "AutoGui", Name = "Item", RequiredPrivelege = "controlserver")]
+    public static void AutoGuiForItem(ICoreClientAPI api, [Required(ErrorMessage = "Not holding an item")] CollectibleObject collectible) => new AutoGuiDialog(api, collectible).TryOpen();
+
+    //Github examples
+
+    /// <summary>Will give you information about the held item stack.</summary>
+    /// <example>/Debug HeldItemStack</example>
+    [AutoCommand(Path = "Debug")]
+    public static ItemStack HeldItemStack([Required(ErrorMessage = "Not holding any item")] ItemStack heldItem) => heldItem;
+
+    /// <summary>Will give you information about the entity you are looking at.</summary>
+    /// <example>/Debug Entity</example>
+    [AutoCommand(Path = "Debug")]
+    public static string Entity([Required(ErrorMessage = "Not looking at an Entity")] Entity entity) => entity.GetName();
+
+    /// <summary>Prints a neat little message about how you think the chance of rain is like today.</summary>
+    /// <example>/Forecast 25</example>
+    [AutoCommand]
+    public static string Forecast(ICoreAPI api, IPlayer callingPlayer, [Range(0, 100)] int chance) => string.Format(
+        ForecastText,
+        callingPlayer.PlayerName,
+        chance,
+        api.World.Calendar.PrettyDate()
+    );
+
+    public const string ForecastText = "{0} says that there will be a {1}% chance of rain on {2}";
+
     #endif
 }

@@ -1,4 +1,6 @@
-﻿namespace InsanityLib.Constants;
+﻿using InsanityLib.Auto.Config.ConfigLib.UI.Composers.Value;
+
+namespace InsanityLib.Constants;
 
 public static class Logging
 {
@@ -25,4 +27,6 @@ public static class Logging
     public const string ModRequirementNotMetDefaulting = "[InsanityLib] Mod requirement not met for using [{0}] defaulting to [{1}], Missing mod: '{2}'";
 
     public const string ComposeFailure = "[InsanityLib] failed to compose {0}: {1}";
+
+    public const string AutoCommandSetupFailed = "[InsanityLib] [{0}] Failed to register command for {1}: {2}";
 }

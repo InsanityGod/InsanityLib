@@ -22,7 +22,7 @@ public class EnumNameValueMapping
 
         StrValues = Enum.GetNames(enumType);
         
-        Names = [.. Enum.GetNames(enumType).Select(Naming.ToHumanReadable)];
+        Names = [.. Enum.GetNames(enumType).Select(NamingExtensions.ToHumanReadable)];
 
         NumericValues = [.. enumType.GetEnumValues()
             .Cast<int>()
@@ -51,7 +51,7 @@ public class EnumNameValueMapping
                 
                 Names = Names.Append(
                     Enum.GetNames(enumExtensionType)
-                        .Select(Naming.ToHumanReadable)
+                        .Select(NamingExtensions.ToHumanReadable)
                 );
 
                 NumericValues = NumericValues.Append(

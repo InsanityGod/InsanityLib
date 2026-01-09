@@ -1,150 +1,139 @@
-﻿using InsanityLib.Constants;
+﻿using InsanityLib.Auto.Command.Argument;
+using InsanityLib.Auto.Command.Argument.Providers;
+using InsanityLib.Constants;
+using InsanityLib.Documentation;
 using InsanityLib.Extensions;
-using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Reflection;
 using Vintagestory.API.Common;
-using Vintagestory.API.Common.Entities;
-using Vintagestory.API.MathTools;
 
+#nullable enable
 namespace InsanityLib.Auto.Command;
 
-public class AutoCommand(IServiceProvider provider, MethodBase method, IEnumerable<EParamProvider> EArgProviders)
+/// <summary>
+/// Represents an auto command.<br/> 
+/// If manually creating this, remember to call <see cref="GetOrRegister(ICoreAPI)"/> to actually register it.
+/// </summary>
+public sealed class AutoCommand(MethodBase method, string? path, bool requiresPlayer = false, IServiceProvider? customServiceProvider = null) : IServiceProvider
 {
-    public readonly IServiceProvider Provider = provider;
+    /// <summary>
+    /// The service provider used to resolve services for this command.
+    /// </summary>
+    private IServiceProvider? ServiceProvider = customServiceProvider;
 
-    public readonly MethodBase command = method;
+    public readonly MethodBase Method = method;
 
-    public readonly ImmutableArray<EParamProvider> parameterProviders = [.. EArgProviders];
+    public readonly string Path = path ?? method.Name.ToLowerInvariant();
 
-    public TextCommandCallingArgs Context { get; private set; }
+    private ICoreAPI? _api;
 
-    public TextCommandResult RunCommand(TextCommandCallingArgs args)
+    private IChatCommand? _chatCommand;
+
+    public bool IsRegistered => _chatCommand is not null;
+
+    //TODO maybe a warning if someone attempts to register the same instance on both sides?
+    public IChatCommand GetOrRegister(ICoreAPI api) => _chatCommand ??= api.ChatCommands.GetOrCreateStub(Path);
+
+    public ICommandArgumentProvider[] Providers { get; init; } = ICommandArgumentProvider.Find(method);
+
+    /// <summary>
+    /// Permissions required to run this command
+    /// </summary>
+    public string? RequiredPermission { get; init; }
+
+    internal IChatCommand Register(ICoreAPI api)
     {
-        try
+        _api = api;
+        ServiceProvider ??= api.GetServiceProvider();
+
+        var command = 
+            api.ChatCommands
+            .GetOrCreateStub(Path)
+            .HandleWith(RunCommand)
+            .WithDefaultConfiguration();
+            
+        if(!string.IsNullOrEmpty(RequiredPermission)) command.RequiresPrivilege(RequiredPermission);
+
+        var parameters = Method.GetParameters();
+        List<ICommandArgumentParser> argumentParsers = new(parameters.Length);
+        for (int i = 0; i < parameters.Length; i++)
         {
-            Context = args;
-            var result = command.Invoke(null, GetParameters());
-            if (result is TextCommandResult textCommandResult) return textCommandResult;
-            return TextCommandResult.Success(result is null ? string.Empty : result.ToString(), result);
+            Providers[i].Configure(this, parameters[i], argumentParsers);
         }
-        catch (ValidationException ex)
-        {
-            return TextCommandResult.Error(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            Provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(RunCommand), command, ex);
-            return TextCommandResult.Error(ex.InnerException?.Message);
-        }
-        finally
-        {
-            Context = null;
-        }
+        if(argumentParsers.Count > 0) command.WithArgs([.. argumentParsers]);
+
+        if (requiresPlayer) command.RequiresPlayer();
+
+        var doc = Method.GetDocumentationContext();
+
+        var descriptionStr = doc.GetDescription();
+        if(!string.IsNullOrEmpty(descriptionStr)) command.WithDescription(descriptionStr);
+
+        var exmaplesStrings = doc.GetExamples();
+        if (exmaplesStrings.Length > 0) command.WithExamples(exmaplesStrings);
+
+        var returnStr = doc.GetReturn();
+        if(!string.IsNullOrEmpty(returnStr)) command.WithAdditionalInformation($"Returns: {returnStr}");
+
+        return command;
     }
 
-    private object[] GetParameters()
+    public TextCommandCallingArgs? CurrentArgs { get; private set; }
+
+    public object? GetService(Type serviceType)
     {
-        var parameterInfos = command.GetParameters();
-        var parameters = new object[parameterInfos.Length];
-        var paramIndex = 0;
+        if (serviceType == typeof(AutoCommand) || serviceType == typeof(IServiceProvider)) return this;
+        if (serviceType == typeof(IChatCommand)) return _chatCommand;
+        if (serviceType == typeof(TextCommandCallingArgs)) return CurrentArgs;
+        if (serviceType == typeof(Caller)) return CurrentArgs?.Caller;
+        if (typeof(IPlayer) == serviceType) return CurrentArgs?.Caller.Player;
+
+        return ServiceProvider?.GetService(serviceType);
+    }
+
+    private object?[] GetAndValidateArguments()
+    {
+        var parameterInfos = Method.GetParameters();
+        var parameters = new object?[parameterInfos.Length];
+        
+        int consumedParsers = 0;
         for (int i = 0; i < parameterInfos.Length; i++)
         {
-            var param = parameterInfos[i];
-            var attr = param.GetCustomAttribute<CommandParameterAttribute>();
+            var parameterInfo = parameterInfos[i];
+            var parameter =  Providers[i].Provide(this, parameterInfo, CurrentArgs!, ref consumedParsers);
 
-            switch (parameterProviders[i])
-            {
-                case EParamProvider.ServiceProvider:
-                    parameters[i] = Provider.GetService(param.ParameterType);
-                    break;
+            parameterInfo.Validate(this, parameter);
 
-                case EParamProvider.ArgumentParser:
-                    parameters[i] = attr.GetValueFromParser(this, param, paramIndex++);
-                    break;
-
-                case EParamProvider.Custom:
-                    //TODO make a more extensible framework for this
-
-                    if (param.ParameterType == typeof(IPlayer)) parameters[i] = attr.Source switch
-                    {
-                        EParamSource.Caller => Context.Caller.Player,
-                        EParamSource.CallerTarget => Context.Caller.Entity?.GetTargetEntity()?.Entity is EntityPlayer player ? player.Player : null,
-                        _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
-                    };
-                    else if (typeof(Entity).IsAssignableFrom(param.ParameterType)) parameters[i] = attr.Source switch
-                    {
-                        EParamSource.Caller => Context.Caller.Entity.As(param.ParameterType),
-                        EParamSource.CallerTarget => Context.Caller.Entity?.GetTargetEntity()?.Entity.As(param.ParameterType),
-                        _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
-                    };
-                    else if (param.ParameterType == typeof(ItemSlot)) parameters[i] = attr.Source switch
-                    {
-                        EParamSource.Caller => (Context.Caller.Entity as EntityAgent)?.ActiveHandItemSlot,
-                        _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
-                    };
-                    else if (param.ParameterType == typeof(ItemStack)) parameters[i] = attr.Source switch
-                    {
-                        EParamSource.Caller => (Context.Caller.Entity as EntityAgent)?.ActiveHandItemSlot.Itemstack,
-                        _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
-                    };
-                    else if (typeof(Item).IsAssignableFrom(param.ParameterType)) parameters[i] = attr.Source switch
-                    {
-                        EParamSource.Caller => (Context.Caller.Entity as EntityAgent)?.ActiveHandItemSlot.Itemstack?.Item.As(param.ParameterType),
-                        _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
-                    };
-                    else if (typeof(Block).IsAssignableFrom(param.ParameterType)) parameters[i] = GetBlock(attr, param).As(param.ParameterType);
-                    else if (typeof(CollectibleObject).IsAssignableFrom(param.ParameterType)) parameters[i] = GetCollectible(attr, param).As(param.ParameterType);
-                    else if (param.ParameterType == typeof(BlockPos)) parameters[i] = attr.Source switch
-                    {
-                        EParamSource.Caller => Context.Caller.Pos?.AsBlockPos,
-                        EParamSource.CallerTarget => Context.Caller.Player?.CurrentBlockSelection?.Position,
-                        _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
-                    };
-                    else if (typeof(BlockBehavior).IsAssignableFrom(param.ParameterType)) parameters[i] = GetBlock(attr, param)?.BlockBehaviors.SingleOrDefault(param.ParameterType.IsInstanceOfType);
-                    //TODO maybe an IEnumerableBlockBehavior?
-                    else if (typeof(BlockEntity).IsAssignableFrom(param.ParameterType)) parameters[i] = GetBlockEntity(attr, param).As(param.ParameterType);
-                    else if (typeof(BlockEntityBehavior).IsAssignableFrom(param.ParameterType)) parameters[i] = GetBlockEntity(attr, param)?.Behaviors.SingleOrDefault(param.ParameterType.IsInstanceOfType);
-
-                    break;
-            }
-        }
-
-        for (int i = 0; i < parameterInfos.Length; i++)
-        {
-            var param = parameterInfos[i];
-            var validationAttributes = param.GetCustomAttributes<ValidationAttribute>();
-            foreach (var validationAttribute in validationAttributes)
-            {
-                var context = new ValidationContext(parameterInfos[i]);
-                var validationResult = validationAttribute.GetValidationResult(parameters[i], context);
-                if (validationResult != ValidationResult.Success) throw new ValidationException(validationResult, validationAttribute, parameters[i]);
-            }
+            parameters[i] = parameter;
         }
 
         return parameters;
     }
 
-    private Block GetBlock(CommandParameterAttribute attr, ParameterInfo param) => attr.Source switch
+    public TextCommandResult RunCommand(TextCommandCallingArgs args)
     {
-        EParamSource.Caller => (Context.Caller.Entity as EntityAgent)?.ActiveHandItemSlot.Itemstack?.Block,
-        EParamSource.CallerTarget => Context.Caller.Player?.CurrentBlockSelection?.GetOrFindBlock(Provider.GetService<IWorldAccessor>()),
-        _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
-    };
-
-    private CollectibleObject GetCollectible(CommandParameterAttribute attr, ParameterInfo param) => attr.Source switch
-    {
-        EParamSource.Caller => (Context.Caller.Entity as EntityAgent)?.ActiveHandItemSlot.Itemstack?.Collectible,
-        _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
-    };
-
-    private BlockEntity GetBlockEntity(CommandParameterAttribute attr, ParameterInfo param) => attr.Source switch
-    {
-        EParamSource.CallerTarget => Context.Caller.Player?.CurrentBlockSelection?.FindBlockEntity(Provider.GetService<IWorldAccessor>()),
-        _ => throw new InvalidOperationException($"Cannot inject {param.Name}, invalid parameter source '{attr.Source}' for custom provider of type '{param.ParameterType}'"),
-    };
+        CurrentArgs = args;
+        try
+        {
+            var result = Method.Invoke(null, GetAndValidateArguments());
+            
+            if (result is TextCommandResult textCommandResult) return textCommandResult;
+            return TextCommandResult.Success(result is null ? string.Empty : result.ToString(), result);
+        }
+        catch(ValidationException ex)
+        {
+            return TextCommandResult.Error(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            this.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(AutoCommand), Method, ex);
+            return TextCommandResult.Error(ex.InnerException?.Message);
+        }
+        finally
+        {
+            CurrentArgs = null;
+        }
+    }
 }

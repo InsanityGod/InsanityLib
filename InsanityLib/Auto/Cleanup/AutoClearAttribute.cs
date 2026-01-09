@@ -10,7 +10,7 @@ namespace InsanityLib.Auto.Cleanup;
 /// Automatically calls the "Clear" method of a static field or property when the disposal logic runs.
 /// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public class AutoClearAttribute : Attribute
+public sealed class AutoClearAttribute : Attribute
 {
     [DisposalLogic(Priority = int.MinValue)]
     internal static void ClearAll(IServiceContainer provider, ILogger logger)

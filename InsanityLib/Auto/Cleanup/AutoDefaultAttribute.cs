@@ -13,8 +13,8 @@ namespace InsanityLib.Auto.Cleanup;
 /// Automatically assigns a new "default" value of a static field or property when the disposal logic runs. <br />
 /// (for non static members this provides metadata about the default value)
 /// </summary>
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-public class AutoDefaultValueAttribute(object value = null) : DefaultValueAttribute(value)
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Parameter)]
+public sealed class AutoDefaultValueAttribute(object value = null) : DefaultValueAttribute(value)
 {
     /// <summary>
     /// If provided an instance of this type will be created to set the value. <br />

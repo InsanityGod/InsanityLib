@@ -15,8 +15,6 @@ namespace InsanityLib.Documentation;
 
 public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDocumentationContext, MemberInfo member) : IInitialize
 {
-    public const string LanguageStringPrefix = "insanitylib:cfg";
-
     public readonly AssemblyDocumentationContext AssemblyDocumentationContext = assemblyDocumentationContext;
     
     public readonly MemberInfo Member = member;
@@ -36,11 +34,9 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
         }
     }
 
-    public string GetLanguageStringKey(string type) => $"{LanguageStringPrefix}-{type}-{Member.DeclaringType?.FullName}.{Member.Name}";
-
-    public bool TryGetFromLang(string type, out string result)
+    public bool TryGetFromLang(EDocumentationType type, out string result)
     {
-        var languageString = GetLanguageStringKey(type);
+        var languageString = Member.GetLangKey(type);
         var descriptionFromLang = Lang.Get(languageString);
         if(descriptionFromLang != languageString && !string.IsNullOrWhiteSpace(descriptionFromLang))
         {
@@ -56,7 +52,7 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
 
     public string GetDescription()
     {
-        if(TryGetFromLang("dsc", out var descriptionFromLang)) return descriptionFromLang;
+        if(TryGetFromLang(EDocumentationType.Description, out var descriptionFromLang)) return descriptionFromLang;
 
         if (HasXmlDocumentation && MemberNode.SelectSingleNode("summary") is XmlNode summaryNode)
         {
@@ -72,7 +68,7 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
 
     public string[] GetExamples()
     {
-        if(TryGetFromLang("example", out var descriptionFromLang)) return descriptionFromLang.Split("\n");
+        if(TryGetFromLang(EDocumentationType.Example, out var descriptionFromLang)) return descriptionFromLang.Split("\n");
 
         if (!HasXmlDocumentation || MemberNode.SelectNodes("example") is not XmlNodeList exampleNodes) return [];
 
@@ -89,7 +85,7 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
 
     public string GetReturn()
     {
-        if(TryGetFromLang("returns", out var descriptionFromLang)) return descriptionFromLang;
+        if(TryGetFromLang(EDocumentationType.Returns, out var descriptionFromLang)) return descriptionFromLang;
 
         if (HasXmlDocumentation && MemberNode.SelectSingleNode("returns") is XmlNode returnNode)
         {

@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util.SpanUtil;
+﻿using InsanityLib.Extensions;
 using System;
 using System.Linq;
 using Vintagestory.API.Common;

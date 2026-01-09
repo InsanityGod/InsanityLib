@@ -12,7 +12,7 @@ namespace InsanityLib.Auto.Cleanup;
 /// Used to mark static methods that should be run when the game is doing disposal logic.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-public class DisposalLogicAttribute : Attribute
+public sealed class DisposalLogicAttribute : Attribute
 {
     /// <summary>
     /// Represents the order in which things have to be disposed (Higher numbers run first)

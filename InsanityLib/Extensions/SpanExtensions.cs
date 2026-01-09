@@ -1,11 +1,12 @@
-﻿using System;
+﻿using InsanityLib.Util.Span;
+using System;
 using System.Linq;
 using Vintagestory.API.Common;
 using Vintagestory.API.Util;
 
-namespace InsanityLib.Util.SpanUtil;
+namespace InsanityLib.Extensions;
 
-public static partial class SpanUtil
+public static partial class SpanExtensions
 {
     public static SpanSplitEnumerator Split(this ReadOnlySpan<char> span, char separator) => new(span, separator);
 
@@ -49,5 +50,28 @@ public static partial class SpanUtil
             }
         }
         return -1; // Not found
+    }
+
+    public static ReadOnlySpan<char> Until(this ReadOnlySpan<char> span, ReadOnlySpan<char> target, StringComparison stringComparison = StringComparison.CurrentCulture)
+    {
+        var index = span.IndexOf(target, stringComparison);
+        return index == -1 ? span : span[..index];
+    }
+    public static ReadOnlySpan<char> UntilLast(this ReadOnlySpan<char> span, ReadOnlySpan<char> target, StringComparison stringComparison = StringComparison.CurrentCulture)
+    {
+        var index = span.LastIndexOf(target, stringComparison);
+        return index == -1 ? span : span[..index];
+    }
+
+    public static ReadOnlySpan<char> From(this ReadOnlySpan<char> span, ReadOnlySpan<char> target, StringComparison stringComparison = StringComparison.CurrentCulture)
+    {
+        var index = span.IndexOf(target, stringComparison);
+        return index == -1 ? span : span[(index + target.Length)..];
+    }
+
+    public static ReadOnlySpan<char> FromLast(this ReadOnlySpan<char> span, ReadOnlySpan<char> target, StringComparison stringComparison = StringComparison.CurrentCulture)
+    {
+        var index = span.LastIndexOf(target, stringComparison);
+        return index == -1 ? span : span[(index + target.Length)..];
     }
 }

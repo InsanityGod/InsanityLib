@@ -1,7 +1,7 @@
 ﻿using InsanityLib.Constants;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
-using InsanityLib.Util.SpanUtil;
 using System;
 using Vintagestory.API.Common;
 
