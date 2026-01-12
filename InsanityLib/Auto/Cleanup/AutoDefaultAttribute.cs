@@ -14,24 +14,24 @@ namespace InsanityLib.Auto.Cleanup;
 /// (for non static members this provides metadata about the default value)
 /// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Parameter)]
-public sealed class AutoDefaultValueAttribute(object value = null) : DefaultValueAttribute(value)
+public sealed class AutoDefaultValueAttribute(object? value = null) : DefaultValueAttribute(value)
 {
     /// <summary>
     /// If provided an instance of this type will be created to set the value. <br />
     /// If <see cref="AutoMethodName"/> is also set, this will be used as the class to search for the method on.
     /// </summary>
-    public Type AutoType { get; init; }
+    public Type? AutoType { get; init; }
 
     /// <summary>
     /// If provided, this method will be used to set the value. <br />
     /// If <see cref="AutoType"/> is also set, this will be used as the methodname to search for on the type.
     /// </summary>
-    public string AutoMethodName { get; init; }
+    public string? AutoMethodName { get; init; }
 
     [DisposalLogic(Priority = int.MinValue)]
-    internal static void DefaultAll(IServiceContainer serviceContainer)
+    internal static void DefaultAll(IServiceContainer serviceContainer, ILogger logger)
     {
-        foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<AutoDefaultValueAttribute>())
+        foreach ((var member, var attr) in ReflectionUtil.FindAllMembersWithAttributes<AutoDefaultValueAttribute>())
         {
             if(!member.IsStatic()) continue;
             try
@@ -40,7 +40,7 @@ public sealed class AutoDefaultValueAttribute(object value = null) : DefaultValu
             }
             catch(Exception ex)
             {
-                serviceContainer.GetService<ILogger>()?.Error(Logging.AutoDefaultFailed, member, ex);
+                logger.Error(Logging.AutoDefaultFailed, member, ex);
             }
         }
     }
@@ -50,7 +50,7 @@ public sealed class AutoDefaultValueAttribute(object value = null) : DefaultValu
     /// </summary>
     /// <returns>A new default value</returns>
     /// <exception cref="InvalidOperationException" />
-    public object GetAutoDefaultValue(IServiceProvider provider, object instance)
+    public object? GetAutoDefaultValue(IServiceProvider provider, object? instance)
     {
         if (!string.IsNullOrEmpty(AutoMethodName))
         {

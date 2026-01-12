@@ -24,14 +24,14 @@ public class AutoNumberGuiComposer : BaseValueGuiComposer<object>, IAutoGuiCompo
         if (member is not null) inputBounds.FixedRightOf(composer.LastAddedElement.Bounds, GuiStyle.HalfPadding);
         
         context.Cursor.Y += inputBounds.fixedHeight;
-        GuiElementNumberInput element = null;
-        var primaryType = member.GetPrimaryType();
+        GuiElementNumberInput? element = null;
+        var primaryType = member!.GetPrimaryType();
         element = new GuiElementNumberInput(composer.Api, inputBounds, value =>
         {
             try
             {
-                var newValue = Convert.ChangeType(value, primaryType);
-                member.SetValue(newValue, context.TargetObject);
+                var newValue = Convert.ChangeType(value, primaryType!);
+                member!.SetValue(newValue, context.TargetObject);
             }
             catch
             {

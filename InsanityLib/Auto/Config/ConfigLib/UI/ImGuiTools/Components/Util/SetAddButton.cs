@@ -35,12 +35,12 @@ public class SetAddButton : Button
             if(!Context.TryGetValue(out container)) return;
         }
 
-        if(container is not ISet<T> set) return;
-        T value = default;
+        if(container is not ISet<T?> set) return;
+        T? value = default;
         AddDisplay(value, set.Add(value));
     }
     
-    public void AddDisplay(object item, bool existsInSet)
+    public void AddDisplay(object? item, bool existsInSet)
     {
         var collection = new SameLineComponentCollection(Context)
         {

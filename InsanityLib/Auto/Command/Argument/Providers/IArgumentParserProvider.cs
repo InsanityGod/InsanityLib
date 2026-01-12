@@ -5,7 +5,6 @@ using System.Reflection;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Command.Argument.Providers;
-#nullable enable
 public interface IArgumentParserProvider<out T> : ICommandArgumentProvider<T>
 {
     //TODO maybe look into supporting non mandatetory parameters?

@@ -6,7 +6,6 @@ using System.Reflection;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Command.Argument.Providers.Special;
-#nullable enable
 public sealed class DefaultArgumentProvider : ICommandArgumentProvider
 {
     private DefaultArgumentProvider() { }

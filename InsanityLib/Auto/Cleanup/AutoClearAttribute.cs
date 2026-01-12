@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Constants;
+using InsanityLib.Exceptions;
 using InsanityLib.Util;
 using System;
 using System.ComponentModel.Design;
@@ -15,7 +16,7 @@ public sealed class AutoClearAttribute : Attribute
     [DisposalLogic(Priority = int.MinValue)]
     internal static void ClearAll(IServiceContainer provider, ILogger logger)
     {
-        foreach ((var member, _) in ReflectionUtil.FindAllMembers<AutoClearAttribute>())
+        foreach (var member in ReflectionUtil.FindAllMembersHavingAtribute<AutoClearAttribute>())
         {
             try
             {
@@ -23,11 +24,15 @@ public sealed class AutoClearAttribute : Attribute
                 if(value is null) continue;
 
                 var clearMethod = value.GetType().GetMethod("Clear");
-                clearMethod.AutoInvoke(provider, value);
+                if(clearMethod is not null)
+                {
+                    clearMethod.AutoInvoke(provider, value);
+                }
+                else logger.Error(Logging.InvalidAttributeUsage, member.FindModName(), nameof(AutoClearAttribute), member.GetDebugDisplayName(), "Target type does not have a 'Clear' method");
             }
             catch(Exception ex)
             {
-                logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoClearAttribute), member, ex);
+                logger.Error(Logging.ExecutionFailed, nameof(AutoClearAttribute), member, ex);
             }
         }
     }

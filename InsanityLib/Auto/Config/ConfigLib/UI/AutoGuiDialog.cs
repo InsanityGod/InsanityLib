@@ -97,7 +97,7 @@ public class AutoGuiDialog(ICoreClientAPI capi, object target) : GuiDialog(capi)
         }
         catch(Exception ex)
         {
-            capi.Logger.Error(Logging.ExecutionFailedTemplate, nameof(AutoGuiDialog), TargetObject, ex);
+            capi.Logger.Error(Logging.ExecutionFailed, nameof(AutoGuiDialog), TargetObject, ex);
             return false;
         }
     }
@@ -113,7 +113,7 @@ public class AutoGuiDialog(ICoreClientAPI capi, object target) : GuiDialog(capi)
             }
             catch (Exception ex)
             {
-                capi.Logger.Error(Logging.ExecutionFailedTemplate, nameof(OnClose), OnClose, ex);
+                capi.Logger.Error(Logging.ExecutionFailed, nameof(OnClose), OnClose, ex);
             }
 
             return true;

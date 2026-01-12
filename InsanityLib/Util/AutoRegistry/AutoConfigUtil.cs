@@ -69,7 +69,7 @@ public static class AutoConfigUtil
     internal static void LoadAll(ICoreAPI api)
     {
         if(api.ModLoader.IsModEnabled("configlib")) RegisterConfigLibEvents(api);
-        foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<AutoConfigAttribute>().OrderByDescending(config => config.Item1.GetPrimaryType() == typeof(InsanityLibConfig))) //Ensure primary config is loaded first
+        foreach ((var member, var attr) in ReflectionUtil.FindAllMembersWithAttributes<AutoConfigAttribute>().OrderByDescending(config => config.Item1.GetPrimaryType() == typeof(InsanityLibConfig))) //Ensure primary config is loaded first
         {
             LoadMember(api, member, attr);
         }
@@ -159,7 +159,7 @@ public static class AutoConfigUtil
         }
         catch (Exception ex)
         {
-            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedDefaultTemplate, nameof(AutoConfigAttribute), attr.Path, ex);
+            provider.GetService<ILogger>()?.Error(Logging.DefaultExecutionFailed, nameof(AutoConfigAttribute), attr.Path, ex);
         }
     }
 
@@ -232,7 +232,7 @@ public static class AutoConfigUtil
     private static void ValidateAndFix(IServiceProvider provider, Type configType, ref object configInstance, AutoConfigAttribute configAttr)
     {
         var configChanged = false;
-        foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<VersionIdentifierAttribute>(configType))
+        foreach ((var member, var attr) in ReflectionUtil.FindAllMembersWithAttributes<VersionIdentifierAttribute>(configType))
         {
             //TODO support nested members
             configChanged |= attr.ValidateAndFix(provider, member, ref configInstance, configAttr.Path);

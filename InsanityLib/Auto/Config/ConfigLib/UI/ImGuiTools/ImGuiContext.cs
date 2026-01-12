@@ -10,33 +10,33 @@ namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools;
 
 public class ImGuiContext : IServiceProvider, IValidationResultProvider
 {
-    public virtual object GetService(Type serviceType)
+    public virtual object? GetService(Type serviceType)
     {
         if(serviceType.IsInstanceOfType(this)) return this;
 
         return ServiceProvider?.GetService(serviceType) ?? ParentContext?.GetService(serviceType);
     }
 
-    public readonly ImGuiContext ParentContext;
-    public readonly IServiceProvider ServiceProvider;
+    public readonly ImGuiContext? ParentContext;
+    public readonly IServiceProvider? ServiceProvider;
 
-    private object targetObject;
-    public object TargetObject { get => targetObject; internal set => targetObject = value; }
+    private object? targetObject;
+    public object? TargetObject { get => targetObject; internal set => targetObject = value; }
 
-    public readonly MemberInfo Member;
+    public readonly MemberInfo? Member;
 
     public readonly string Label;
 
     public ReadOnlySpan<char> Id => Label.AsSpan()[(Label.IndexOf("##") + 2)..];
     public ReadOnlySpan<char> Text => Label.AsSpan()[..Label.IndexOf("##")];
 
-    public string Description { get; protected set; }
+    public string? Description { get; protected set; }
 
     //public readonly string Id; //TODO ReadOnlySpan<char>
 
-    public virtual ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member is null ? TargetObject : Member.GetValue(TargetObject), member ?? Member, this, id, name);
+    public virtual ImGuiContext New(string? id = null, MemberInfo? member = null, string? name = null) => new(member is null ? TargetObject! : Member.GetValue(TargetObject)!, member ?? Member, this, id, name);
 
-    public ImGuiContext(object targetObject, MemberInfo member, ImGuiContext parentContext = null, string id = null, string name = null, IServiceProvider serviceProvider = null)
+    public ImGuiContext(object targetObject, MemberInfo? member, ImGuiContext? parentContext = null, string? id = null, string? name = null, IServiceProvider? serviceProvider = null)
     {
         TargetObject = targetObject;
         Member = member;
@@ -86,10 +86,10 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
     public readonly bool CanWrite;
     public readonly bool AllowedToWrite = true;
 
-    public PropertyChangedEventHandler PropertyChanged { get; set; }
-    public string LastValidationResult { get; set; }
+    public PropertyChangedEventHandler? PropertyChanged { get; set; }
+    public string LastValidationResult { get; set; } = string.Empty;
 
-    public virtual void Validate(object sender, PropertyChangedEventArgs args)
+    public virtual void Validate(object? sender, PropertyChangedEventArgs args)
     {
         //Optional
     }
@@ -117,7 +117,7 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
         }
     }
 
-    public virtual bool TrySetValue(object value, object ChangedBy)
+    public virtual bool TrySetValue(object? value, object ChangedBy)
     {
         if(!CanWrite) return false;
 
@@ -140,7 +140,7 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
         }
     }
 
-    public virtual bool TryAutoSetValue(object value, object ChangedBy)
+    public virtual bool TryAutoSetValue(object? value, object ChangedBy)
     {
         if(!CanWrite) return false;
         try

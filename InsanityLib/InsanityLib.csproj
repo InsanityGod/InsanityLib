@@ -49,6 +49,7 @@
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<PackageIcon>modicon.png</PackageIcon>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<Nullable>enable</Nullable>
 
 	</PropertyGroup>
 	<ItemGroup>

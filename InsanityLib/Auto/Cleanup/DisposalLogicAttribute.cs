@@ -33,8 +33,8 @@ public sealed class DisposalLogicAttribute : Attribute
     internal static void DisposeAll(IServiceContainer serviceContainer)
     {
         var api = serviceContainer.GetService<ICoreAPI>();
-        var loadedSides = ReflectionUtil.LoadedSides.Value;
-        foreach ((var member, var attr) in ReflectionUtil.FindAllMembers<DisposalLogicAttribute>().OrderByDescending(pair => pair.Item2.Priority))
+        var loadedSides = ReflectionUtil.LoadedSides;
+        foreach ((var member, var attr) in ReflectionUtil.FindAllMembersWithAttributes<DisposalLogicAttribute>().OrderByDescending(pair => pair.Item2.Priority))
         {
             try
             {
@@ -44,7 +44,7 @@ public sealed class DisposalLogicAttribute : Attribute
             }
             catch (Exception ex)
             {
-                serviceContainer.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(DisposeAll), member, ex);
+                serviceContainer.GetService<ILogger>()?.Error(Logging.ExecutionFailed, nameof(DisposeAll), member, ex);
             }
         }
     }

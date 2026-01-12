@@ -1,22 +1,21 @@
-﻿using InsanityLib.Auto.Command.Argument;
-using InsanityLib.Auto.Command.Argument.Providers;
+﻿using InsanityLib.Auto.Command.Argument.Providers;
 using InsanityLib.Constants;
 using InsanityLib.Documentation;
 using InsanityLib.Extensions;
+using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using Vintagestory.API.Common;
 
-#nullable enable
 namespace InsanityLib.Auto.Command;
 
 /// <summary>
 /// Represents an auto command.<br/> 
 /// If manually creating this, remember to call <see cref="GetOrRegister(ICoreAPI)"/> to actually register it.
 /// </summary>
-public sealed class AutoCommand(MethodBase method, string? path, bool requiresPlayer = false, IServiceProvider? customServiceProvider = null) : IServiceProvider
+public sealed class AutoCommand(MethodBase method, string? path = null, bool requiresPlayer = false, IServiceProvider? customServiceProvider = null) : IServiceProvider
 {
     /// <summary>
     /// The service provider used to resolve services for this command.
@@ -25,16 +24,14 @@ public sealed class AutoCommand(MethodBase method, string? path, bool requiresPl
 
     public readonly MethodBase Method = method;
 
-    public readonly string Path = path ?? method.Name.ToLowerInvariant();
-
-    private ICoreAPI? _api;
+    public readonly string Path = path ?? method.Name.ToLower();
 
     private IChatCommand? _chatCommand;
 
     public bool IsRegistered => _chatCommand is not null;
 
     //TODO maybe a warning if someone attempts to register the same instance on both sides?
-    public IChatCommand GetOrRegister(ICoreAPI api) => _chatCommand ??= api.ChatCommands.GetOrCreateStub(Path);
+    public IChatCommand GetOrRegister(ICoreAPI api) => _chatCommand ??= Register(api);
 
     public ICommandArgumentProvider[] Providers { get; init; } = ICommandArgumentProvider.Find(method);
 
@@ -43,9 +40,8 @@ public sealed class AutoCommand(MethodBase method, string? path, bool requiresPl
     /// </summary>
     public string? RequiredPermission { get; init; }
 
-    internal IChatCommand Register(ICoreAPI api)
+    private IChatCommand Register(ICoreAPI api)
     {
-        _api = api;
         ServiceProvider ??= api.GetServiceProvider();
 
         var command = 
@@ -117,7 +113,8 @@ public sealed class AutoCommand(MethodBase method, string? path, bool requiresPl
         CurrentArgs = args;
         try
         {
-            var result = Method.Invoke(null, GetAndValidateArguments());
+            object? instance = Method.IsStatic || Method.DeclaringType is null ? null : GetService(Method.DeclaringType);
+            var result = Method.Invoke(instance, GetAndValidateArguments());
             
             if (result is TextCommandResult textCommandResult) return textCommandResult;
             return TextCommandResult.Success(result is null ? string.Empty : result.ToString(), result);
@@ -128,7 +125,7 @@ public sealed class AutoCommand(MethodBase method, string? path, bool requiresPl
         }
         catch (Exception ex)
         {
-            this.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(AutoCommand), Method, ex);
+            this.GetService<ILogger>()?.Error(Logging.ExternalExecutionFailed, Method.FindModName(), nameof(RunCommand), Method.GetDebugDisplayName(), ex);
             return TextCommandResult.Error(ex.InnerException?.Message);
         }
         finally

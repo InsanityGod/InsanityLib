@@ -1,14 +1,13 @@
-﻿using InsanityLib.Auto.Config.ConfigLib.UI.Composers.Value;
-
-namespace InsanityLib.Constants;
+﻿namespace InsanityLib.Constants;
 
 public static class Logging
 {
-    public const string ExecutionFailedTemplate = "[InsanityLib] failed executing {0} on {1}: {2}";
+    public const string ExecutionFailed = "[InsanityLib] failed executing {0} on {1}: {2}";
+    public const string ExternalExecutionFailed = "[InsanityLib] [{0}] failed executing {1} on {2}: {3}";
     
     public const string AutoDefaultFailed = "[InsanityLib] failed setting auto default value on static member {0}:\n{1}";
     
-    public const string ExecutionFailedDefaultTemplate = "[InsanityLib] failed executing {0} on {1}, using default value instead: {2}";
+    public const string DefaultExecutionFailed = "[InsanityLib] failed executing {0} on {1}, using default value instead: {2}";
     public const string ConfigOutdated = "[InsanityLib] Config '{0}' is outdated/invalid ('{1}' should have been '{2}' instead of '{3}')";
     public const string AutoConfigUpdate = "[InsanityLib] Config '{0}' is outdated/invalid ('{1}' should have been '{2}' instead of '{3}') attempting auto update (you should check the config afterwards)";
 
@@ -29,4 +28,6 @@ public static class Logging
     public const string ComposeFailure = "[InsanityLib] failed to compose {0}: {1}";
 
     public const string AutoCommandSetupFailed = "[InsanityLib] [{0}] Failed to register command for {1}: {2}";
+
+    public const string InvalidAttributeUsage = "[InsanityLib] [{0}] Encountered invalid usage of '{1}' on '{2}': {3}";
 }

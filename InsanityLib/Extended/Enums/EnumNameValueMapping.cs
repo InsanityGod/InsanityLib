@@ -90,7 +90,7 @@ public class EnumNameValueMapping
 
     public string GetStringValue(object value)
     {
-        if (!EnumType.IsInstanceOfType(value)) value = value.AutoConvert(EnumType);
+        if (!EnumType.IsInstanceOfType(value)) value = value.AutoConvert(EnumType)!;
         return Enum.Format(EnumType, value, "G");
     }
 

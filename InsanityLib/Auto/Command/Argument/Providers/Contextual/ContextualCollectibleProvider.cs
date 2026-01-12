@@ -3,10 +3,8 @@ using InsanityLib.Util;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
-using Vintagestory.API.MathTools;
 
 namespace InsanityLib.Auto.Command.Argument.Providers.Contextual;
-#nullable enable
 public sealed class ContextualCollectibleProvider : IContextualArgumentProvider<CollectibleObject?>
 {
     private ContextualCollectibleProvider() { }

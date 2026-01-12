@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -36,12 +34,13 @@ public static class ReflectionUtil
         throw new ArgumentException("Side must be either Server or Client", nameof(side));
     }
 
+    public static string FindModName(this MemberInfo? member) => member?.DeclaringType?.Assembly.FindMod()?.Info.Name ?? "unknown";
 
-    public static Mod FindMod(this Assembly assembly) => assembly.FindMod(InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreServerAPI>())
+    public static Mod? FindMod(this Assembly assembly) => assembly.FindMod(InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreServerAPI>())
             ?? assembly.FindMod(InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>());
 
-    public static Mod FindMod(this Assembly assembly, ICoreAPI api) => 
-        api.ModLoader.Mods.FirstOrDefault(mod => mod.Systems.Any(system => system.GetType().Assembly == assembly));
+    public static Mod? FindMod(this Assembly assembly, ICoreAPI api) => 
+        api.ModLoader.Mods.FirstOrDefault(mod => mod.Systems.First()?.GetType().Assembly == assembly);
 
     // Backing field name pattern: "<PropertyName>k__BackingField"
     public static bool IsBackingField(this MemberInfo field) => field.Name.StartsWith('<') && field.Name.Contains("k__BackingField");
@@ -50,13 +49,13 @@ public static class ReflectionUtil
 
     public static bool IsStatic(this MemberInfo info) => info switch
     {
-        PropertyInfo property => (property.GetMethod ?? property.SetMethod).IsStatic,
+        PropertyInfo property => (property.GetMethod ?? property.SetMethod)!.IsStatic,
         FieldInfo field => field.IsStatic,
         MethodBase method => method.IsStatic,
         _ => false,
     };
 
-    public static object GetValue(this MemberInfo memberInfo, object instance = null) => memberInfo switch
+    public static object? GetValue(this MemberInfo memberInfo, object? instance = null) => memberInfo switch
     {
         PropertyInfo property => property.GetValue(instance),
         FieldInfo field => field.GetValue(instance),
@@ -70,7 +69,7 @@ public static class ReflectionUtil
         _ => false,
     };
 
-    public static object GetAutoValue(this MemberInfo memberInfo, IServiceProvider provider, object instance = null) => memberInfo switch
+    public static object? GetAutoValue(this MemberInfo memberInfo, IServiceProvider provider, object? instance = null) => memberInfo switch
     {
         PropertyInfo property => property.GetValue(instance),
         FieldInfo field => field.GetValue(instance),
@@ -78,7 +77,7 @@ public static class ReflectionUtil
         _ => null,
     };
 
-    public static bool CanGetAutoValue(this MemberInfo memberInfo, IServiceProvider provider, object instance = null) => memberInfo switch
+    public static bool CanGetAutoValue(this MemberInfo memberInfo, IServiceProvider provider, object? instance = null) => memberInfo switch
     {
         PropertyInfo property => property.CanRead && property.GetIndexParameters().Length == 0,
         FieldInfo => true,
@@ -86,24 +85,30 @@ public static class ReflectionUtil
         _ => false,
     };
     
-    public static void SetValue(this MemberInfo memberInfo, object value, object instance = null)
+    public static bool SetValue(this MemberInfo memberInfo, object? value, object? instance = null)
     {
         switch (memberInfo)
         {
             case PropertyInfo property:
                 property.SetValue(instance, value);
-                break;
+                return true;
+
             case FieldInfo field:
                 field.SetValue(instance, value);
-                break;
+                return true;
         }
+
+        return false;
     }
 
-    public static bool TryAutoSetValue(this MemberInfo member, object value, object instance = null)
+    public static bool TryAutoSetValue(this MemberInfo member, object value, object? instance = null)
     {
         try
         {
-            member.SetValue(value.AutoConvert(member.GetPrimaryType()), instance);
+            var type = member.GetPrimaryType();
+            if (type is not null) value = value.AutoConvert(type)!;
+            
+            member.SetValue(value, instance);
             return true;
         }
         catch
@@ -122,7 +127,7 @@ public static class ReflectionUtil
     /// <summary>
     /// The primary type of this member (whatever type this member provides access to)
     /// </summary>
-    public static Type GetPrimaryType(this MemberInfo memberInfo) => memberInfo switch
+    public static Type? GetPrimaryType(this MemberInfo memberInfo) => memberInfo switch
     {
         PropertyInfo property => property.PropertyType,
         FieldInfo field => field.FieldType,
@@ -130,10 +135,11 @@ public static class ReflectionUtil
         _ => null,
     };
 
-    public static T TryGetCustomAttribute<T>(this MemberInfo member) where T : Attribute
+    public static T? TryGetCustomAttribute<T>(this MemberInfo member) where T : Attribute
     {
         try
         {
+            if(!member.IsDefined(typeof(T))) return null;
             return member.GetCustomAttribute<T>();
         }
         catch
@@ -142,28 +148,35 @@ public static class ReflectionUtil
         }
     }
 
-    public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(BindingFlags? flags = null) where T : Attribute => AccessTools.AllTypes()
-        .SelectMany(type => FindAllMembers<T>(type, flags));
+    public static IEnumerable<MemberInfo> FindAllMembersHavingAtribute<T>(BindingFlags? flags = null) where T : Attribute => AccessTools.AllTypes()
+        .SelectMany(type => FindAllMembersHavingAtribute<T>(type, flags));
 
-    public static IEnumerable<(MemberInfo, T)> FindAllMembers<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
+    public static IEnumerable<MemberInfo> FindAllMembersHavingAtribute<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
+        .GetMembers(flags ?? AccessTools.all)
+        .Where(member => member.IsDefined(typeof(T)));
+
+    public static IEnumerable<(MemberInfo, T)> FindAllMembersWithAttributes<T>(BindingFlags? flags = null) where T : Attribute => AccessTools.AllTypes()
+        .SelectMany(type => FindAllMembersWithAttributes<T>(type, flags));
+
+    public static IEnumerable<(MemberInfo, T)> FindAllMembersWithAttributes<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
         .GetMembers(flags ?? AccessTools.all)
         .Select(member => (member, member.TryGetCustomAttribute<T>()))
-        .Where(pair => pair.Item2 is not null);
+        .Where(pair => pair.Item2 is not null)!;
 
     public static IEnumerable<(Type, T)> FindAllClasses<T>() where T : Attribute => AccessTools.AllTypes()
         .Select(type => (type, type.TryGetCustomAttribute<T>()))
-        .Where(pair => pair.Item2 is not null);
+        .Where(pair => pair.Item2 is not null)!;
 
 
     public static IEnumerable<Type> FindImplementations<T>(this Assembly assembly, bool includeSelf = false) =>
         AccessTools.GetTypesFromAssembly(assembly)
         .Where(type =>  !type.IsAbstract && !type.IsInterface && typeof(T).IsAssignableFrom(type) && (includeSelf || type != typeof(T)));
 
-    public static Type FindGenericInterfaceDefinition(this Type type, Type genericInterfaceType) =>
+    public static Type? FindGenericInterfaceDefinition(this Type type, Type genericInterfaceType) =>
         type.GetInterfaces()
         .SingleOrDefault(interfaceType => interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == genericInterfaceType);
 
-    public static object Invoke<T>(this T method, object instance = null, object[] parameters = null) where T : MemberInfo => method switch
+    public static object? Invoke<T>(this T method, object? instance = null, object[]? parameters = null) where T : MemberInfo => method switch
     {
         MethodInfo info => info.Invoke(instance, parameters),
         _ => throw new InvalidOperationException($"{method} is not a method"),
@@ -181,7 +194,7 @@ public static class ReflectionUtil
         return true;
     }
 
-    public static object AutoInvoke(this object callable, IServiceProvider provider, object instance = null) => callable switch
+    public static object? AutoInvoke(this object callable, IServiceProvider provider, object? instance = null) => callable switch
     {
         MethodBase method => method.Invoke(instance, method.GetAutoParameters(provider)),
         Delegate del => del.DynamicInvoke(del.Method.GetAutoParameters(provider)),
@@ -203,10 +216,10 @@ public static class ReflectionUtil
         return false;
     }
 
-    public static void SetAutoDefaultValue(this MemberInfo member, IServiceProvider provider, object instance = null) => member.SetAutoDefaultValue(member.TryGetCustomAttribute<DefaultValueAttribute>(), instance, provider);
+    public static void SetAutoDefaultValue(this MemberInfo member, IServiceProvider provider, object? instance = null) => member.SetAutoDefaultValue(member.TryGetCustomAttribute<DefaultValueAttribute>(), instance, provider);
 
     //TODO method for just getting the auto default value (so we can use this on method parameters)
-    public static void SetAutoDefaultValue(this MemberInfo member, DefaultValueAttribute defaultAttr, object instance, IServiceProvider provider)
+    public static void SetAutoDefaultValue(this MemberInfo member, DefaultValueAttribute? defaultAttr, object? instance, IServiceProvider provider)
     {
         if(defaultAttr is not null)
         {
@@ -218,23 +231,23 @@ public static class ReflectionUtil
         }
     }
 
-    public static T AutoCreate<T>(this IServiceProvider provider, bool returnNullOnFailure = true) where T : class => (T)typeof(T).AutoCreate(provider, returnNullOnFailure);
+    public static T? AutoCreate<T>(this IServiceProvider provider, bool returnNullOnFailure = true) where T : class => (T?)typeof(T).AutoCreate(provider, returnNullOnFailure);
 
-    public static object AutoCreate(this Type type, IServiceProvider provider, bool returnNullOnFailure = true)
+    public static object? AutoCreate(this Type type, IServiceProvider provider, bool returnNullOnFailure = true)
     {
-        if (type.IsValueType) return type.Default();
+        if (type.IsValueType) return type.Default()!;
         if(type == typeof(string)) return string.Empty;
 
         //TODO maybe create a custom attribute to specify default auto constructor
         var constructors = type.GetConstructors();
-        ConstructorInfo bestConstructor = null;
-        object[] bestParameters = null;
+        ConstructorInfo? bestConstructor = null;
+        object?[]? bestParameters = null;
         int maxParams = -1;
 
         foreach (var constructor in constructors)
         {
             var parameters = constructor.GetParameters();
-            var paramValues = new object[parameters.Length];
+            var paramValues = new object?[parameters.Length];
             int paramCount = 0;
 
             for (int i = 0; i < parameters.Length; i++)
@@ -283,10 +296,10 @@ public static class ReflectionUtil
     /// <param name="method">The method for which to get the parameters.</param>
     /// <param name="provider">The service provider used to resolve the parameters.</param>
     /// <returns>An array of resolved parameters.</returns>
-    public static object[] GetAutoParameters(this MethodBase method, IServiceProvider provider)
+    public static object?[] GetAutoParameters(this MethodBase method, IServiceProvider provider)
     {
         var parameterInfo = method.GetParameters();
-        var parameters = new object[parameterInfo.Length];
+        var parameters = new object?[parameterInfo.Length];
 
         for (var i = 0; i < parameterInfo.Length; i++)
         {
@@ -312,15 +325,15 @@ public static class ReflectionUtil
     /// <param name="objects">The objects to search through.</param>
     /// <param name="filter">Extra filter that it has to fullfill</param>
     /// <returns>The best matching object, or null if no match is found.</returns>
-    public static T FindMatch<T>(this Type type, IEnumerable<T> objects, System.Func<T, bool> filter = null)
+    public static T? FindMatch<T>(this Type type, IEnumerable<T> objects, System.Func<T, bool>? filter = null)
     {
-        T bestMatch = default;
+        T? bestMatch = default;
 
         foreach(var obj in objects)
         {
             if(filter is not null && !filter.Invoke(obj)) continue;
 
-            var objType = obj.GetType();
+            var objType = obj!.GetType();
             if (objType == type) return obj; //Exact match
             if(Array.Exists(objType.GetInterfaces(), interfaceType => interfaceType == type)) return obj; //Exact interface match
             if (type.IsAssignableFrom(objType)) bestMatch ??= obj; //Best match //TODO maybe think of a better way to judge what is the best match
@@ -337,7 +350,7 @@ public static class ReflectionUtil
     /// <param name="result">The last found value while crawling the path, this may contain an exception if failure occured during retrieval property/field</param>
     /// <param name="flags">The flags used to search for members that can be traversed</param>
     /// <returns>The part that could not be crawled</returns>
-    public static ReadOnlySpan<char> TryCrawl(this object obj, ReadOnlySpan<char> path, out object result, BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.GetProperty)
+    public static ReadOnlySpan<char> TryCrawl(this object? obj, ReadOnlySpan<char> path, out object? result, BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.GetProperty)
     {
         while (!path.IsEmpty)
         {

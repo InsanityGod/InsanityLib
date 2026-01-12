@@ -25,7 +25,7 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
     /// A copy of the config instance, to which we apply edits
     /// </summary>
     [ConfigDisplay(Hierarchy = EHierarchyDisplay.None)]
-    public object EditConfigInstance { get; set; } //TODO disposal?
+    public object? EditConfigInstance { get; set; } //TODO disposal?
 
     public readonly ICoreAPI Api = api;
 
@@ -41,6 +41,12 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
 
     public bool Validate(out string result)
     {
+        if(EditConfigInstance is null)
+        {
+            result = "No config instance to validate";
+            return false;
+        }
+
         var validationResult = EditConfigInstance.TryNestedValidate(Api.GetServiceProvider());
         //TODO Collect unsaved changes (due to keys not being added to dictionary yet)
         if (!validationResult.IsValid)
@@ -79,6 +85,7 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
 
     private void SaveInternal()
     {
+        if(EditConfigInstance is null) return; //Nothing to save
         try
         {
             AutoConfigUtil.StoreModConfig(Api, EditConfigInstance, Path);
@@ -94,7 +101,7 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
     /// </summary>
     public void Restore(bool loadFromDisk = false)
     {
-        string json = null;
+        string? json = null;
         if (loadFromDisk)
         {
             string path = System.IO.Path.Combine(GamePaths.ModConfig, Path);
@@ -148,15 +155,15 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
         }
     }
 
-    public static object CurrentContextMenuClaim { get; set; } = null;
-    public static object ContextMenuOwner { get; set; } = null;
+    public static object? CurrentContextMenuClaim { get; set; } = null;
+    public static object? ContextMenuOwner { get; set; } = null;
 
     public static bool ContextMenuOpen { get; set; }
-    public string ComposeError { get; private set; }
+    public string? ComposeError { get; private set; }
     
-    private IImGuiComponent Component; //TODO disposal
+    private IImGuiComponent? Component; //TODO disposal
 
-    public static Action PostRenderCallback { get; set; } = null;
+    public static Action? PostRenderCallback { get; set; } = null;
 
     /// <summary>
     /// Render the config

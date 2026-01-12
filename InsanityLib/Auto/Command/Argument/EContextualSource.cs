@@ -6,6 +6,7 @@
 public enum EContextualSource
 {
     None,
+
     /// <summary>
     /// Provided from the one calling it
     /// </summary>

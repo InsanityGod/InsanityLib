@@ -23,7 +23,7 @@ public class AutoPatcherAttribute : Attribute
     {
         var logger = api.GetService<ILogger>();
 
-        AutoPatcherAttribute attr = null;
+        AutoPatcherAttribute? attr = null;
         foreach (var assembly in AccessTools.AllAssemblies())
         {
             try
@@ -42,13 +42,13 @@ public class AutoPatcherAttribute : Attribute
                     }
                     catch (Exception ex)
                     {
-                        logger?.Error(Logging.ExecutionFailedTemplate, $"{nameof(AutoPatch)} compatibility", $"{attr.HarmonyId} {mod.Info.ModID}", ex);
+                        logger?.Error(Logging.ExecutionFailed, $"{nameof(AutoPatch)} compatibility", $"{attr.HarmonyId} {mod.Info.ModID}", ex);
                     }
                 }
             }
             catch (Exception ex)
             {
-                logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoPatch), attr is not null ? attr.HarmonyId : assembly, ex);
+                logger?.Error(Logging.ExecutionFailed, nameof(AutoPatch), attr is not null ? attr.HarmonyId : assembly, ex);
             }
         }
     }
@@ -57,7 +57,7 @@ public class AutoPatcherAttribute : Attribute
     private static void AutoHarmonyDisposal(ICoreAPI api)
     {
         var logger = api.GetService<ILogger>();
-        AutoPatcherAttribute attr = null;
+        AutoPatcherAttribute? attr = null;
         foreach (var assembly in AccessTools.AllAssemblies())
         {
             try
@@ -71,7 +71,7 @@ public class AutoPatcherAttribute : Attribute
             }
             catch (Exception ex)
             {
-                logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoHarmonyDisposal), attr is not null ? attr.HarmonyId : assembly, ex);
+                logger?.Error(Logging.ExecutionFailed, nameof(AutoHarmonyDisposal), attr is not null ? attr.HarmonyId : assembly, ex);
             }
         }
     }

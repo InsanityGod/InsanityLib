@@ -19,7 +19,7 @@ public static class DebugCommands
     /// <example>/modinfo insanitylib</example>
     /// <returns>ModName (ModID ModVersion) ModDescription</returns>
     [AutoCommand(Side = EnumAppSide.Universal)]
-    public static TextCommandResult ModInfo(ICoreAPI api, [CommandParameter] string ModID)
+    public static TextCommandResult ModInfo(ICoreAPI api, string ModID)
     {
         var mod = api.ModLoader.GetMod(ModID);
         if (mod is not null) return TextCommandResult.Success($"{mod.Info.Name} ({mod.Info.ModID} {mod.Info.Version})\n{mod.Info.Description}");
@@ -34,6 +34,8 @@ public static class DebugCommands
     #if DEBUG
 
     //GUI tests
+
+    [AutoCommand] public static bool IsTrue(bool value = false) => value;
 
     /// <summary>
     /// Opens an AutoGui for the target block.
@@ -62,7 +64,7 @@ public static class DebugCommands
     /// <summary>Prints a neat little message about how you think the chance of rain is like today.</summary>
     /// <example>/Forecast 25</example>
     [AutoCommand]
-    public static string Forecast(ICoreAPI api, IPlayer callingPlayer, [Range(0, 100)] int chance) => string.Format(
+    public static string Forecast(ICoreAPI api, [CommandParameter(ContextualSource = EContextualSource.Caller)] IPlayer callingPlayer, [Range(0, 100)] int chance = 50) => string.Format(
         ForecastText,
         callingPlayer.PlayerName,
         chance,

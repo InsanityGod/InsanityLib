@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Auto.Cleanup;
 using InsanityLib.Auto.Command.Argument.Providers.Contextual;
+using InsanityLib.Auto.Command.Argument.Providers.Parsers;
 using InsanityLib.Auto.Command.Argument.Providers.Special;
 using InsanityLib.Exceptions;
 using System;
@@ -10,7 +11,6 @@ using System.Reflection;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Command.Argument.Providers;
-#nullable enable
 
 public interface ICommandArgumentProvider<out T> : ICommandArgumentProvider
 {
@@ -102,7 +102,23 @@ public interface ICommandArgumentProvider
     }
 
     public static ICommandArgumentProvider[] ArgumentParserProviders { get; set; } = [
-
+        BoolArgumentParserProvider.Instance,
+        ColorArgumentParserProvider.Instance,
+        DateTimeArgumentParserProvider.Instance,
+        BlockPosArgumentParserProvider.Instance,
+        Vec3DArgumentParserProvider.Instance,
+        Vec2DArgumentParserProvider.Instance,
+        EntitiesArgumentParserProvider.Instance,
+        EntityPropertiesArgumentParserProvider.Instance,
+        OnlinePlayerArgumentParserProvider.Instance,
+        PlayerRoleArgumentParserProvider.Instance,
+        PlayerUidNamesArgumentParserProvider.Instance,
+        LongArgumentParserProvider.Instance,
+        IntArgumentParserProvider.Instance,
+        DoubleArgumentParserProvider.Instance,
+        FloatArgumentParserProvider.Instance,
+        StringArgumentParserProvider.Instance,
+        EnumArgumentParserProvider.Instance,
     ];
 
     public static ICommandArgumentProvider[] ContextualArgumentProviders { get; set; } = [

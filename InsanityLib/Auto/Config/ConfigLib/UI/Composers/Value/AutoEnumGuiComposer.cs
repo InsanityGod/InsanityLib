@@ -32,23 +32,23 @@ public class AutoEnumGuiComposer : BaseValueGuiComposer<object> , IAutoGuiCompos
             0,
             (Code, IsSelected) =>
             {
-                if(!mapper.IsEnumFlag) member.SetValue(Enum.Parse(mapper.EnumType, Code), context.TargetObject);
+                if(!mapper.IsEnumFlag) member!.SetValue(Enum.Parse(mapper.EnumType, Code), context.TargetObject);
                 else
                 {
-                    var currentValue = (Enum)member.GetValue(context.TargetObject);
+                    var currentValue = (Enum)member!.GetValue(context.TargetObject)!;
                     var flagValue = (Enum)Enum.Parse(mapper.EnumType, Code);
 
                     if (IsSelected)
                     {
                         // Add the flag
                         var updatedValue = Enum.ToObject(mapper.EnumType, Convert.ToInt64(currentValue) | Convert.ToInt64(flagValue));
-                        member.SetValue(updatedValue, context.TargetObject);
+                        member!.SetValue(updatedValue, context.TargetObject);
                     }
                     else
                     {
                         // Remove the flag
                         var updatedValue = Enum.ToObject(mapper.EnumType, Convert.ToInt64(currentValue) & ~Convert.ToInt64(flagValue));
-                        member.SetValue(updatedValue, context.TargetObject);
+                        member!.SetValue(updatedValue, context.TargetObject);
                     }
                     
                 }

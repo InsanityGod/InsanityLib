@@ -5,7 +5,6 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 
 namespace InsanityLib.Auto.Command.Argument.Providers.Contextual;
-#nullable enable
 public sealed class ContextualEntityBehaviorProvider : IContextualArgumentProvider<EntityBehavior?>
 {
     private ContextualEntityBehaviorProvider() { }

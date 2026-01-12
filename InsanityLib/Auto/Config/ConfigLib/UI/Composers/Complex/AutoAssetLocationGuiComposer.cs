@@ -14,7 +14,7 @@ public class AutoAssetLocationGuiComposer :  BaseValueGuiComposer<AssetLocation>
 
     public override void ComposeValueRenderer(GuiComposer composer, IDialogContext context, MemberInfo member, AssetLocation value)
     {
-        string strValue = null;
+        string? strValue = null;
         if (value is not null) strValue = value.HasDomain() ? value.ToString() : value.Path;
         
         if (context.IsMemberEditable(member))

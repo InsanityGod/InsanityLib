@@ -6,7 +6,7 @@ namespace InsanityLib.Util;
 
 public static class ConversionUtil
 {
-    public static T AutoConvert<T>(this object value) => (T)value.AutoConvert(typeof(T));
+    public static T? AutoConvert<T>(this object value) => (T?)value.AutoConvert(typeof(T));
 
     /// <summary>
     /// Convert object into a different type, through the use of:<br/>
@@ -19,9 +19,9 @@ public static class ConversionUtil
     /// </summary>
     /// <returns>converted object</returns>
     /// <exception cref="InvalidCastException">If conversion failed</exception>
-    public static object AutoConvert(this object value, Type targetType)
+    public static object? AutoConvert(this object? value, Type? targetType)
     {
-        if(value is null || targetType.IsInstanceOfType(value)) return value;
+        if(value is null || targetType is null || targetType.IsInstanceOfType(value)) return value;
 
         // Handle enums
         if (targetType.IsEnum && value is string str && Enum.TryParse(targetType, str, out var result)) return result;
@@ -63,27 +63,27 @@ public static class ConversionUtil
     /// </summary>
     /// <returns>casted object</returns>
     /// <exception cref="InvalidCastException">When the cast failed</exception>
-    public static object Cast(this object value, Type targetType) => AccessTools.Method(typeof(ConversionUtil), nameof(CastWrapper))
+    public static object? Cast(this object value, Type targetType) => AccessTools.Method(typeof(ConversionUtil), nameof(CastWrapper))
         .MakeGenericMethod(targetType)
         .Invoke(null, [value]);
 
-    private static T DefaultWrapper<T>() => default;
+    private static T? DefaultWrapper<T>() => default;
 
     /// <summary>
     /// Get the default value of a type
     /// </summary>
     /// <returns>default value as if you ran default(YourType)</returns>
-    public static object Default(this Type type) => AccessTools.Method(typeof(ConversionUtil), nameof(DefaultWrapper))
+    public static object? Default(this Type type) => AccessTools.Method(typeof(ConversionUtil), nameof(DefaultWrapper))
         .MakeGenericMethod(type)
         .Invoke();
 
     /// <summary>
     /// Returns the value if it is of the target type, otherwise returns the default value
     /// </summary>
-    public static object As(this object value, Type targetType, object defaultValue = null) => targetType.IsInstanceOfType(value) ? value : defaultValue;
+    public static object? As(this object value, Type targetType, object? defaultValue = null) => targetType.IsInstanceOfType(value) ? value : defaultValue;
 
     /// <summary>
     /// Returns the value if it is of the target type, otherwise returns the default value
     /// </summary>
-    public static T As<T>(this object value, Type targetType, object defaultValue = null) where T : class => (targetType.IsInstanceOfType(value) ? value : defaultValue) as T;
+    public static T? As<T>(this object value, Type targetType, object? defaultValue = null) where T : class => (targetType.IsInstanceOfType(value) ? value : defaultValue) as T;
 }

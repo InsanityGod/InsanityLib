@@ -1,6 +1,5 @@
 ﻿using InsanityLib.Constants;
 using InsanityLib.Exceptions;
-using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.Reflection;
@@ -9,7 +8,6 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
 namespace InsanityLib.Auto.Command;
-#nullable enable
 
 [AttributeUsage(AttributeTargets.Method)]
 public class AutoCommandAttribute : Attribute
@@ -67,7 +65,7 @@ public class AutoCommandAttribute : Attribute
                 RequiredPermission = RequiredPrivelege
             };
 
-            autoCommand.Register(api);
+            autoCommand.GetOrRegister(api);
         }
         catch(InvalidAttributeUsageException ex)
         {
@@ -81,7 +79,7 @@ public class AutoCommandAttribute : Attribute
 
     internal static void FindAndRegisterAutoCommands(ICoreAPI api)
     {
-        foreach((var member, var attr) in ReflectionUtil.FindAllMembers<AutoCommandAttribute>())
+        foreach((var member, var attr) in ReflectionUtil.FindAllMembersWithAttributes<AutoCommandAttribute>())
         {
             try
             {
@@ -90,7 +88,7 @@ public class AutoCommandAttribute : Attribute
             }
             catch(Exception ex)
             {
-                api.Logger.Error(Logging.ExecutionFailedTemplate, nameof(FindAndRegisterAutoCommands), member, ex);
+                api.Logger.Error(Logging.ExecutionFailed, nameof(FindAndRegisterAutoCommands), member, ex);
             }
         }
     }

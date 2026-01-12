@@ -41,7 +41,7 @@ public class VersionIdentifierAttribute(object expectedValue) : Attribute
                 {
                     MergeArrayHandling = MergeArrayHandling.Merge,
                 });
-                instance = newInstance.ToObject(instance.GetType());
+                instance = newInstance.ToObject(instance.GetType())!;
                 if (member.CanSetValue()) member.SetValue(ExpectedValue.AutoConvert(member.GetPrimaryType()), instance);
 
                 return true;

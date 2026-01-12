@@ -21,14 +21,14 @@ public sealed class ExtendedTransition : ExtendedEnum
         
         if(!CustomTransition.ClassRegistry.TryGetValue(transitionType.Handler, out var transitionHandlerType))
         {
-            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(RegisterTransitionType), transitionType.Code, $"No such transitionHandler '{transitionType.Handler}'");
+            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"No such transitionHandler '{transitionType.Handler}'");
             return;
         }
 
 
         if (transitionHandlerType.AutoCreate(provider, true) is not ITransitionHandler handler)
         {
-            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(RegisterTransitionType), transitionType.Code, $"Could not instantiate '{transitionHandlerType.FullName}'");
+            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"Could not instantiate '{transitionHandlerType.FullName}'");
             return;
         }
 
@@ -41,7 +41,7 @@ public sealed class ExtendedTransition : ExtendedEnum
         }
         catch(Exception ex)
         {
-            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailedTemplate, nameof(ITransitionHandler.LoadAttributes), transitionHandlerType.FullName, ex);
+            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailed, nameof(ITransitionHandler.LoadAttributes), transitionHandlerType.FullName, ex);
             return;
         }
         HandlerLookup[(EnumTransitionType)currentOffset] = handler;

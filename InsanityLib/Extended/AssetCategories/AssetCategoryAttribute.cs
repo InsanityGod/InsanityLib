@@ -29,8 +29,8 @@ public class AssetCategoryAttribute(string code, bool affectsGameplay, EnumAppSi
     {
         if (AssetCategory.categories.TryGetValue(Code, out var existing))
         {
-            var existingType = existing is ExtendedAssetCategory extended ? extended.ClassType.FullName : "Unknown";
-            throw new InvalidOperationException($"[InsanityLib] Duplicate AssetCategory '{Code}' for both '{type.FullName}' and '{existingType}'");
+            var existingType = existing is ExtendedAssetCategory extended ? extended.ClassType : existing.GetType();
+            throw new InvalidOperationException($"[InsanityLib] [{type.FindModName()}] [{existingType.FindModName()}] Duplicate AssetCategory '{Code}' for both '{type.FullName}' and '{existingType.FullName}'");
         }
         return new(type, Code, AffectsGameplay, SideType);
     }

@@ -60,7 +60,7 @@ public class ValueContext : ImGuiContext
 
     public override bool TrySetValue(object value, object ChangedBy)
     {
-        LastValidationResult = null;
+        LastValidationResult = string.Empty;
         if(!CanWrite || !base.TryGetValue(out object container)) return false;
         
         if (!KeyContext.ExistsInDictionary)

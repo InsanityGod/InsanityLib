@@ -58,9 +58,9 @@ public static class CollectibleObjectUtil
         return index;
     }
 
-    public static CollectibleObject GetCollectibleObject(this IWorldAccessor world, AssetLocation code, EnumItemClass? itemType = null)
+    public static CollectibleObject? GetCollectibleObject(this IWorldAccessor world, AssetLocation code, EnumItemClass? itemType = null)
     {
-        CollectibleObject result = null;
+        CollectibleObject? result = null;
         if(itemType != EnumItemClass.Block) result = world.GetItem(code);
         if(itemType != EnumItemClass.Item) result ??= world.GetBlock(code);
         

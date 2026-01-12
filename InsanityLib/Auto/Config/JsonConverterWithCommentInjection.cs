@@ -20,10 +20,15 @@ public class JsonConverterWithCommentInjection : JsonConverter
         && !typeof(IEnumerable).IsAssignableFrom(objectType)
         && DefaultResolver.ResolveContract(objectType).GetType() != typeof(JsonStringContract); //Ignore classes that would normally be saved as a string (like AssetLocations)
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
-        writer.WriteStartObject();
+        if(value is not null)
+        {
+            writer.WriteNull();
+            return;
+        }
 
+        writer.WriteStartObject();
         IEnumerable<MemberInfo> props = value.GetType()
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.CanRead && p.CanWrite);
@@ -46,12 +51,12 @@ public class JsonConverterWithCommentInjection : JsonConverter
         var writerTraverse = Traverse.Create(writer);
         var currentState = writerTraverse.Field("_currentState");
         var currentPositionObj = writerTraverse.Field("_currentPosition").GetValue();
-        currentPositionObj.GetType().GetField("PropertyName", AccessTools.all).SetValue(currentPositionObj, member.Name);
+        currentPositionObj.GetType().GetField("PropertyName", AccessTools.all)!.SetValue(currentPositionObj, member.Name);
 
         var tokenBeingWritten = JsonToken.PropertyName;
 
         var stateArray = writerTraverse.Field("StateArray");
-        var newState = ((Array)stateArray.GetValue<Array>().GetValue((int)tokenBeingWritten)).GetValue((int)currentState.GetValue());
+        var newState = ((Array)stateArray.GetValue<Array>().GetValue((int)tokenBeingWritten)!).GetValue((int)currentState.GetValue())!;
 
         if ((int)newState == 9) throw new JsonWriterException($"Token {tokenBeingWritten} in state {currentState.GetValue()} would result in an invalid JSON object.");
 
@@ -98,5 +103,5 @@ public class JsonConverterWithCommentInjection : JsonConverter
 
     public override bool CanRead => false;
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) => throw new NotImplementedException("Reading JSON with comments is not supported.");
+    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) => throw new NotImplementedException("Reading JSON with comments is not supported.");
 }

@@ -1,12 +1,9 @@
-﻿using InsanityLib.Extensions;
-using InsanityLib.Util;
+﻿using InsanityLib.Util;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
-using Vintagestory.API.Common.Entities;
 
 namespace InsanityLib.Auto.Command.Argument.Providers.Contextual;
-#nullable enable
 public sealed class ContextualCollectibleBehaviorProvider : IContextualArgumentProvider<CollectibleBehavior?>
 {
     private ContextualCollectibleBehaviorProvider() { }

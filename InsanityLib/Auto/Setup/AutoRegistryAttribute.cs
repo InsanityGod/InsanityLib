@@ -19,16 +19,17 @@ public class AutoRegistryAttribute(string domain) : Attribute
     {
         var logger = api.GetService<ILogger>();
 
-        AutoRegistryAttribute attr = null;
+        AutoRegistryAttribute? attr = null;
         foreach (var assembly in AccessTools.AllAssemblies())
         {
             try
             {
-                assembly.GetCustomAttribute<AutoRegistryAttribute>()?.RegisterAssembly(assembly, api);
+                attr = assembly.GetCustomAttribute<AutoRegistryAttribute>();
+                attr?.RegisterAssembly(assembly, api);
             }
             catch (Exception ex)
             {
-                logger?.Error(Logging.ExecutionFailedTemplate, nameof(AutoRegistryAttribute), attr is not null ? attr.Domain : assembly, ex);
+                logger?.Error(Logging.ExecutionFailed, nameof(AutoRegistryAttribute), attr is not null ? attr.Domain : assembly, ex);
             }
         }
     }

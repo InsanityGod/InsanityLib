@@ -3,7 +3,6 @@ using System.Reflection;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Command.Argument.Providers;
-#nullable enable
 public interface IContextualArgumentProvider<out T> : ICommandArgumentProvider<T>
 {
     object? ICommandArgumentProvider.Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers) 

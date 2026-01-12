@@ -6,7 +6,7 @@ namespace InsanityLib.Extensions;
 
 public static class ValidationExtensions
 {
-    public static bool TryValidate(this ParameterInfo parameterInfo, IServiceProvider serviceProvider, object value, out ValidationException exception)
+    public static bool TryValidate(this ParameterInfo parameterInfo, IServiceProvider serviceProvider, object? value, out ValidationException? exception)
     {
         exception = null;
         var validationAttributes = parameterInfo.GetCustomAttributes<ValidationAttribute>(true);
@@ -21,7 +21,7 @@ public static class ValidationExtensions
             var result = validationAttribute.GetValidationResult(value, context);
             if (result != ValidationResult.Success)
             {
-                exception = new ValidationException(result, validationAttribute, value);
+                exception = new ValidationException(result!, validationAttribute, value);
                 return false;
             }
         }
@@ -29,7 +29,7 @@ public static class ValidationExtensions
         return true;
     }
 
-    public static void Validate(this ParameterInfo parameterInfo, IServiceProvider serviceProvider, object value)
+    public static void Validate(this ParameterInfo parameterInfo, IServiceProvider serviceProvider, object? value)
     {
         if (!parameterInfo.TryValidate(serviceProvider, value, out var exception))
         {

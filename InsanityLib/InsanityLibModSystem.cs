@@ -1,4 +1,5 @@
-﻿using InsanityLib.Auto.Cleanup;
+﻿using HarmonyLib;
+using InsanityLib.Auto.Cleanup;
 using InsanityLib.Auto.Command;
 using InsanityLib.Auto.Setup;
 using InsanityLib.Documentation;
@@ -9,6 +10,7 @@ using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using InsanityLib.Util.ContentFeatures;
 using System;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;

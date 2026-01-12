@@ -4,7 +4,6 @@ using System.Reflection;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Command.Argument.Providers.Contextual;
-#nullable enable
 public sealed class ContextualBlockSelectionProvider : IContextualArgumentProvider<BlockSelection?>
 {
     private ContextualBlockSelectionProvider() { }
