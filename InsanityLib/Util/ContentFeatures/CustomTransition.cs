@@ -1,6 +1,7 @@
 ﻿using InsanityLib.Auto.Cleanup;
 using InsanityLib.Extended.Transitions;
 using InsanityLib.Extensions;
+using InsanityLib.Generators.Attributes;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;

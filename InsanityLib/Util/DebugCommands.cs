@@ -33,22 +33,6 @@ public static class DebugCommands
 
     #if DEBUG
 
-    //GUI tests
-
-    [AutoCommand] public static bool IsTrue(bool value = false) => value;
-
-    /// <summary>
-    /// Opens an AutoGui for the target block.
-    /// </summary>
-    [AutoCommand(Path = "AutoGui", Name = "Block", RequiredPrivelege = "controlserver")]
-    public static void AutoGuiForBlock(ICoreClientAPI api, [Required(ErrorMessage = "Not targeting a block")] Block block) => new AutoGuiDialog(api, block).TryOpen();
-
-    /// <summary>
-    /// Opens an AutoGui for the target item.
-    /// </summary>
-    [AutoCommand(Path = "AutoGui", Name = "Item", RequiredPrivelege = "controlserver")]
-    public static void AutoGuiForItem(ICoreClientAPI api, [Required(ErrorMessage = "Not holding an item")] CollectibleObject collectible) => new AutoGuiDialog(api, collectible).TryOpen();
-
     //Github examples
 
     /// <summary>Will give you information about the held item stack.</summary>

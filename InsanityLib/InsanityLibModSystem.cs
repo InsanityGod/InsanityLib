@@ -1,7 +1,4 @@
-﻿using HarmonyLib;
-using InsanityLib.Auto.Cleanup;
-using InsanityLib.Auto.Command;
-using InsanityLib.Auto.Setup;
+﻿using InsanityLib.Auto.Command;
 using InsanityLib.Documentation;
 using InsanityLib.Extended.AssetCategories;
 using InsanityLib.Extended.Transitions;
@@ -10,28 +7,23 @@ using InsanityLib.Util;
 using InsanityLib.Util.AutoRegistry;
 using InsanityLib.Util.ContentFeatures;
 using System;
-using System.ComponentModel;
 using System.ComponentModel.Design;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
-[assembly: AutoPatcher("insanitylib")]
-[assembly: AutoRegistry("insanitylib")]
 namespace InsanityLib;
 
-public class InsanityLibModSystem : ModSystem, IServiceProvider
+public partial class InsanityLibModSystem : ModSystem, IServiceProvider
 {
-    public static IServiceContainer GlobalServiceContainer { get; private set; } = new ServiceContainer();
-    
-    public IServiceContainer ServiceContainer { get; } = new ServiceContainer(GlobalServiceContainer);
+    public static IServiceContainer GlobalServiceContainer { get; set; } = new ServiceContainer();
 
-    private ICoreAPI _api;
-
-    public object GetService(Type serviceType)
+    public object? GetService(Type serviceType)
     {
         var result = ServiceContainer.GetService(serviceType);
         if (result is not null) return result;
+
+        if(_api is null) return null;
 
         foreach (var modSystem in _api.ModLoader.Systems)
         {
@@ -43,25 +35,20 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
 
         return null;
     }
-
+   
     public override void StartPre(ICoreAPI api)
     {
-        _api = api;
-        ReflectionUtil.LoadedSides ??= api.Side;
-        ReflectionUtil.LoadedSides |= api.Side;
         if (api is ICoreClientAPI clientApi) GlobalServiceContainer.AddService(clientApi);
         if (api is ICoreServerAPI serverApi) GlobalServiceContainer.AddService(serverApi);
-        
-        ServiceContainer.AddService(api);
-        ServiceContainer.AddService(api.World);
-        
-        //TODO a better way to keep track of relevant mods/context during logging
-        ServiceContainer.AddService(api.Logger);
 
+        ReflectionUtil.LoadedSides ??= api.Side;
+        ReflectionUtil.LoadedSides |= api.Side;
+
+        AutoSetup(api);
+        
         EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
         AssetCategoryAttribute.Load();
-        AutoRegistryAttribute.RegisterAll(api);
-        AutoPatcherAttribute.AutoPatch(api); //TODO: some patches should go earlier (in regards to patching the JSON reading process)
+
         AutoConfigUtil.LoadAll(api);
     }
 
@@ -78,20 +65,14 @@ public class InsanityLibModSystem : ModSystem, IServiceProvider
         AssemblyDocumentationContext.ClearCache();
     }
 
-    public override void StartClientSide(ICoreClientAPI api)
-    {
-        ServiceContainer.CollectAutoGuiComposers();
-    }
-
     public override void Dispose()
     {
-        DisposalLogicAttribute.DisposeAll(ServiceContainer);
+        AutoDispose();
+        if(ServiceContainer is null || _api is null) return;
         
-        if(ServiceContainer is null) return;
-        var api = ServiceContainer.GetService<ICoreAPI>();
-        if(api is not null && ReflectionUtil.LoadedSides is not null)
+        if(ReflectionUtil.LoadedSides is not null)
         {
-            ReflectionUtil.LoadedSides &= ~api.Side;
+            ReflectionUtil.LoadedSides &= ~_api.Side;
         }
     }
 }

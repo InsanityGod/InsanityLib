@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Auto.Cleanup;
+using InsanityLib.Generators.Attributes;
 using InsanityLib.Util;
 using System;
 using System.Linq;

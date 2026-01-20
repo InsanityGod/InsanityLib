@@ -102,7 +102,7 @@ public static partial class NamingExtensions
         "TransitionHandler"
     ];
 
-    public static string GetRegistryName(this MemberInfo member, string domain = null, bool removeComminAffixes = false)
+    public static string GetRegistryName(this MemberInfo member, string? domain = null, bool removeComminAffixes = false)
     {
         //TODO attributes
         var memberName = member.Name;

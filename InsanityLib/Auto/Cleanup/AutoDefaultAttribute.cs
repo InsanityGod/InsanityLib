@@ -1,10 +1,9 @@
 ﻿using HarmonyLib;
 using InsanityLib.Constants;
-using InsanityLib.Extensions;
+using InsanityLib.Generators.Attributes;
 using InsanityLib.Util;
 using System;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Cleanup;
@@ -28,8 +27,8 @@ public sealed class AutoDefaultValueAttribute(object? value = null) : DefaultVal
     /// </summary>
     public string? AutoMethodName { get; init; }
 
-    [DisposalLogic(Priority = int.MinValue)]
-    internal static void DefaultAll(IServiceContainer serviceContainer, ILogger logger)
+    [DisposalLogic(ExecutionOrder = int.MinValue)]
+    internal static void DefaultAll(IServiceProvider serviceContainer, ILogger logger) //TODO simplify access
     {
         foreach ((var member, var attr) in ReflectionUtil.FindAllMembersWithAttributes<AutoDefaultValueAttribute>())
         {

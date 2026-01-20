@@ -8,6 +8,6 @@
     "description": "Library with utility code for modding Vintage Story",
     "version": "2.0.0",
     "dependencies": {
-        "game": ""
+      "game": ""
     }
 }

@@ -10,6 +10,7 @@ using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
 using InsanityLib.Config;
 using InsanityLib.Constants;
 using InsanityLib.Extensions;
+using InsanityLib.Generators.Attributes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

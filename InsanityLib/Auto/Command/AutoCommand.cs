@@ -30,7 +30,6 @@ public sealed class AutoCommand(MethodBase method, string? path = null, bool req
 
     public bool IsRegistered => _chatCommand is not null;
 
-    //TODO maybe a warning if someone attempts to register the same instance on both sides?
     public IChatCommand GetOrRegister(ICoreAPI api) => _chatCommand ??= Register(api);
 
     public ICommandArgumentProvider[] Providers { get; init; } = ICommandArgumentProvider.Find(method);

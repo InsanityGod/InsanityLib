@@ -7,7 +7,7 @@ public static class CollectibleObjectUtil
 {
     /// <summary>
     /// Get the CollectibleObject used to place this Block.
-    /// Allowes for using the "PlacedByItem" attribute to redirect.
+    /// Allows for using the "PlacedByItem" attribute to redirect.
     /// </summary>
     public static CollectibleObject GetPlacedByItem(this Block block, ICoreAPI api)
     {
@@ -29,7 +29,7 @@ public static class CollectibleObjectUtil
 
     /// <summary>
     /// Get the Block being placed by this CollectibleObject if any.
-    /// Allowes for using the "PlacedBlock" attribute to redirect.
+    /// Allows for using the "PlacedBlock" attribute to redirect.
     /// </summary>
     public static Block GetPlacedBlock(this CollectibleObject collectible, ICoreAPI api)
     {

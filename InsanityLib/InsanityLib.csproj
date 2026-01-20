@@ -6,6 +6,11 @@
 	</PropertyGroup>
 
 	<Target Name="ReadModInfo" BeforeTargets="BeforeBuild">
+
+		<!-- Read mod id -->
+		<JsonPeek ContentPath="$(ModInfoFile)" Query="$.modid">
+			<Output TaskParameter="Result" PropertyName="ModIDFromJson" />
+		</JsonPeek>
 		
 		<!-- Read mod name -->
 		<JsonPeek ContentPath="$(ModInfoFile)" Query="$.name">
@@ -27,12 +32,22 @@
 			<Output TaskParameter="Result" PropertyName="VersionFromJson" />
 		</JsonPeek>
 
+		<!-- Read InsanityLib Dependency (disabled because the mod shouldn't define self dependency in modinfo) -->
+		<!--<JsonPeek ContentPath="$(ModInfoFile)" Query="$.dependencies.insanitylib" Empty="$empty">
+			<Output TaskParameter="Result" PropertyName="HasHardInsanityLibDependency" />
+		</JsonPeek>-->
+
 		<!-- Set all relevant properties -->
 		<PropertyGroup>
+			<ModID>$(ModIDFromJson)</ModID>
 			<Title>$(ModNameFromJson)</Title>
 			<Description>$(DescriptionFromJson)</Description>
 			<Authors>$(AuthorsFromJson)</Authors>
 			<Version>$(VersionFromJson)</Version>
+			
+			<!-- Manually setting dependency -->
+			<HasInsanityLibDependency>*</HasInsanityLibDependency>
+			<!--<HasInsanityLibDependency>$(HasHardInsanityLibDependency)</HasInsanityLibDependency>-->
 		</PropertyGroup>
 	</Target>
 
@@ -41,7 +56,7 @@
 		<OutputPath>bin\$(Configuration)\Mods\mod</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
-		<PackageId>VS-$(AssemblyName)</PackageId>
+		<PackageId>$(MSBuildProjectName)</PackageId>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<IncludeSymbols>True</IncludeSymbols>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -52,7 +67,16 @@
 		<Nullable>enable</Nullable>
 
 	</PropertyGroup>
+	
 	<ItemGroup>
+		<!-- Project reference for simpler build pipeline (as consumer you should be using the package) -->
+		<ProjectReference Include="..\InsanityLib.Generators\InsanityLib.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\InsanityLib.Analyzers\InsanityLib.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\InsanityLib.Generators.Attributes\InsanityLib.Generators.Attributes.csproj" />
+		
+		<!-- This is what you would have when using it normally -->
+		<!--<PackageReference Include="InsanityLib.Generators" Version="1.0.0" PrivateAssets="all" />-->
+		
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 		<PackageReference Include="JsonPeek" Version="1.2.0" />
 		<Reference Include="AutoConfigLib">
@@ -107,6 +131,11 @@
 			<HintPath>$(VINTAGE_STORY)/Lib/cairo-sharp.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<CompilerVisibleProperty Include="ModID" />
+		<CompilerVisibleProperty Include="HasInsanityLibDependency" />
 	</ItemGroup>
 
 	<ItemGroup>
