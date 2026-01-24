@@ -5,9 +5,9 @@ using System.Numerics;
 
 namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 
-public class Button(ImGuiContext context, Action action = null) : ComponentBase(context)
+public class Button(ImGuiContext context, Action? action = null) : ComponentBase(context)
 {
-    public Action Action { get; set; } = action;
+    public Action? Action { get; set; } = action;
 
     public bool FullWidth { get; set; } = true;
     public Vector2? FixedWidth { get; set; }
@@ -22,7 +22,7 @@ public class Button(ImGuiContext context, Action action = null) : ComponentBase(
             }
             else
             {
-                Context.Member.AutoInvoke(Context, Context.TargetObject);
+                Context.Member!.AutoInvoke(Context, Context.TargetObject);
             }
         }
         catch(Exception ex)

@@ -1,8 +1,6 @@
 ﻿using InsanityLib.Generators.Contexts;
 using InsanityLib.Generators.Extensions;
 using System.CodeDom.Compiler;
-using System.Diagnostics.CodeAnalysis;
-using System.ComponentModel.Design;
 
 namespace InsanityLib.Generators;
 

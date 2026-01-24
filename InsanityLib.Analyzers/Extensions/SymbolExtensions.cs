@@ -153,4 +153,11 @@ static class SymbolExtensions
         
         return false;  // Not public/internal
     }
+
+    public static INamedTypeSymbol GetPrimaryType(this ISymbol symbol) => symbol switch
+    {
+        IFieldSymbol f => f.Type,
+        IPropertySymbol p => p.Type,
+        _ => null
+    } as INamedTypeSymbol;
 }

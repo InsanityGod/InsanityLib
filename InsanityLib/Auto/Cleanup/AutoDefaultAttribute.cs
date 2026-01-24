@@ -10,7 +10,7 @@ namespace InsanityLib.Auto.Cleanup;
 
 /// <summary>
 /// Automatically assigns a new "default" value of a static field or property when the disposal logic runs. <br />
-/// (for non static members this provides metadata about the default value)
+/// (for non static members this provides metadata about the default value, similar to the normal DefaultValueAttribute attribute)
 /// </summary>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Parameter)]
 public sealed class AutoDefaultValueAttribute(object? value = null) : DefaultValueAttribute(value)
@@ -28,7 +28,7 @@ public sealed class AutoDefaultValueAttribute(object? value = null) : DefaultVal
     public string? AutoMethodName { get; init; }
 
     [DisposalLogic(ExecutionOrder = int.MinValue)]
-    internal static void DefaultAll(IServiceProvider serviceContainer, ILogger logger) //TODO simplify access
+    internal static void DefaultAll(IServiceProvider serviceContainer, ILogger logger)
     {
         foreach ((var member, var attr) in ReflectionUtil.FindAllMembersWithAttributes<AutoDefaultValueAttribute>())
         {

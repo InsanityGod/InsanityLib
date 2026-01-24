@@ -1,19 +1,20 @@
-﻿using InsanityLib.Constants;
+﻿using InsanityLib.Auto.Config;
+using InsanityLib.Constants;
 using InsanityLib.Extensions;
 using InsanityLib.Util;
-using InsanityLib.Util.AutoRegistry;
 using System;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.PathResolvers.Implementations;
+#pragma warning disable CS8624 // Argument cannot be used as an output for parameter due to differences in the nullability of reference types.
 
 public class AutoConfigResolver : IPathResolver
 {
     public string Scheme => "config";
 
-    public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object result)
+    public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object? result)
     {
-        foreach((ReadOnlySpan<char> configPath, var config) in AutoConfigUtil.LoadedConfigs) //Sadly can't use AlternativeLookup yet
+        foreach ((ReadOnlySpan<char> configPath, var config) in AutoConfig.Loaded) //Sadly can't use AlternativeLookup yet
         {
             var configName = configPath.WithoutSuffix(".json");
             if (!path.StartsWith(configName)) continue;

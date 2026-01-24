@@ -1,6 +1,5 @@
 ﻿using InsanityLib.Generators.Contexts;
 using InsanityLib.Generators.Extensions;
-using Microsoft.CodeAnalysis;
 using System.CodeDom.Compiler;
 
 namespace InsanityLib.Generators;
@@ -21,7 +20,7 @@ public sealed partial class ModSystemGenerator
 
         writer.WriteMultiLine("""
         /// <summary>
-        /// Automatically runs the setup logic (<see cref="EnsureServiceContainerPresence(ICoreAPI)" />  <see cref="AutoPatch(ICoreAPI)" />, <see cref="AutoClassRegistry(ICoreAPI)" />)<br/>
+        /// Automatically runs the setup logic (<see cref="EnsureServiceContainerPresence(ICoreAPI)" />  <see cref="AutoPatch(ICoreAPI)" />, <see cref="AutoRegistry(ICoreAPI)" />)<br/>
         /// This should be called during <see cref="ModSystem.StartPre(ICoreAPI)" />
         /// </summary>
         [MemberNotNull(nameof(ServiceContainer))]
@@ -31,7 +30,9 @@ public sealed partial class ModSystemGenerator
             writer.WriteLine("_api = api;");
             writer.WriteLine("EnsureServiceContainerPresence(api);");
             writer.WriteLine("AutoPatch(api);");
-            writer.WriteLine("AutoClassRegistry(api);");
+            writer.WriteLine("AutoRegistry(api);");
+
+            writer.WriteLine(info.HasInsanityLibDependency ? "LoadAutoConfigs(api);" : "LoadConfigs(api);");
         }
     }
 

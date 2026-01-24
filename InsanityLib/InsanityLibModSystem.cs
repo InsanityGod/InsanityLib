@@ -1,13 +1,16 @@
-﻿using InsanityLib.Auto.Command;
+﻿using ConfigLib;
+using InsanityLib.Auto.Command;
+using InsanityLib.Auto.Config.ConfigLib;
+using InsanityLib.Config;
 using InsanityLib.Documentation;
-using InsanityLib.Extended.AssetCategories;
 using InsanityLib.Extended.Transitions;
 using InsanityLib.Extensions;
+using InsanityLib.Generators.Attributes;
 using InsanityLib.Util;
-using InsanityLib.Util.AutoRegistry;
 using InsanityLib.Util.ContentFeatures;
 using System;
 using System.ComponentModel.Design;
+using System.Runtime.CompilerServices;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -32,7 +35,7 @@ public partial class InsanityLibModSystem : ModSystem, IServiceProvider
                 return modSystem;
             }
         }
-
+        
         return null;
     }
    
@@ -43,13 +46,10 @@ public partial class InsanityLibModSystem : ModSystem, IServiceProvider
 
         ReflectionUtil.LoadedSides ??= api.Side;
         ReflectionUtil.LoadedSides |= api.Side;
-
-        AutoSetup(api);
         
-        EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
-        AssetCategoryAttribute.Load();
+        AutoSetup(api);
 
-        AutoConfigUtil.LoadAll(api);
+        EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
     }
 
     public override void AssetsLoaded(ICoreAPI api)
@@ -57,12 +57,22 @@ public partial class InsanityLibModSystem : ModSystem, IServiceProvider
         CustomTransition.LoadAssets(api);
     }
 
+    public void EnsureConfigLoaded(ICoreAPI api) => LoadAutoConfigs(api);
+
     public override void Start(ICoreAPI api)
     {
         AutoCommandAttribute.FindAndRegisterAutoCommands(api);
 
-        //Clear documentation cache build up by auto registration code
+        // Clear documentation cache build up by auto registration code
         AssemblyDocumentationContext.ClearCache();
+    }
+
+    public override void AssetsFinalize(ICoreAPI api)
+    {
+        base.AssetsFinalize(api);
+
+        // These should be loaded by now
+        api.World.Config.RemoveAttribute("insanitylib_configs");
     }
 
     public override void Dispose()

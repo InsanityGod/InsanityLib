@@ -12,8 +12,8 @@ public class StringComponent : ValueComponentBase<string>
 
     public StringComponent(ImGuiContext context) : base(context) 
     {
-        var stringLengthAttr = context.Member.GetCustomAttribute<StringLengthAttribute>();
-        var maxLengthAttr = context.Member.GetCustomAttribute<MaxLengthAttribute>();
+        var stringLengthAttr = context.Member!.GetCustomAttribute<StringLengthAttribute>();
+        var maxLengthAttr = context.Member!.GetCustomAttribute<MaxLengthAttribute>();
         
         if(stringLengthAttr is not null && maxLengthAttr is not null) MaxStringLength = (uint)Math.Min(stringLengthAttr.MaximumLength, maxLengthAttr.Length);
         else if(stringLengthAttr is not null) MaxStringLength = (uint)stringLengthAttr.MaximumLength;

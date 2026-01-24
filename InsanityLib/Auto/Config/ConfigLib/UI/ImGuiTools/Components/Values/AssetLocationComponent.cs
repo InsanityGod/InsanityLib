@@ -8,7 +8,7 @@ namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Values;
 
 public class AssetLocationComponent(ImGuiContext context) : ValueComponentBase<string>(context)
 {
-    private AssetLocation location;
+    private AssetLocation? location;
 
     public override void RenderValue()
     {
@@ -25,7 +25,7 @@ public class AssetLocationComponent(ImGuiContext context) : ValueComponentBase<s
             
             var components = value.Split(':', 2, StringSplitOptions.RemoveEmptyEntries);
 
-            location.Domain = components.Length > 1 ? components[0] : string.Empty;
+            location!.Domain = components.Length > 1 ? components[0] : string.Empty;
             location.Path = components[^1];
 
             Context.TryAutoSetValue(location, this);
@@ -38,7 +38,7 @@ public class AssetLocationComponent(ImGuiContext context) : ValueComponentBase<s
 
         if (obj is not null)
         {
-            location = obj as AssetLocation;
+            location = (AssetLocation)obj;
             value = location.ToStringSimple();
         }
         else location ??= new AssetLocation(); //Initialize to avoid null reference exceptions

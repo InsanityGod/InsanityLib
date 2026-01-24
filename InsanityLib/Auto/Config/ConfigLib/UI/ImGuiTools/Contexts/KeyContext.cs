@@ -21,9 +21,9 @@ public class KeyContext : ImGuiContext
 
     public object CurrentKey { get; internal set; }
     
-    public override ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member is null ? TargetObject : CurrentKey, member ?? Member, this, id, name);
+    public override ImGuiContext New(string? id = null, MemberInfo? member = null, string? name = null) => new(member is null ? TargetObject! : CurrentKey, member ?? Member, this, id, name);
 
-    public KeyContext(object targetObject, MemberInfo member, Type keyType, object currentKey, Type valueType, ImGuiContext parentContext, string id = null, string name = null, IServiceProvider serviceProvider = null) : base(targetObject, member, parentContext, id, name, serviceProvider)
+    public KeyContext(object targetObject, MemberInfo member, Type keyType, object currentKey, Type valueType, ImGuiContext parentContext, string? id = null, string? name = null, IServiceProvider? serviceProvider = null) : base(targetObject, member, parentContext, id, name, serviceProvider)
     {
         KeyType = keyType;
         LastValidKey = currentKey;

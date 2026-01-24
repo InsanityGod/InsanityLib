@@ -6,11 +6,11 @@ namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 
 public class SameLineComponentCollection : ComponentCollection
 {
-    public int?[] Spread { get; set;}
+    public int?[]? Spread { get; set;}
 
-    public IImGuiComponentContainer LastActiveChildContainer { get; set; }
+    public IImGuiComponentContainer? LastActiveChildContainer { get; set; }
 
-    public IValidationResultProvider ValidationResulProvider { get; set; }
+    public IValidationResultProvider? ValidationResulProvider { get; set; }
 
     public SameLineComponentCollection(ImGuiContext context) : base(context)
     {
@@ -75,22 +75,6 @@ public class SameLineComponentCollection : ComponentCollection
                     ImGui.GetColorU32(ImGuiCol.Separator),
                     8
                 );
-
-            //Horizontal Line
-            //endPos.X -= 4;
-            //endPos.Y += 4;
-            //var endPos2 = endPos with
-            //{
-            //    X = endPos.X + ImGui.GetContentRegionAvail().X
-            //};
-
-            //ImGui.GetWindowDrawList()
-            //    .AddLine(
-            //        endPos,
-            //        endPos2,
-            //        ImGui.GetColorU32(ImGuiCol.Separator),
-            //        8
-            //    );
 
             ImGui.NewLine();
         }

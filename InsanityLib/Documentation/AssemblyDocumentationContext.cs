@@ -1,7 +1,7 @@
-﻿using InsanityLib.Auto.Cleanup;
-using InsanityLib.Generators.Attributes;
+﻿using InsanityLib.Generators.Attributes;
 using InsanityLib.Util.Interfaces;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Xml;
@@ -12,9 +12,10 @@ public class AssemblyDocumentationContext(Assembly assembly) : IInitialize
 {
     public readonly Assembly Assembly = assembly;
 
+    [AutoClear]
     internal static readonly Dictionary<Assembly, AssemblyDocumentationContext> Cache = [];
 
-    [DisposalLogic] public static void ClearCache() => Cache.Clear();
+    public static void ClearCache() => Cache.Clear();
 
     public static AssemblyDocumentationContext GetForAssembly(Assembly assembly)
     {
@@ -31,7 +32,7 @@ public class AssemblyDocumentationContext(Assembly assembly) : IInitialize
         if (Assembly is null || Assembly.IsDynamic) return;
 
         var xmlPath = Path.Combine(
-            Path.GetDirectoryName(Assembly.Location),
+            Path.GetDirectoryName(Assembly.Location)!,
             Path.GetFileNameWithoutExtension(Assembly.Location) + ".xml"
         );
 
@@ -50,7 +51,8 @@ public class AssemblyDocumentationContext(Assembly assembly) : IInitialize
         }
     }
 
-    public XmlDocument Document { get; internal set; }
+    public XmlDocument? Document { get; internal set; }
 
+    [MemberNotNullWhen(true, nameof(Document))]
     public bool HasXmlDocumentation => Document is not null;
 }

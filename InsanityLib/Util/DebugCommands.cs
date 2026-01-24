@@ -1,9 +1,7 @@
 ﻿using InsanityLib.Auto.Command;
 using InsanityLib.Auto.Command.Argument;
-using InsanityLib.Auto.Config.ConfigLib.UI;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 

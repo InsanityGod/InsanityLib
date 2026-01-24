@@ -1,5 +1,4 @@
-﻿using InsanityLib.Auto.Cleanup;
-using InsanityLib.Extended.Transitions;
+﻿using InsanityLib.Extended.Transitions;
 using InsanityLib.Extensions;
 using InsanityLib.Generators.Attributes;
 using System;
@@ -17,7 +16,7 @@ public static class CustomTransition
     
     internal static void RegisterHandler(AssetLocation code, Type type) => ClassRegistry[code] = type;
 
-    public static ExtendedTransition ExtendedEnum => EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] as ExtendedTransition;
+    public static ExtendedTransition ExtendedEnum => (ExtendedTransition)EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)];
 
     public static void LoadAssets(ICoreAPI api)
     {

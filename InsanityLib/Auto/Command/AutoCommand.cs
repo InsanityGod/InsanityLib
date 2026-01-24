@@ -62,15 +62,17 @@ public sealed class AutoCommand(MethodBase method, string? path = null, bool req
         if (requiresPlayer) command.RequiresPlayer();
 
         var doc = Method.GetDocumentationContext();
+        if(doc is not null)
+        {
+            var descriptionStr = doc.GetDescription();
+            if(!string.IsNullOrEmpty(descriptionStr)) command.WithDescription(descriptionStr);
 
-        var descriptionStr = doc.GetDescription();
-        if(!string.IsNullOrEmpty(descriptionStr)) command.WithDescription(descriptionStr);
+            var exmaplesStrings = doc.GetExamples();
+            if (exmaplesStrings.Length > 0) command.WithExamples(exmaplesStrings);
 
-        var exmaplesStrings = doc.GetExamples();
-        if (exmaplesStrings.Length > 0) command.WithExamples(exmaplesStrings);
-
-        var returnStr = doc.GetReturn();
-        if(!string.IsNullOrEmpty(returnStr)) command.WithAdditionalInformation($"Returns: {returnStr}");
+            var returnStr = doc.GetReturn();
+            if(!string.IsNullOrEmpty(returnStr)) command.WithAdditionalInformation($"Returns: {returnStr}");
+        }
 
         return command;
     }

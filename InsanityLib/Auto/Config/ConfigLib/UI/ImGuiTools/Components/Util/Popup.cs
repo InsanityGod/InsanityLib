@@ -8,15 +8,15 @@ namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 
 public class Popup(ImGuiContext context) : ComponentBase(context), IImGuiComponentContainer
 {
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
-    public Action AcceptCallback { get; set; }
-    public string AcceptLabel { get; set; }
+    public Action? AcceptCallback { get; set; }
+    public string? AcceptLabel { get; set; }
 
-    public Action RejectCallback { get; set; }
-    public string RejectLabel { get; set; }
+    public Action? RejectCallback { get; set; }
+    public string? RejectLabel { get; set; }
     public Vector4? TextColor { get; set; }
 
     public List<IImGuiComponent> Components { get; init; } = [];

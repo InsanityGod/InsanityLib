@@ -11,17 +11,17 @@ public class FloatComponent : ValueComponentBase<float>
     public float MaxPercentageValue { get; set; }
     public bool IsPercentage { get; set; }
     public bool UsePreciseInput { get; set; }
-    public string FormatString { get; set;}
+    public string? FormatString { get; set;}
 
     public FloatComponent(ImGuiContext context) : base(context)
     {
-        FormatString = context.Member.GetCustomAttribute<DisplayFormatAttribute>()?.DataFormatString;
+        FormatString = context.Member!.GetCustomAttribute<DisplayFormatAttribute>()?.DataFormatString;
         IsPercentage = FormatString?.ToLower() == "p";
         if (IsPercentage)
         {
             FormatString = "%.2f%%";
 
-            var rangeAttr = context.Member.GetCustomAttribute<RangeAttribute>();
+            var rangeAttr = context.Member!.GetCustomAttribute<RangeAttribute>();
             MinPercentageValue = rangeAttr?.Minimum.AutoConvert<float>() * 100 ?? 0;
             MaxPercentageValue = rangeAttr?.Maximum.AutoConvert<float>() * 100 ?? 100;
         }
@@ -29,7 +29,8 @@ public class FloatComponent : ValueComponentBase<float>
 
     public override void RenderValue()
     {
-        if (IsPercentage && MinPercentageValue != float.NegativeInfinity && MaxPercentageValue != float.PositiveInfinity)
+        
+        if (IsPercentage && !float.IsNegativeInfinity(MinPercentageValue) && !float.IsPositiveInfinity(MaxPercentageValue))
         {
             var percentageValue = value * 100;
 

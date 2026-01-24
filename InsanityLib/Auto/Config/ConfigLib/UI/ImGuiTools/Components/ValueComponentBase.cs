@@ -17,23 +17,23 @@ namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components;
 
 public abstract class ValueComponentBase<T> : ValueComponentBase
 {
-    protected T value;
-    public T Value => value;
+    protected T? value;
+    public T? Value => value;
 
-    public override object ValueAsObject => Value;
+    public override object? ValueAsObject => Value;
 
     protected ValueComponentBase(ImGuiContext context) : base(context)
     {
-        OnValueChanged(this, new PropertyChangedEventArgs(Context.Member.Name));
+        OnValueChanged(this, new PropertyChangedEventArgs(Context.Member!.Name));
         context.PropertyChanged += OnValueChanged;
     }
 
-    protected virtual void OnValueChanged(object sender, PropertyChangedEventArgs args)
+    protected virtual void OnValueChanged(object? sender, PropertyChangedEventArgs args)
     {
         if(!Context.TryGetValue(out var obj)) return;
 
         isNull = IsNullable && obj is null;
-        if (!IsNull) value = obj.AutoConvert<T>();
+        if (!IsNull) value = obj!.AutoConvert<T>();
 
         Validate();
     }
@@ -41,7 +41,7 @@ public abstract class ValueComponentBase<T> : ValueComponentBase
 
 public abstract class ValueComponentBase : ComponentBase
 {
-    protected readonly ResetButton ResetButton;
+    protected readonly ResetButton? ResetButton;
 
     public bool IsNullable { get; }
 
@@ -50,11 +50,11 @@ public abstract class ValueComponentBase : ComponentBase
 
     protected ValueComponentBase(ImGuiContext context) : base(context)
     {
-        ValidationAttributes = [.. context.Member.GetCustomAttributes<ValidationAttribute>()];
-        IsNullable = Nullable.GetUnderlyingType(context.Member.GetPrimaryType()) is not null;
-        ValidationContext = new(context.TargetObject)
+        ValidationAttributes = [.. context.Member!.GetCustomAttributes<ValidationAttribute>()];
+        IsNullable = Nullable.GetUnderlyingType(context.Member!.GetPrimaryType()!) is not null;
+        ValidationContext = new(context.TargetObject!)
         {
-            MemberName = context.Member.Name,
+            MemberName = context.Member!.Name,
         };
 
         ResetButton = ResetButton.TryCreate(context);
@@ -67,7 +67,7 @@ public abstract class ValueComponentBase : ComponentBase
 
     public ValidationAttribute[] ValidationAttributes { get; }
 
-    public string LastValidationResult { get; protected set; }
+    public string? LastValidationResult { get; protected set; }
     
     public virtual bool Validate()
     {
@@ -81,7 +81,7 @@ public abstract class ValueComponentBase : ComponentBase
             var result = attribute.GetValidationResult(value, ValidationContext);
             if(result != ValidationResult.Success)
             {
-                builder.AppendLine(result.ToString());
+                builder.AppendLine(result!.ToString());
             }
         }
         
@@ -96,7 +96,7 @@ public abstract class ValueComponentBase : ComponentBase
     }
     #endregion validation
     
-    public abstract object ValueAsObject { get; }
+    public abstract object? ValueAsObject { get; }
     public abstract void RenderValue();
 
     public override void Render()
@@ -112,7 +112,7 @@ public abstract class ValueComponentBase : ComponentBase
         }
         catch
         {
-            //TODO logging
+            // ignore
         }
         ImGui.EndDisabled();
         

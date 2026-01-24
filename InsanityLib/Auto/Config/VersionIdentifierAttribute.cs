@@ -24,7 +24,7 @@ public class VersionIdentifierAttribute(object expectedValue) : Attribute
     /// <exception cref="ValidationException">When the check failed and UpgradeMode is set to EConfigVersionUpgradeMode.Throw</exception>
     /// <exception cref="NotImplementedException">When UpgradeMode contains an invalid/unknown value</exception>
     /// <returns>Wether it tried fixing based on UpgradeMode (only if UpgradeMode is valid and not EConfigVersionUpgradeMode.Throw)</returns>
-    public virtual bool ValidateAndFix(IServiceProvider provider, MemberInfo member, ref object instance, string path)
+    public virtual bool ValidateAndUpgrade<T>(IServiceProvider provider, MemberInfo member, ref T instance, string path) where T : class, new()
     {
         if(!member.CanGetAutoValue(provider)) throw new InvalidOperationException($"{member} is not a valid target for [{nameof(VersionIdentifierAttribute)}] since it value cannot be automatically procured");
         var value = member.GetAutoValue(provider, instance);
@@ -35,13 +35,13 @@ public class VersionIdentifierAttribute(object expectedValue) : Attribute
             case EConfigVersionUpgradeMode.MergeIntoNew:
                 provider.GetService<ILogger>()?.Warning(Logging.AutoConfigUpdate, path, member, ExpectedValue, value);
 
-                var newInstance = (JContainer) JToken.FromObject(instance.GetType().AutoCreate(provider, false));
+                var newInstance = (JContainer) JToken.FromObject(new T());
 
                 newInstance.Merge(JToken.FromObject(instance), new JsonMergeSettings
                 {
                     MergeArrayHandling = MergeArrayHandling.Merge,
                 });
-                instance = newInstance.ToObject(instance.GetType())!;
+                instance = (T)newInstance.ToObject(typeof(T))!;
                 if (member.CanSetValue()) member.SetValue(ExpectedValue.AutoConvert(member.GetPrimaryType()), instance);
 
                 return true;
@@ -49,7 +49,10 @@ public class VersionIdentifierAttribute(object expectedValue) : Attribute
             case EConfigVersionUpgradeMode.Warning:
                 provider.GetService<ILogger>()?.Warning(Logging.ConfigOutdated, member, path, ExpectedValue, value);
                 return false;
-            case EConfigVersionUpgradeMode.Throw: throw new ValidationException(string.Format(Logging.ConfigOutdated, member, path, ExpectedValue, value));
+
+            case EConfigVersionUpgradeMode.Throw: 
+                throw new ValidationException(string.Format(Logging.ConfigOutdated, member, path, ExpectedValue, value));
+            
             default: throw new NotImplementedException($"Version upgrade mode {UpgradeMode} is not implemented");
         }
     }

@@ -1,4 +1,4 @@
-﻿using InsanityLib.Extended.AssetCategories;
+﻿using InsanityLib.Generators.Attributes;
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;

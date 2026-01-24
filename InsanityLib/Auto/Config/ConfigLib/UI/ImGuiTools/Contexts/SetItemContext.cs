@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Contexts;
 
-public class SetItemContext(object targetObject, MemberInfo member, Type valueType, object currentValue, ImGuiContext parentContext, string id = null, string name = null, IServiceProvider serviceProvider = null) : ImGuiContext(targetObject, member, parentContext, id, name, serviceProvider)
+public class SetItemContext(object targetObject, MemberInfo member, Type valueType, object currentValue, ImGuiContext parentContext, string? id = null, string? name = null, IServiceProvider? serviceProvider = null) : ImGuiContext(targetObject, member, parentContext, id, name, serviceProvider)
 {
     public override Type ComposeType => ValueType;
     
@@ -18,9 +18,9 @@ public class SetItemContext(object targetObject, MemberInfo member, Type valueTy
 
     public readonly ValidationResultHolder SetValidation = new();
     
-    public override ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(member is null ? TargetObject : CurrentValue, member ?? Member, this, id, name);
+    public override ImGuiContext New(string? id = null, MemberInfo? member = null, string? name = null) => new(member is null ? TargetObject! : CurrentValue, member ?? Member, this, id, name);
 
-    public override bool TryGetValue(out object value)
+    public override bool TryGetValue(out object? value)
     {
         if (!CanRead)
         {
@@ -31,7 +31,7 @@ public class SetItemContext(object targetObject, MemberInfo member, Type valueTy
         return true;
     }
 
-    public override bool TrySetValue(object value, object ChangedBy)
+    public override bool TrySetValue(object? value, object ChangedBy)
     {
         SetValidation.LastValidationResult = null;
 
@@ -39,12 +39,12 @@ public class SetItemContext(object targetObject, MemberInfo member, Type valueTy
         
         if(Equals(value, CurrentValue)) return true;
         return (bool)typeof(SetItemContext)
-            .GetMethod(nameof(TrySetValueInternal), AccessTools.allDeclared)
+            .GetMethod(nameof(TrySetValueInternal), AccessTools.allDeclared)!
             .MakeGenericMethod(ValueType)
-            .Invoke(this, [value, ChangedBy]);
+            .Invoke(this, [value])!;
     }
 
-    private bool TrySetValueInternal<T>(object value, object ChangedBy)
+    private bool TrySetValueInternal<T>(object value)
     {
         if(!base.TryGetValue(out var container) || container is not ISet<T> set || value is not T valueAsT) return false;
         if(ExistsInSet) set.Remove((T)CurrentValue);
@@ -63,7 +63,7 @@ public class SetItemContext(object targetObject, MemberInfo member, Type valueTy
         return true;
     }
 
-    public override bool TryAutoSetValue(object value, object ChangedBy)
+    public override bool TryAutoSetValue(object? value, object ChangedBy)
     {
         if(!CanWrite) return false;
         try
@@ -79,7 +79,7 @@ public class SetItemContext(object targetObject, MemberInfo member, Type valueTy
     public void Remove()
     {
         typeof(SetItemContext)
-            .GetMethod(nameof(RemoveInternal), AccessTools.allDeclared)
+            .GetMethod(nameof(RemoveInternal), AccessTools.allDeclared)!
             .MakeGenericMethod(ValueType)
             .Invoke(this);
     }

@@ -12,25 +12,45 @@ static partial class SymbolExtensions
         miscellaneousOptions: SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers | SymbolDisplayMiscellaneousOptions.UseSpecialTypes
     );
 
-    public static void WriteCall(this IndentedTextWriter writer, IMethodSymbol method, bool nullsafety = true, string serviceProviderIdentifier = "serviceProvider")
+    public static void WriteCall(this IndentedTextWriter writer, IMethodSymbol method, bool hasInsanityLibDependency = false, bool nullsafety = true, string serviceProviderIdentifier = "serviceProvider")
     {
         if (writer is null) throw new ArgumentNullException(nameof(writer));
         if (method is null) throw new ArgumentNullException(nameof(method));
 
-        WriteTarget(writer, method, serviceProviderIdentifier, nullsafety);
+        writer.WriteTarget(method, serviceProviderIdentifier, nullsafety);
         writer.Write(method.Name);
         writer.Write("(");
 
         for (int i = 0; i < method.Parameters.Length; i++)
         {
             if (i > 0) writer.Write(", ");
-            WriteArgument(writer, method.Parameters[i], serviceProviderIdentifier);
+            WriteArgument(writer, method.Parameters[i], serviceProviderIdentifier, hasInsanityLibDependency);
         }
 
         writer.Write(")");
     }
 
-    public static void WriteTarget(IndentedTextWriter writer, IMethodSymbol method, string sp, bool nullsafety = true)
+    public static void WriteGetService(this IndentedTextWriter writer, ITypeSymbol type, bool hasInsanityLibDependency = false, string sp = "serviceProvider")
+    {
+        if (hasInsanityLibDependency)
+        {
+            writer.Write(sp);
+            writer.Write(".GetService<");
+            writer.Write(type.ToDisplayString(QualifiedEnoughFormat));
+            writer.Write(">()");
+            return;
+        }
+
+        writer.Write('(');
+        writer.Write(type.ToDisplayString(QualifiedEnoughFormat));
+        writer.Write(')');
+        writer.Write(sp);
+        writer.Write(".GetService(typeof(");
+        writer.Write(type.ToDisplayString(QualifiedEnoughFormat));
+        writer.Write("))");
+    }
+
+    public static void WriteTarget(this IndentedTextWriter writer, IMethodSymbol method, string sp, bool hasInsanityLibDependency = false, bool nullsafety = true)
     {
         if (method.IsStatic)
         {
@@ -41,28 +61,22 @@ static partial class SymbolExtensions
         
         
         // instance method -> resolve containing type from IServiceProvider
-        writer.Write('(');
-        writer.Write(method.ContainingType.ToDisplayString(QualifiedEnoughFormat));
-        writer.Write(')');
-        writer.Write(sp);
-        writer.Write(".GetService(typeof(");
-        writer.Write(method.ContainingType.ToDisplayString(QualifiedEnoughFormat));
-        writer.Write("))");
+        writer.WriteGetService(method.ContainingType, hasInsanityLibDependency, sp);
         if (nullsafety) writer.Write('?');
         writer.Write('.');
     }
 
-    public static void WriteArgument(IndentedTextWriter writer, IParameterSymbol parameter, string sp)
+    public static void WriteArgument(IndentedTextWriter writer, IParameterSymbol parameter, string sp, bool hasInsanityLibDependency = false)
     {
-        if (CanBeService(parameter))
+        if (parameter.Type.ToDisplayString(QualifiedEnoughFormat) == "System.IServiceProvider")
         {
-            writer.Write('(');
-            writer.Write(parameter.Type.ToDisplayString(QualifiedEnoughFormat));
-            writer.Write(')');
             writer.Write(sp);
-            writer.Write(".GetService(typeof(");
-            writer.Write(parameter.Type.ToDisplayString(QualifiedEnoughFormat));
-            writer.Write("))");
+            return;
+        }
+
+        if (parameter.CanBeService())
+        {
+            writer.WriteGetService(parameter.Type, hasInsanityLibDependency, sp);
             return;
         }
 
@@ -78,18 +92,61 @@ static partial class SymbolExtensions
         writer.Write(')');
     }
 
-    public static bool CanBeService(IParameterSymbol p) => p.Type.TypeKind switch
+    public static bool CanBeService(this IParameterSymbol p)
     {
-        TypeKind.Interface => true,
-        TypeKind.Class => true,
-        _ => false
-    };
+        var type = p.Type;
+    
+        // Exclude value types (structs, enums, primitives)
+        if (type.IsValueType) return false;
+    
+        // Exclude string explicitly
+        if (type.SpecialType == SpecialType.System_String) return false;
+    
+        return type.TypeKind switch
+        {
+            TypeKind.Interface => true,
+            TypeKind.Class => true,
+            _ => false
+        };
+    }
 
-    public static void WriteLiteral(this IndentedTextWriter writer, object? value, ITypeSymbol type = null)
+    public static void WriteLiteral(this IndentedTextWriter writer, object value, ITypeSymbol type = null, bool writeFullNameSpace = true)
     {
         if (value is null)
         {
             writer.Write("null");
+            return;
+        }
+
+        if (type is INamedTypeSymbol enumType && enumType.TypeKind == TypeKind.Enum)
+        {
+            var enumFormat = writeFullNameSpace
+                ? QualifiedEnoughFormat
+                : SymbolDisplayFormat.MinimallyQualifiedFormat;
+
+            var enumTypeName = enumType.ToDisplayString(enumFormat);
+
+            var numericValue = Convert.ToInt64(value, CultureInfo.InvariantCulture);
+
+            var member = enumType
+                .GetMembers()
+                .OfType<IFieldSymbol>()
+                .FirstOrDefault(f => f.HasConstantValue && Convert.ToInt64(f.ConstantValue!, CultureInfo.InvariantCulture) == numericValue);
+
+            if (member is not null)
+            {
+                writer.Write(enumTypeName);
+                writer.Write('.');
+                writer.Write(member.Name);
+            }
+            else
+            {
+                writer.Write('(');
+                writer.Write(enumTypeName);
+                writer.Write(')');
+                writer.Write(numericValue);
+            }
+
             return;
         }
 

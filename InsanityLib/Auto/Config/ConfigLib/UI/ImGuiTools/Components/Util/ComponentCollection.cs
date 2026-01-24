@@ -12,7 +12,7 @@ public class ComponentCollection(ImGuiContext context) : ComponentBase(context),
     public ConfigDisplayAttribute DisplayProperties { get; set; } = context.Member?.GetCustomAttribute<ConfigDisplayAttribute>() ?? new();
 
     public bool HideDescription { get; set; }
-    public string LabelOverride { get; set; }
+    public string? LabelOverride { get; set; }
     public bool Spacing { get; set; }
 
     public List<IImGuiComponent> Components { get; set; } = [];

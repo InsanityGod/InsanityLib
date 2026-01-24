@@ -28,7 +28,7 @@ public class EnumComponent : ValueComponentBase<long>
         }
     }
 
-    public string DisplayStr { get; private set; }
+    public string? DisplayStr { get; private set; }
 
     protected override void OnValueChanged(object sender, PropertyChangedEventArgs args)
     {

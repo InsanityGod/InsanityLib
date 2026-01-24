@@ -1,43 +1,36 @@
-﻿using HarmonyLib;
+﻿using ConfigLib;
+using HarmonyLib;
 using ImGuiNET;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
 using InsanityLib.Extensions;
+using InsanityLib.Generators.Attributes;
 using InsanityLib.Util;
-using InsanityLib.Util.AutoRegistry;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 
 namespace InsanityLib.Auto.Config.ConfigLib;
 
-public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
+public class AutoConfigLib(ICoreAPI api, IAutoConfig autoConfig)
 {
     /// <summary>
     /// The actual config instance
     /// </summary>
-    public readonly object ConfigInstance = instance;
+    public readonly IAutoConfig Config = autoConfig;
 
     /// <summary>
     /// A copy of the config instance, to which we apply edits
     /// </summary>
     [ConfigDisplay(Hierarchy = EHierarchyDisplay.None)]
-    public object? EditConfigInstance { get; set; } //TODO disposal?
+    public object? EditConfigInstance { get; set; }
 
     public readonly ICoreAPI Api = api;
-
-    /// <summary>
-    /// Path to the config file
-    /// </summary>
-    public readonly string Path = attr.Path;
-
-    /// <summary>
-    /// Wether this config is synced from server
-    /// </summary>
-    public readonly bool ServerSync = attr.ServerSync;
 
     public bool Validate(out string result)
     {
@@ -71,8 +64,8 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
         if (Validate(out var validationResult)) SaveInternal();
         else
         {
-            var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(Save)), id: "ValidationPopup", serviceProvider: Api.GetServiceProvider());
-            AutoConfigUtil.BlockingPopup = new Popup(context)
+            var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(Save)), id: "ValidationPopup", serviceProvider: Api.GetServiceProvider());
+            BlockingPopup = new Popup(context)
             {
                 Title = "Validation Failed",
                 AcceptLabel = "Save Anyway##ValidationPopup-accept",
@@ -83,18 +76,7 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
         }
     }
 
-    private void SaveInternal()
-    {
-        if(EditConfigInstance is null) return; //Nothing to save
-        try
-        {
-            AutoConfigUtil.StoreModConfig(Api, EditConfigInstance, Path);
-        }
-        catch
-        {
-            //TODO open error popup
-        }
-    }
+    private void SaveInternal() => AutoConfig.TrySaveConfig(EditConfigInstance, Config.ConfigInstanceType, Config.RelativePath, Api, Api.Logger);
 
     /// <summary>
     /// Discards all changes
@@ -104,18 +86,18 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
         string? json = null;
         if (loadFromDisk)
         {
-            string path = System.IO.Path.Combine(GamePaths.ModConfig, Path);
-			    if (File.Exists(path))
+            string path = Path.Combine(GamePaths.ModConfig, Config.RelativePath);
+			if (File.Exists(path))
             {
                 json = File.ReadAllText(path);
             }
-            else Api.Logger.Warning("[InsanityLib] could not restore {0} from disk as it no longer exists, defaulting to loaded config", Path);
+            else Api.Logger.Warning("[InsanityLib] could not restore {0} from disk as it no longer exists, defaulting to loaded config", Config.RelativePath);
         }
 
         //Defaulting to loaded config
-        json ??= JsonConvert.SerializeObject(ConfigInstance, Formatting.None); //JSON copy object for editing
+        json ??= JsonConvert.SerializeObject(Config.ConfigInstance, Formatting.None); //JSON copy object for editing
         
-        EditConfigInstance = JsonConvert.DeserializeObject(json, ConfigInstance.GetType());
+        EditConfigInstance = JsonConvert.DeserializeObject(json, Config.ConfigInstanceType);
         ReCompose();
     }
 
@@ -124,7 +106,7 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
     /// </summary>
     public void Defaults()
     {
-        var newInstance = ConfigInstance.GetType().AutoCreate(Api.GetServiceProvider());
+        var newInstance = Config.ConfigInstanceType.AutoCreate(Api.GetServiceProvider());
         if(newInstance is not null) EditConfigInstance = newInstance;
         ReCompose();
     }
@@ -145,8 +127,8 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
         if(EditConfigInstance is null) return; //Nothing to compose
         try
         {
-            var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfig), nameof(EditConfigInstance)), id: Path, serviceProvider: Api.GetServiceProvider());
-            Component = ImGuiComposer.TryCompose(context, ConfigInstance.GetType());
+            var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(EditConfigInstance)), id: Config.RelativePath, serviceProvider: Api.GetServiceProvider());
+            Component = ImGuiComposer.TryCompose(context, Config.ConfigInstanceType);
             ComposeError = null;
         }
         catch(Exception ex)
@@ -195,12 +177,75 @@ public class AutoConfig(ICoreAPI api, object instance, AutoConfigAttribute attr)
         CurrentContextMenuClaim = null; //reset after render
     }
 
-    public static void Cleanup()
+    [AutoClear]
+    internal static Dictionary<string, AutoConfigLib> ConfigLibEntries { get; } = [];
+    
+    internal static void Cleanup()
     {
-        foreach(var config in AutoConfigUtil.LoadedConfigs.Values)
+        foreach(var config in ConfigLibEntries.Values)
         {
             config.EditConfigInstance = null;
             config.Component = null;
         }
     }
+
+    //TODO call this!
+    internal static void RegisterConfigLibEvents(ICoreAPI api)
+    {
+        if(api.Side == EnumAppSide.Server) return;
+
+        var configLib = api.ModLoader.GetModSystem<ConfigLibModSystem>();
+        configLib.ConfigWindowClosed += Cleanup;
+    }
+
+    public static Popup? BlockingPopup { get; set; }
+
+    public static void NotifyUserOfException(Exception ex, IImGuiComponent component)
+    {
+        var clientApi = InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>();
+        var context = new ImGuiContext(component, null, id: "ErrorPopup", serviceProvider: clientApi.GetServiceProvider());
+        BlockingPopup = new Popup(context)
+        {
+            Title = ex.Message,
+            Text = ex.ToString(),
+            AcceptLabel = "Continue##ErrorPopup-Continue",
+            RejectLabel = "Copy Error And Continue##ErrorPopup-Copy-Continue",
+            RejectCallback = () => clientApi.Forms.SetClipboardText(ex.ToString())
+        };
+    }
+
+    internal void RegisterToConfigLib(ICoreAPI api) => api.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig(Config.RelativePath, (domain, buttons) =>
+    {
+        var serverConfigOnClient = !ReflectionUtil.SideLoaded(EnumAppSide.Server) && Config.ServerSync;
+
+        ImGui.BeginDisabled(serverConfigOnClient);
+        if (serverConfigOnClient)
+        {
+            ImGui.Text("Client side editing of server config is not supported yet");
+            ImGui.NewLine();
+        }
+
+        if (buttons.Save) Save();
+        if (buttons.Restore) Restore(true);
+
+        //TODO discard changes method
+        if (buttons.Defaults) Defaults();
+        if (buttons.Reload) Reload();
+
+        Render();
+        if (BlockingPopup is not null)
+        {
+            BlockingPopup.SafeRender();
+            if (!BlockingPopup.IsOpen) BlockingPopup = null;
+        }
+
+        ImGui.EndDisabled();
+        return new ControlButtons
+        {
+            Save = !serverConfigOnClient, //Only server can save for now
+            Restore = !serverConfigOnClient,
+            Defaults = !serverConfigOnClient,
+            Reload = false
+        };
+    });
 }

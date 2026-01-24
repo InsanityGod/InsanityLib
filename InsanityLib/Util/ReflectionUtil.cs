@@ -151,14 +151,14 @@ public static class ReflectionUtil
     public static IEnumerable<MemberInfo> FindAllMembersHavingAtribute<T>(BindingFlags? flags = null) where T : Attribute => AccessTools.AllTypes()
         .SelectMany(type => FindAllMembersHavingAtribute<T>(type, flags));
 
-    public static IEnumerable<MemberInfo> FindAllMembersHavingAtribute<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
+    public static IEnumerable<MemberInfo> FindAllMembersHavingAtribute<T>(this Type type, BindingFlags? flags = null) where T : Attribute => type
         .GetMembers(flags ?? AccessTools.all)
         .Where(member => member.IsDefined(typeof(T)));
 
     public static IEnumerable<(MemberInfo, T)> FindAllMembersWithAttributes<T>(BindingFlags? flags = null) where T : Attribute => AccessTools.AllTypes()
         .SelectMany(type => FindAllMembersWithAttributes<T>(type, flags));
 
-    public static IEnumerable<(MemberInfo, T)> FindAllMembersWithAttributes<T>(Type type, BindingFlags? flags = null) where T : Attribute => type
+    public static IEnumerable<(MemberInfo, T)> FindAllMembersWithAttributes<T>(this Type type, BindingFlags? flags = null) where T : Attribute => type
         .GetMembers(flags ?? AccessTools.all)
         .Select(member => (member, member.TryGetCustomAttribute<T>()))
         .Where(pair => pair.Item2 is not null)!;

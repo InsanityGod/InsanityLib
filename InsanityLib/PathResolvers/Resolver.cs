@@ -16,7 +16,7 @@ public static class Resolver
         new ConfigLibResolver(),
     ];
 
-    public static IPathResolver Find(ReadOnlySpan<char> scheme)
+    public static IPathResolver? Find(ReadOnlySpan<char> scheme)
     {
         foreach (var resolver in Resolvers)
         {
@@ -33,7 +33,7 @@ public static class Resolver
         return pathWithScheme[..schemeEndIndex];
     }
 
-    public static bool TryResolve(ReadOnlySpan<char> pathWithScheme, ICoreAPI api, out object result)
+    public static bool TryResolve(ReadOnlySpan<char> pathWithScheme, ICoreAPI api, out object? result)
     {
         var scheme = FindScheme(pathWithScheme);
         if (scheme.IsEmpty)
@@ -45,7 +45,7 @@ public static class Resolver
         return TryResolve(scheme, pathWithScheme[(scheme.Length + 3)..], api, out result);
     }
 
-    public static bool TryResolve(ReadOnlySpan<char> scheme, ReadOnlySpan<char> path, ICoreAPI api, out object result)
+    public static bool TryResolve(ReadOnlySpan<char> scheme, ReadOnlySpan<char> path, ICoreAPI api, out object? result)
     {
         var resolver = Find(scheme);
         if(resolver is not null) return resolver.TryResolvePath(path, api, out result);

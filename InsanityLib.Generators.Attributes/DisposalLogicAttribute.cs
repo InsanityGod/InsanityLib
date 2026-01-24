@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
+using Vintagestory.API.Common;
 
 namespace InsanityLib.Generators.Attributes;
 
 /// <summary>
-/// Used to mark static methods that should be run when the game is doing disposal logic.
+/// Used to mark methods that should be run when the game is doing disposal logic.
 /// </summary>
 [Conditional("CompileTimeOnly")]
 [AttributeUsage(AttributeTargets.Method)]
@@ -18,7 +19,7 @@ public sealed class DisposalLogicAttribute : Attribute
     /// The side on which the disposal logic should run. <br />
     /// If set to <see cref="EnumAppSide.Universal"/>, the logic is allowed to run on either side but will only run on twice if <see cref="MayRunTwice"/> is set to true.
     /// </summary>
-    public int Side { get; set; } = 3;
+    public EnumAppSide Side { get; set; } = EnumAppSide.Universal;
 
     /// <summary>
     /// Wether the logic is allowed to run twice

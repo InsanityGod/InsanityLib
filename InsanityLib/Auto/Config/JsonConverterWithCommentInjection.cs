@@ -22,7 +22,7 @@ public class JsonConverterWithCommentInjection : JsonConverter
 
     public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
-        if(value is not null)
+        if(value is null)
         {
             writer.WriteNull();
             return;

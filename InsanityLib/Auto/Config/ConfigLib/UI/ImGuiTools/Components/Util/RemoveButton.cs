@@ -11,10 +11,10 @@ public class RemoveButton : Button
     public readonly IImGuiComponentContainer ParentContainer;
     public readonly IImGuiComponentContainer ComponentContainer;
 
-    public readonly KeyContext KeyContext;
-    public readonly SetItemContext SetItemContext;
+    public readonly KeyContext? KeyContext;
+    public readonly SetItemContext? SetItemContext;
 
-    private RemoveButton(IImGuiComponentContainer parentContainer, IImGuiComponentContainer componentContainer, ImGuiContext context) : base(context.ParentContext.New($"{context.Id}-removebutton", name: "X"), null)
+    private RemoveButton(IImGuiComponentContainer parentContainer, IImGuiComponentContainer componentContainer, ImGuiContext context) : base(context.ParentContext!.New($"{context.Id}-removebutton", name: "X"), null)
     {
         ComponentContainer = componentContainer;
         Action = Remove;
@@ -36,14 +36,14 @@ public class RemoveButton : Button
 
         if (container is IDictionary dict)
         {
-            if (KeyContext.ExistsInDictionary)
+            if (KeyContext!.ExistsInDictionary)
             {
                 dict.Remove(KeyContext.LastValidKey);
             }
         }
         else if(container is IList list)
         {
-            var currentKey = (int)KeyContext.CurrentKey;
+            var currentKey = (int)KeyContext!.CurrentKey;
             if(container is Array)
             {
                 var newArray = Array.CreateInstance(KeyContext.ValueContext.ValueType, list.Count - 1);
@@ -63,7 +63,7 @@ public class RemoveButton : Button
 
     private void ShiftKeys(int fromKey)
     {
-        if(KeyContext.KeyType != typeof(int)) throw new InvalidOperationException("Cannot shift keys for non-int key type");
+        if(KeyContext!.KeyType != typeof(int)) throw new InvalidOperationException("Cannot shift keys for non-int key type");
 
         var keys = ParentContainer.Components.OfType<IImGuiComponentContainer>()
             .SelectMany(c => c.Components)
@@ -72,7 +72,7 @@ public class RemoveButton : Button
 
         foreach (var keyContext in keys)
         {
-            var key = (int)keyContext.CurrentKey;
+            var key = (int)keyContext!.CurrentKey;
             if (key > fromKey)
             {
                 key--;

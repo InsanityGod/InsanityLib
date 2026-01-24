@@ -2,7 +2,6 @@
 using InsanityLib.Generators.Extensions;
 using Microsoft.CodeAnalysis;
 using System.CodeDom.Compiler;
-using System.ComponentModel.Design;
 
 namespace InsanityLib.Generators;
 
@@ -22,6 +21,28 @@ public sealed partial class ModSystemGenerator
         //info.Compilation.GetSymbolsWithAttribute(IndentedTextWriter)
         using (new BlockContext("protected void AutoDispose()").Use(writer))
         {
+            if (HasDisposalLogic)
+            {
+                writer.WriteMultiLine("""
+                if(_api is not null)
+                {
+                    foreach (var operation in DisposalOperations.OrderBy(operation => operation.ExecutionOrder))
+                    {
+                        try
+                        {
+                            if((operation.Side & _api.Side) == 0) continue;
+                            if (!operation.MayRunTwice && operation.Side == EnumAppSide.Universal && _api is ICoreClientAPI capi && capi.IsSinglePlayer) continue;
+                            operation.Action(ServiceContainer);
+                        }
+                        catch (Exception ex)
+                        {
+                            Mod.Logger.Error("Something went wrong during disposal logic: {0}", ex);
+                        }
+                    }
+                }
+                """);
+            }
+
             if (hasPatches)
             {
                 writer.WriteLine($"""new Harmony("{info.ModID}").UnpatchAll("{info.ModID}");""");
@@ -31,25 +52,12 @@ public sealed partial class ModSystemGenerator
             {
                 writer.WriteLine($"{symbol.GetStaticMemberPath()}?.Clear();");
             }
-            if (HasDisposalLogic)
+
+            foreach((var _, var attr) in assetCategoryAttributes)
             {
-                writer.WriteMultiLine("""
-                if(_api is null) return;
-                    
-                foreach (var operation in DisposalOperations.OrderBy(operation => operation.ExecutionOrder))
-                {
-                    try
-                    {
-                        if((operation.Side & _api.Side) == 0) continue;
-                        if (!operation.MayRunTwice && operation.Side == EnumAppSide.Universal && _api is ICoreClientAPI capi && capi.IsSinglePlayer) continue;
-                        operation.Action(ServiceContainer);
-                    }
-                    catch (Exception ex)
-                    {
-                        Mod.Logger.Error("Something went wrong during disposal logic: {0}", ex);
-                    }
-                }
-                """);
+                writer.Write("AssetCategory.categories.Remove(");
+                writer.WriteLiteral(attr.ConstructorArguments[0].Value);
+                writer.WriteLine(");");
             }
         }
     }
@@ -72,13 +80,13 @@ public sealed partial class ModSystemGenerator
 
             writer.Write("(");
             writer.WriteLiteral(attr.NamedArguments.GetArgument("ExecutionOrder", 0));
-            writer.Write(", (EnumAppSide) ");
-            writer.WriteLiteral(attr.NamedArguments.GetArgument("Side", 3));
+            writer.Write(", ");
+            writer.WriteLiteral(attr.NamedArguments.GetArgument("Side", 3), info.Compilation.GetTypeByMetadataName("Vintagestory.API.Common.EnumAppSide"), false);
             writer.Write(", ");
             writer.WriteLiteral(attr.NamedArguments.GetArgument("MayRunTwice", false));
             writer.Write(", serviceProvider => ");
 
-            writer.WriteCall(methodSymbol);
+            writer.WriteCall(methodSymbol, info.HasInsanityLibDependency);
 
             writer.Write(")");
         }
@@ -88,6 +96,4 @@ public sealed partial class ModSystemGenerator
         writer.WriteLine("];");
         writer.WriteLine();
     }
-
-    //public static (int ExecutionOrder, int Side, bool MayRunTwice, Action<IServiceProvider>)[] DisposalOperations;
 }

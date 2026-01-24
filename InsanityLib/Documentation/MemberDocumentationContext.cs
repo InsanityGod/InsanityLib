@@ -19,7 +19,7 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
     
     public readonly MemberInfo Member = member;
 
-    public XmlNode MemberNode { get; internal set; }
+    public XmlNode? MemberNode { get; internal set; }
 
     public bool HasXmlDocumentation => MemberNode is not null;
 
@@ -54,7 +54,7 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
     {
         if(TryGetFromLang(EDocumentationType.Description, out var descriptionFromLang)) return descriptionFromLang;
 
-        if (HasXmlDocumentation && MemberNode.SelectSingleNode("summary") is XmlNode summaryNode)
+        if (HasXmlDocumentation && MemberNode?.SelectSingleNode("summary") is XmlNode summaryNode)
         {
             var descriptionFromXml = summaryNode.InnerText;
             if(!string.IsNullOrWhiteSpace(descriptionFromXml)) return descriptionFromXml.CleanWhiteSpaces();
@@ -70,7 +70,7 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
     {
         if(TryGetFromLang(EDocumentationType.Example, out var descriptionFromLang)) return descriptionFromLang.Split("\n");
 
-        if (!HasXmlDocumentation || MemberNode.SelectNodes("example") is not XmlNodeList exampleNodes) return [];
+        if (!HasXmlDocumentation || MemberNode?.SelectNodes("example") is not XmlNodeList exampleNodes) return [];
 
         var exampleStrings = new List<string>();
 
@@ -87,13 +87,26 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
     {
         if(TryGetFromLang(EDocumentationType.Returns, out var descriptionFromLang)) return descriptionFromLang;
 
-        if (HasXmlDocumentation && MemberNode.SelectSingleNode("returns") is XmlNode returnNode)
+        if (HasXmlDocumentation && MemberNode?.SelectSingleNode("returns") is XmlNode returnNode)
         {
             var returnStr = returnNode.InnerText.CleanWhiteSpaces();
             if(!string.IsNullOrEmpty(returnStr)) return returnStr;
         }
         return string.Empty;
     }
+
+    public static Dictionary<Type, int> MessageOrder { get; } = new()
+    {
+        [typeof(RequiredAttribute)]          = 0,
+    
+        [typeof(RangeAttribute)]             = 1,
+        [typeof(StringLengthAttribute)]      = 2,
+        [typeof(MinLengthAttribute)]         = 3,
+        [typeof(MaxLengthAttribute)]         = 4,
+
+        [typeof(RegularExpressionAttribute)] = 5,
+        [typeof(CompareAttribute)]           = 6,
+    };
 
     public string GetExtendedDescription()
     {
@@ -102,25 +115,12 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
         var description = new StringBuilder(GetDescription());
         description.AppendLine();
 
-        var defaultAttr = Member.GetCustomAttribute<DefaultValueAttribute>();
-        if(defaultAttr is not null) description.AppendLine($"Default: {defaultAttr.Value}");
+
 
         var validatorAttributes = Member.GetCustomAttributes<ValidationAttribute>().ToArray();
 
-        var primaryType = Member.GetPrimaryType();
-        if (primaryType.IsEnum)
+        foreach(var attr in validatorAttributes.OrderBy(attr => MessageOrder[attr.GetType()]))
         {
-            var isEnumFlag = primaryType.GetCustomAttribute<FlagsAttribute>() is not null;
-            if (isEnumFlag) description.Append("Valid Values (Combination):");
-            else description.Append("Valid Values: ");
-            var parser = new EnumNameValueMapping(primaryType);
-            description.AppendLine(parser.GetDescriptionStrings());
-            if(validatorAttributes.Length > 0) description.AppendLine();
-        }
-
-        foreach(var attr in validatorAttributes)
-        {
-            //TODO Sort these so ordering is consistent
             switch (attr)
             {
                 case RequiredAttribute requiredAttr:
@@ -150,10 +150,27 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
                 case CompareAttribute compareAttr:
                     description.AppendLine( $"Compare: {compareAttr.OtherProperty} ({compareAttr.ErrorMessage})");
                     break;
-            }
 
-            //TODO interface for custom attribute messages
+                case IDocumentedAttribute documentedAttribute:
+                    var documentation = documentedAttribute.Documentation(Member);
+                    if(!string.IsNullOrWhiteSpace(documentation)) description.AppendLine(documentation);
+                    break;
+            }
         }
+
+        var primaryType = Member.GetPrimaryType();
+        if (primaryType is not null && primaryType.IsEnum)
+        {
+            var isEnumFlag = primaryType.GetCustomAttribute<FlagsAttribute>() is not null;
+            if (isEnumFlag) description.Append("Valid Values (Combination):");
+            else description.Append("Valid Values: ");
+            var parser = new EnumNameValueMapping(primaryType);
+            description.AppendLine(parser.GetDescriptionStrings());
+            if(validatorAttributes.Length > 0) description.AppendLine();
+        }
+
+        var defaultAttr = Member.GetCustomAttribute<DefaultValueAttribute>();
+        if(defaultAttr is not null) description.AppendLine($"Default: {defaultAttr.Value}");
 
         return description.ToString().CleanWhiteSpaces();
     }

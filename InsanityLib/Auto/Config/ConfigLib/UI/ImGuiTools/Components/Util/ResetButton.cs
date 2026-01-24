@@ -10,7 +10,7 @@ namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 public class ResetButton : ComponentBase
 {
     public readonly string DescriptionStr;
-    public static ResetButton TryCreate(ImGuiContext context)
+    public static ResetButton? TryCreate(ImGuiContext context)
     {
         if(!context.CanWrite || context.Member.GetCustomAttribute<DefaultValueAttribute>() is null) return null;
 
@@ -19,8 +19,8 @@ public class ResetButton : ComponentBase
 
     protected ResetButton(ImGuiContext context) : base(context)
     {
-        var defaultAttr = context.Member.GetCustomAttribute<DefaultValueAttribute>();
-        DescriptionStr = $"Reset to default: {(defaultAttr is AutoDefaultValueAttribute ? "RuntimeCalculated" : defaultAttr.Value)}";
+        var defaultAttr = context.Member!.GetCustomAttribute<DefaultValueAttribute>();
+        DescriptionStr = $"Reset to default: {(defaultAttr is AutoDefaultValueAttribute ? "RuntimeCalculated" : defaultAttr!.Value)}";
     }
 
     public override void Render()
@@ -29,8 +29,8 @@ public class ResetButton : ComponentBase
         {
             try
             {
-                Context.Member.SetAutoDefaultValue(Context, Context.TargetObject);
-                Context.ParentContext.NotifyChanged(this); //Reset button has a sperate context, we should notify the parent context instead
+                Context.Member!.SetAutoDefaultValue(Context, Context.TargetObject);
+                Context.ParentContext!.NotifyChanged(this); //Reset button has a sperate context, we should notify the parent context instead
             }
             catch(Exception ex)
             {

@@ -6,5 +6,5 @@ namespace InsanityLib.PathResolvers;
 public interface IPathResolver
 {
     public string Scheme { get; }
-    public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object result);
+    public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object? result);
 }

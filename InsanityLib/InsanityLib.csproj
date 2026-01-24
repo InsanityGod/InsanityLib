@@ -32,11 +32,6 @@
 			<Output TaskParameter="Result" PropertyName="VersionFromJson" />
 		</JsonPeek>
 
-		<!-- Read InsanityLib Dependency (disabled because the mod shouldn't define self dependency in modinfo) -->
-		<!--<JsonPeek ContentPath="$(ModInfoFile)" Query="$.dependencies.insanitylib" Empty="$empty">
-			<Output TaskParameter="Result" PropertyName="HasHardInsanityLibDependency" />
-		</JsonPeek>-->
-
 		<!-- Set all relevant properties -->
 		<PropertyGroup>
 			<ModID>$(ModIDFromJson)</ModID>
@@ -45,9 +40,7 @@
 			<Authors>$(AuthorsFromJson)</Authors>
 			<Version>$(VersionFromJson)</Version>
 			
-			<!-- Manually setting dependency -->
 			<HasInsanityLibDependency>*</HasInsanityLibDependency>
-			<!--<HasInsanityLibDependency>$(HasHardInsanityLibDependency)</HasInsanityLibDependency>-->
 		</PropertyGroup>
 	</Target>
 
@@ -56,33 +49,38 @@
 		<OutputPath>bin\$(Configuration)\Mods\mod</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
-		<PackageId>$(MSBuildProjectName)</PackageId>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		
+		<!-- Package -->
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageOutputPath>bin\$(Configuration)</PackageOutputPath>
+		
+		<PackageId>VintageStory.$(MSBuildProjectName)</PackageId>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<IncludeSymbols>True</IncludeSymbols>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<PackageIcon>modicon.png</PackageIcon>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<Nullable>enable</Nullable>
 
+		<DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<!-- Project reference for simpler build pipeline (as consumer you should be using the package) -->
+		<PackageReference Include="VintageStory.AutoConfigLib" Version="1.0.0" />
+		
 		<ProjectReference Include="..\InsanityLib.Generators\InsanityLib.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\InsanityLib.Analyzers\InsanityLib.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<ProjectReference Include="..\InsanityLib.Generators.Attributes\InsanityLib.Generators.Attributes.csproj" />
-		
-		<!-- This is what you would have when using it normally -->
-		<!--<PackageReference Include="InsanityLib.Generators" Version="1.0.0" PrivateAssets="all" />-->
+		<ProjectReference Include="..\InsanityLib.Generators.Attributes\InsanityLib.Generators.Attributes.csproj" private="false" PrivateAssets="all"/>
+
+		<None Include="..\InsanityLib.Generators\bin\$(Configuration)\InsanityLib.Generators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="..\InsanityLib.Analyzers\bin\$(Configuration)\InsanityLib.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" visible="false" />
+		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.dll" Pack="true" PackagePath="lib/netstandard2.0" visible="false" />
+		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.xml" Pack="true" PackagePath="lib/netstandard2.0" visible="false" />
 		
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 		<PackageReference Include="JsonPeek" Version="1.2.0" />
-		<Reference Include="AutoConfigLib">
-			<HintPath>..\..\AutoConfigLib\AutoConfigLib\bin\Debug\Mods\mod\AutoConfigLib.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
 		<Reference Include="configlib">
 			<HintPath>..\..\Dep\configlib_1.4.1\configlib.dll</HintPath>
 			<Private>false</Private>
@@ -141,6 +139,7 @@
 	<ItemGroup>
 		<Content Include="modinfo.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>false</Pack>
 		</Content>
 		<Content Include="modicon.png;..\LICENSE.txt">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

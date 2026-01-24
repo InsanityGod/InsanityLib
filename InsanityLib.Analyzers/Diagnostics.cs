@@ -32,13 +32,15 @@ internal static class Diagnostics
         isEnabledByDefault: true
     );
 
-    internal static readonly DiagnosticDescriptor HardDependencyMissing = new(
-        id: "INSANITY004",
-        title: "InsanityLib is required as dependency to use an InsanityLib type in this way",
-        messageFormat: "Usage of type from InsanityLib in this way requires InsanityLib dependency, either refactor the code or add InsanityLib as dependency",
+    internal static readonly DiagnosticDescriptor MustBeClassWithEmptyConstructor = new(
+        id: "INSANITY005",
+        title: "Attribute is only allowed for classes with an empty constructor",
+        messageFormat: "Invalid usage of '{0}', '{1}' is not a class or does not have a public empty constructor",
         category: "Usage",
         defaultSeverity: DiagnosticSeverity.Error,
         //TODO helpLinkUri
         isEnabledByDefault: true
     );
+
+    //TODO maybe some warnings about AutoMethods not being called?
 }

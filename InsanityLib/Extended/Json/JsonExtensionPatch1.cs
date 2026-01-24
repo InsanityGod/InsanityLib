@@ -10,7 +10,7 @@ using System.Reflection.Emit;
 namespace InsanityLib.Extended.Json;
 
 [HarmonyPatch]
-internal static class Patches
+internal static class JsonExtensionPatch1
 {
     [HarmonyTargetMethods]
     internal static IEnumerable<MethodBase> TargetMethods()
@@ -33,7 +33,7 @@ internal static class Patches
 
         var jump = generator.DefineLabel();
         matcher.InsertAfter(
-            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Patches), nameof(TryPathResolve))),
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JsonExtensionPatch1), nameof(TryPathResolve))),
             new CodeInstruction(OpCodes.Dup),
             new CodeInstruction(OpCodes.Brfalse_S, jump),
             new CodeInstruction(OpCodes.Ret),
@@ -44,18 +44,20 @@ internal static class Patches
         return matcher.InstructionEnumeration();
     }
 
-    public static JToken TryPathResolve(JsonReader reader)
+    public static JToken? TryPathResolve(JsonReader reader)
     {
-        if (reader.TokenType != JsonToken.String || reader.Value is not string stringValue || !Resolver.TryResolve(stringValue, ReflectionUtil.GetApi(), out object result))
+        if (reader.TokenType != JsonToken.String || reader.Value is not string stringValue || !Resolver.TryResolve(stringValue, ReflectionUtil.GetApi(), out object? result))
         {
             return null;
         }
+        if(result is null) return JValue.CreateNull();
+
         return JToken.FromObject(result);
     }
 }
 
 [HarmonyPatch]
-internal static class Patches2
+internal static class JsonExtensionPatch2
 {
     [HarmonyPatch(typeof(JContainer), "ReadContentFrom", typeof(JsonReader), typeof(JsonLoadSettings))]
     [HarmonyTranspiler]
@@ -74,7 +76,7 @@ internal static class Patches2
         var jump = generator.DefineLabel();
         var jump2 = generator.DefineLabel();
         matcher.InsertAfterAndAdvance(
-            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Patches), nameof(Patches.TryPathResolve))),
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(JsonExtensionPatch1), nameof(JsonExtensionPatch1.TryPathResolve))),
             new CodeInstruction(OpCodes.Dup),
             new CodeInstruction(OpCodes.Brfalse_S, jump),
             CodeInstruction.StoreLocal(tmpLocal.LocalIndex),

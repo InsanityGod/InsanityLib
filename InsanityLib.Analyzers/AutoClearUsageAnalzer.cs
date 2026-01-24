@@ -22,7 +22,7 @@ public class AutoClearUsageAnalzer : DiagnosticAnalyzer
         var symbol = context.Symbol;
       
         var attributes = symbol.GetAttributes();
-        var autoClearAtr = context.Compilation.GetTypeByMetadataName("InsanityLib.Generators.Attributes");
+        var autoClearAtr = context.Compilation.GetTypeByMetadataName("InsanityLib.Generators.Attributes.AutoClearAttribute");
 
         var foundAttr = attributes.FirstOrDefault(attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, autoClearAtr));
         if(foundAttr is null) return;

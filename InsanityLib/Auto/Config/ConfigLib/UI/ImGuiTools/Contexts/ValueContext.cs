@@ -16,22 +16,22 @@ public class ValueContext : ImGuiContext
     /// The initial object of the value.
     /// This is mostly usefull when the item could not be added to the collection due to key alrady existing
     /// </summary>
-    public object CachedObject { get; internal set; }
+    public object? CachedObject { get; internal set; }
 
-    public override ImGuiContext New(string id = null, MemberInfo member = null, string name = null) => new(GetValueOrThrow(), member, this, id, name); //TODO allow for setting values
+    public override ImGuiContext New(string? id = null, MemberInfo? member = null, string? name = null) => new(GetValueOrThrow(), member, this, id, name);
 
-    private object GetValueOrThrow() => TryGetValue(out var value) ? value : throw new InvalidOperationException();
+    private object GetValueOrThrow() => TryGetValue(out var value) ? value! : throw new InvalidOperationException();
     
-    public ValueContext(object targetObject, MemberInfo member, Type valueType, KeyContext keyContext, ImGuiContext parentContext = null, string id = null, string name = null, IServiceProvider serviceProvider = null) : base(targetObject, member, parentContext, id, name, serviceProvider)
+    public ValueContext(object targetObject, MemberInfo member, Type valueType, KeyContext keyContext, ImGuiContext? parentContext = null, string? id = null, string? name = null, IServiceProvider? serviceProvider = null) : base(targetObject, member, parentContext, id, name, serviceProvider)
     {
         ValueType = valueType;
         KeyContext = keyContext;
         Description = null;
     }
 
-    public override bool TryGetValue(out object value)
+    public override bool TryGetValue(out object? value)
     {
-        if (!CanRead || !base.TryGetValue(out object container))
+        if (!CanRead || !base.TryGetValue(out object? container))
         {
             value = null;
             return false;
@@ -58,10 +58,10 @@ public class ValueContext : ImGuiContext
         return false;
     }
 
-    public override bool TrySetValue(object value, object ChangedBy)
+    public override bool TrySetValue(object? value, object ChangedBy)
     {
         LastValidationResult = string.Empty;
-        if(!CanWrite || !base.TryGetValue(out object container)) return false;
+        if(!CanWrite || !base.TryGetValue(out object? container)) return false;
         
         if (!KeyContext.ExistsInDictionary)
         {
@@ -93,7 +93,7 @@ public class ValueContext : ImGuiContext
         return false;
     }
 
-    public override bool TryAutoSetValue(object value, object ChangedBy)
+    public override bool TryAutoSetValue(object? value, object ChangedBy)
     {
         if(!CanWrite) return false;
         try

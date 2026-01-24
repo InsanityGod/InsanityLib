@@ -17,7 +17,7 @@ public static class ImGuiComposer
         new MethodComposer(),
     ];
 
-    public static IImGuiComponent TryCompose(ImGuiContext context, Type type = null)
+    public static IImGuiComponent? TryCompose(ImGuiContext context, Type? type = null)
     {
         type ??= context.ComposeType;
 

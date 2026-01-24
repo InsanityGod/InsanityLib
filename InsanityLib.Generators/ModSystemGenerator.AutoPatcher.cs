@@ -18,8 +18,8 @@ public sealed partial class ModSystemGenerator
     public void GenerateStaticPatchCategoryList(IndentedTextWriter writer, GeneratorContext info)
     {
         var categories = GetOrFindPatchCategories(info);
-
-        writer.WriteLine($"public static readonly string[] PatchCategories = [{string.Join(", ", categories)}];");
+        if(categories.Length == 0) return;
+        writer.WriteLine($"private static readonly string[] PatchCategories = [{string.Join(", ", categories)}];");
         writer.WriteLine();
     }
 

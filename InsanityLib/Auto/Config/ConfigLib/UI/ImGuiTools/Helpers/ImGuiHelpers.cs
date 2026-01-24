@@ -26,7 +26,6 @@ public static class ImGuiHelpers
         ImGui.Spacing();
 
         var style = ImGui.GetStyle();
-        float contentWidth = ImGui.GetContentRegionAvail().X;
         var cursorPos = ImGui.GetCursorScreenPos();
         float lineHeight = ImGui.GetTextLineHeight();
 

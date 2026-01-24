@@ -11,9 +11,9 @@ namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 
 public class DictAndListAddButton : Button
 {
-    public readonly Type KeyType;
+    public readonly Type? KeyType;
 
-    public readonly Type ValueType;
+    public readonly Type? ValueType;
     public readonly IImGuiComponentContainer ComponentContainer;
 
     private int lastIndex = -1;
@@ -24,7 +24,7 @@ public class DictAndListAddButton : Button
         Action = AddItem;
         if(!Context.TryGetValue(out var container)) return;
 
-        var containerType = container.GetType();
+        var containerType = container!.GetType()!;
         var dictTypes = containerType.FindGenericInterfaceDefinition(typeof(IDictionary<,>))?.GenericTypeArguments;
         var listTypes = containerType.FindGenericInterfaceDefinition(typeof(ICollection<>))?.GenericTypeArguments;
         
@@ -36,7 +36,7 @@ public class DictAndListAddButton : Button
         else if(container is Array)
         {
             KeyType = typeof(int);
-            ValueType = containerType.GetElementType();
+            ValueType = containerType.GetElementType()!;
         }
         else if(listTypes is not null)
         {
@@ -48,7 +48,7 @@ public class DictAndListAddButton : Button
     {
         if(!Context.TryGetValue(out var container))
         {
-            Context.ParentContext.TrySetValue(Context.ParentContext.Member.GetPrimaryType().AutoCreate(Context.ParentContext), this);
+            Context.ParentContext!.TrySetValue(Context.ParentContext.Member!.GetPrimaryType()!.AutoCreate(Context.ParentContext), this);
             if(!Context.TryGetValue(out container)) return;
         }
         
@@ -58,34 +58,34 @@ public class DictAndListAddButton : Button
         {
             var key = KeyType?.AutoCreate(Context, false);
 
-            if (!dict.Contains(key))
+            if (!dict.Contains(key!))
             {
-                dict.Add(key, value);
-                AddDisplay(key, value, true);
+                dict.Add(key!, value);
+                AddDisplay(key!, value!, true);
             }
-            else AddDisplay(key, value, false);
+            else AddDisplay(key!, value!, false);
         }
         else if(container is IList list)
         {
             var key = list.Count;
             if(container is Array)
             {
-                var newArray = Array.CreateInstance(ValueType, key + 1);
+                var newArray = Array.CreateInstance(ValueType!, key + 1);
                 list.CopyTo(newArray, 0);
                 newArray.SetValue(value, key);
 
-                Context.ParentContext.TrySetValue(newArray, this);
+                Context.ParentContext!.TrySetValue(newArray, this);
                 foreach (var item in ComponentContainer.Where(item => item.Context.TargetObject == container))
                 {
                     item.Context.TargetObject = newArray;
                 }
 
-                AddDisplay(key, value, true);
+                AddDisplay(key, value!, true);
             }
             else
             {
                 list.Add(value);
-                AddDisplay(key, value, true);
+                AddDisplay(key, value!, true);
             }
         }
     }
@@ -99,7 +99,7 @@ public class DictAndListAddButton : Button
             Spread = new int?[3]
         };
 
-        KeyContext keyContext = new(Context.TargetObject, Context.Member, KeyType, key, ValueType, Context, $"key-{lastIndex++}", string.Empty)
+        KeyContext keyContext = new(Context.TargetObject!, Context.Member!, KeyType!, key, ValueType!, Context, $"key-{lastIndex++}", string.Empty)
         {
             ExistsInDictionary = existsInDictionary
         };
@@ -119,7 +119,7 @@ public class DictAndListAddButton : Button
         keyContext.ValueContext.CachedObject = item;
         if (container is IDictionary)
         {
-            var keyComponent = ImGuiComposer.TryCompose(keyContext, KeyType);
+            var keyComponent = ImGuiComposer.TryCompose(keyContext, KeyType!);
             if(keyComponent is not null)
             {
                 collection.Spread[collection.Components.Count] = 200; //Set width for key column
@@ -127,7 +127,7 @@ public class DictAndListAddButton : Button
             }
         }
         
-        var valueComponent = ImGuiComposer.TryCompose(keyContext.ValueContext, ValueType);
+        var valueComponent = ImGuiComposer.TryCompose(keyContext.ValueContext, ValueType!);
         if(valueComponent is not null)
         {
             collection.Components.Add(valueComponent);

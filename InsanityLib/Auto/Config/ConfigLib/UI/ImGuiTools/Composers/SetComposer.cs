@@ -11,7 +11,7 @@ internal class SetComposer : IImGuiComposer
 {
     public bool CanComposeType(Type type) => type.FindGenericInterfaceDefinition(typeof(ISet<>)) is not null;
 
-    public IImGuiComponent Compose(ImGuiContext context, Type type)
+    public IImGuiComponent? Compose(ImGuiContext context, Type type)
     {
         var componentContainer = new ComponentCollection(context);
         var addButton = new SetAddButton(context, componentContainer);

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace InsanityLib.Config.Auto;
+namespace InsanityLib.Config.Sub;
 
 public class AutoConfigConfig
 {

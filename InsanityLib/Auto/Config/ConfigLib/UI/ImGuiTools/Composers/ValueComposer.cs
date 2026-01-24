@@ -23,10 +23,10 @@ public class ValueComposer : IImGuiComposer
 
     public bool CanComposeType(Type type) => Renderers.ContainsKey(type) || type.IsEnum || Nullable.GetUnderlyingType(type) is Type underLyingType && CanComposeType(underLyingType);
 
-    public IImGuiComponent Compose(ImGuiContext context, Type type)
+    public IImGuiComponent? Compose(ImGuiContext context, Type type)
     {
         type = Nullable.GetUnderlyingType(type) ?? type;
-        Type componentType = null;
+        Type? componentType = null;
         
         if (type.IsEnum)
         {
@@ -37,7 +37,7 @@ public class ValueComposer : IImGuiComposer
 
         try
         {
-            return componentType.AutoCreate(context) as IImGuiComponent;
+            return componentType?.AutoCreate(context) as IImGuiComponent;
         }
         catch(Exception ex)
         {

@@ -13,7 +13,7 @@ public class ClassComposer : IImGuiComposer
 {
     public bool CanComposeType(Type type) => type.IsComplexClassType();
 
-    public IImGuiComponent Compose(ImGuiContext context, Type type)
+    public IImGuiComponent? Compose(ImGuiContext context, Type type)
     {
         if(!context.TryGetValue(out var classInstance) || classInstance is null)
         {
@@ -54,7 +54,7 @@ public class ClassComposer : IImGuiComposer
                 if(component is not null) groupContainer.Components.Add(component);
             }
 
-            if(InsanityLibConfig.Instance.AutoConfig.AutoElementOrdering) groupContainer.Components.Sort(SortGroup);
+            if(InsanityLibConfig.Instance!.AutoConfig.AutoElementOrdering) groupContainer.Components.Sort(SortGroup);
         }
 
         return container;

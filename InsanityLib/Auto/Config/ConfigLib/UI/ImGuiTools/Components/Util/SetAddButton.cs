@@ -11,7 +11,7 @@ namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 public class SetAddButton : Button
 {
 
-    public readonly Type ValueType;
+    public readonly Type? ValueType;
     public readonly IImGuiComponentContainer ComponentContainer;
 
     public SetAddButton(ImGuiContext context, IImGuiComponentContainer componentContainer) : base(context.New("addbutton", name: "add"), null)
@@ -19,19 +19,19 @@ public class SetAddButton : Button
         ComponentContainer = componentContainer;
         if(!Context.TryGetValue(out var container)) return;
 
-        var containerType = container.GetType();
+        var containerType = container!.GetType();
         ValueType = containerType.FindGenericInterfaceDefinition(typeof(ISet<>))?.GenericTypeArguments[0];
         
         Action = AddItem;
     }
 
-    public void AddItem() => typeof(SetAddButton).Method(nameof(AddItemInternal)).MakeGenericMethod(ValueType).Invoke(this);
+    public void AddItem() => typeof(SetAddButton).Method(nameof(AddItemInternal)).MakeGenericMethod(ValueType!).Invoke(this);
     
     private void AddItemInternal<T>()
     {
         if(!Context.TryGetValue(out var container))
         {
-            Context.ParentContext.TrySetValue(Context.ParentContext.Member.GetPrimaryType().AutoCreate(Context.ParentContext), this);
+            Context.ParentContext!.TrySetValue(Context.ParentContext.Member!.GetPrimaryType()!.AutoCreate(Context.ParentContext), this);
             if(!Context.TryGetValue(out container)) return;
         }
 
@@ -47,7 +47,7 @@ public class SetAddButton : Button
             Spread = new int?[2]
         };
         
-        SetItemContext setItemContext = new(Context.TargetObject, Context.Member, ValueType, item, Context, $"key-{Guid.NewGuid()}", string.Empty)
+        SetItemContext setItemContext = new(Context.TargetObject!, Context.Member!, ValueType!, item!, Context, $"key-{Guid.NewGuid()}", string.Empty)
         {
             ExistsInSet = existsInSet,
         };
@@ -59,7 +59,7 @@ public class SetAddButton : Button
             FullWidth = false,
             FixedWidth = new Vector2(50, 0)
         });
-        var component = ImGuiComposer.TryCompose(setItemContext, ValueType);
+        var component = ImGuiComposer.TryCompose(setItemContext, ValueType!);
         if(component != null) collection.Components.Add(component);
         
         ComponentContainer.Components.Insert(ComponentContainer.Components.IndexOf(this), collection);

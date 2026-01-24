@@ -4,6 +4,7 @@ using InsanityLib.Util;
 using InsanityLib.Util.Interfaces;
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools;
@@ -34,7 +35,7 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
 
     //public readonly string Id; //TODO ReadOnlySpan<char>
 
-    public virtual ImGuiContext New(string? id = null, MemberInfo? member = null, string? name = null) => new(member is null ? TargetObject! : Member.GetValue(TargetObject)!, member ?? Member, this, id, name);
+    public virtual ImGuiContext New(string? id = null, MemberInfo? member = null, string? name = null) => new(member is null ? TargetObject! : Member?.GetValue(TargetObject)!, member ?? Member, this, id, name);
 
     public ImGuiContext(object targetObject, MemberInfo? member, ImGuiContext? parentContext = null, string? id = null, string? name = null, IServiceProvider? serviceProvider = null)
     {
@@ -66,7 +67,7 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
 
         var docs = Member.GetDocumentationContext();
 
-        Description = docs.GetExtendedDescription().ReplaceSpecialSymbolsWithText(); //TODO maybe some way to repsect display format when using it for ImGui (so 0.3 shows up as 30%)
+        Description = docs?.GetExtendedDescription().ReplaceSpecialSymbolsWithText(); //TODO maybe some way to repsect display format when using it for ImGui (so 0.3 shows up as 30%)
         if (string.IsNullOrWhiteSpace(Description)) Description = null;
         
     }
@@ -75,15 +76,17 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
     {
         get
         {
-            if(Member is null) return TargetObject.GetType();
+            if(Member is null) return TargetObject!.GetType();
 
-            return Member is MethodInfo ? typeof(MethodInfo) : Member.GetPrimaryType();
+            return Member is MethodInfo ? typeof(MethodInfo) : Member.GetPrimaryType()!;
         }
     }
 
     public readonly bool CanRead;
     public readonly bool AllowedToRead = true;
-    public readonly bool CanWrite;
+
+    [MemberNotNullWhen(true, nameof(Member))]
+    public bool CanWrite { get; }
     public readonly bool AllowedToWrite = true;
 
     public PropertyChangedEventHandler? PropertyChanged { get; set; }
@@ -96,7 +99,7 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
 
     public void NotifyChanged(object sender) => PropertyChanged?.Invoke(sender, new PropertyChangedEventArgs(Member.Name));
 
-    public virtual bool TryGetValue(out object value)
+    public virtual bool TryGetValue(out object? value)
     {
         value = null;
         if(!CanRead) return false;
@@ -130,7 +133,7 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
 
         try
         {
-            Member.SetValue(value, TargetObject);
+            Member!.SetValue(value, TargetObject);
             NotifyChanged(ChangedBy);
             return true;
         }

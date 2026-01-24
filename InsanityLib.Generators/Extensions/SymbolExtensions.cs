@@ -1,4 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 
@@ -164,5 +166,41 @@ static partial class SymbolExtensions
 
         if(result is null) return defaultValue;
         return result.Value;
+    }
+
+    public static INamedTypeSymbol GetPrimaryType(this ISymbol symbol) => symbol switch
+    {
+        IFieldSymbol f => f.Type,
+        IPropertySymbol p => p.Type,
+        _ => null
+    } as INamedTypeSymbol;
+
+    public static bool IsPartial(this INamedTypeSymbol symbol)
+    {
+        foreach (var syntaxRef in symbol.DeclaringSyntaxReferences)
+        {
+            var root = syntaxRef.SyntaxTree.GetRoot();
+            var node = root.FindNode(syntaxRef.Span);
+    
+            if (node is ClassDeclarationSyntax classDecl &&
+                classDecl.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)))
+            {
+                return true;
+            }
+        }
+    
+        return false;
+    }
+
+    public static int GetNamespaceDepth(this INamedTypeSymbol symbol)
+    {
+        if (symbol.ContainingNamespace == null || symbol.ContainingNamespace.IsGlobalNamespace)
+            return 0;
+    
+        int depth = 0;
+        for (var ns = symbol.ContainingNamespace; !ns.IsGlobalNamespace; ns = ns.ContainingNamespace)
+            depth++;
+    
+        return depth;
     }
 }

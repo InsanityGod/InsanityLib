@@ -2,5 +2,5 @@
 
 public interface IValidationResultProvider
 {
-    string LastValidationResult { get; }
+    string? LastValidationResult { get; }
 }

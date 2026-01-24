@@ -10,7 +10,7 @@ public sealed class ContextualBlockEntityBehaviorProvider : IContextualArgumentP
     
     public static readonly ContextualBlockEntityBehaviorProvider Instance = new();
 
-    public bool CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr) => typeof(CollectibleBehavior).IsAssignableFrom(paramInfo.ParameterType);
+    public bool CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr) => typeof(BlockEntityBehavior).IsAssignableFrom(paramInfo.ParameterType);
 
     public BlockEntityBehavior? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) => 
         ContextualBlockEntityProvider.ProvideRaw(serviceProvider, parameterInfo, contextualSource)?.Behaviors.FirstOrDefault(parameterInfo.ParameterType.IsInstanceOfType);
