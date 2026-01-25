@@ -1,4 +1,5 @@
-﻿using InsanityLib.Util;
+﻿using InsanityLib.Extensions;
+using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,7 +29,7 @@ public class EnumNameValueMapping
             .Cast<int>()
             .Select(static x => (long)x)];
 
-        if (includeExtended && EnumExtensionUtil.EnumExtensions.TryGetValue(enumType, out var extension))
+        if (includeExtended && ExtendedEnum.EnumExtensions.TryGetValue(enumType, out var extension))
         {
             foreach((var value, var offset) in extension.OffsetLookup)
             {
@@ -57,7 +58,7 @@ public class EnumNameValueMapping
                 NumericValues = NumericValues.Append(
                     enumExtensionType.GetEnumValues()
                     .Cast<int>()
-                    .Select(static x => (long)x)
+                    .Select(x => (long)x + offset)
                 );
 
             }
@@ -94,18 +95,23 @@ public class EnumNameValueMapping
         return Enum.Format(EnumType, value, "G");
     }
 
+    public string? GetStringValue(int value)
+    {
+        var index = NumericValues.IndexOf(value);
+        return index < 0 ? null : StrValues[index];
+    }
+
     public string[] GetStringValues(object value) => GetStringValue(value).Split(", ");
 
     public int[] GetIndexes(long value) => [.. GetStringValues(value).Select(str => Array.IndexOf(StrValues, str))];
 
     public string GetDescriptionStrings()
     {
-        //TODO also allow for displaying description of the enum values itself
         var builder = new StringBuilder();
 
         for(var i = 0; i < StrValues.Length; i++)
         {
-            builder.Append($"{Names[i]} ({NumericValues[i]})");
+            builder.Append($"{StrValues[i]} ({NumericValues[i]})");
 
             if(i != StrValues.Length - 1) builder.Append(", ");
         }

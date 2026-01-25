@@ -3,19 +3,16 @@ using InsanityLib.Generators.Attributes;
 using System;
 using System.Collections.Generic;
 
-namespace InsanityLib.Util;
+namespace InsanityLib.Extensions;
 
-public static class EnumExtensionUtil
+public static class ExtendedEnumExtensions
 {
-    [AutoClear]
-    internal static Dictionary<Type, ExtendedEnum> EnumExtensions = [];
-
     public static void RegisterEnumExtension<TActual, TExtension>() where TActual : Enum where TExtension : Enum
     {
-        if (!EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))
+        if (!ExtendedEnum.EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))
         {
             extendedEnum = new ExtendedEnum(typeof(TActual));
-            EnumExtensions[typeof(TActual)] = extendedEnum;
+            ExtendedEnum.EnumExtensions[typeof(TActual)] = extendedEnum;
         }
 
         extendedEnum.RegisterExtension<TExtension>();
@@ -23,7 +20,7 @@ public static class EnumExtensionUtil
 
     public static TExtension ToExtensionEnum<TActual, TExtension>(this TActual actual) where TActual : Enum where TExtension : Enum
     {
-        if (EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))
+        if (ExtendedEnum.EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))
         {
             return extendedEnum.FromExtendedEnum<TExtension>((int)(object)actual);
         }
@@ -32,12 +29,14 @@ public static class EnumExtensionUtil
 
     public static TActual FromExtensionEnum<TExtension, TActual>(this TExtension extension) where TActual : Enum where TExtension : Enum
     {
-        if (EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))
+        if (ExtendedEnum.EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))
         {
             return (TActual)(object)extendedEnum.ToExtendedEnum(extension);
         }
         throw new InvalidOperationException($"{typeof(TActual).FullName} is not an extended enum");
     }
 
-    public static int? TryParse(Type type, string strValue) => EnumExtensions.GetValueOrDefault(type)?.FromString(strValue);
+    public static int? TryParse(Type type, string strValue) => ExtendedEnum.EnumExtensions.GetValueOrDefault(type)?.FromString(strValue);
+
+    public static string? TryToString(Type type, int intValue) => ExtendedEnum.EnumExtensions.GetValueOrDefault(type)?.ToString(intValue);
 }

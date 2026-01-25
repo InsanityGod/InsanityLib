@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Auto.Command.Argument.Providers.Special;
 using InsanityLib.Extended.Enums;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.Reflection;
@@ -37,6 +38,6 @@ public class EnumArgumentParserProvider : IArgumentParserProvider<Enum>
             : parser.GetValue();
         if(value is not string strValue) return value;
 
-        return EnumExtensionUtil.TryParse(parameterInfo.ParameterType, strValue);
+        return ExtendedEnumExtensions.TryParse(parameterInfo.ParameterType, strValue);
     }
 }

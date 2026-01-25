@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Auto.Config.ConfigLib;
 using InsanityLib.Config;
+using InsanityLib.Extended.Enums;
 using InsanityLib.Extensions;
 using InsanityLib.Generators.Attributes;
 using InsanityLib.Util;
@@ -10,6 +11,7 @@ using System.IO;
 using System.Text;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Vintagestory.GameContent;
 
 namespace InsanityLib.Auto.Config;
 //TODO maybe some events to hook into loading logic
@@ -162,18 +164,17 @@ public static class AutoConfig
 
         try
         {
-            if (!InsanityLibConfig.Instance!.AutoConfig.DocumentationInConfigFile)
-            {
-                api.StoreModConfig(configInstance, relativePath);
-                return true;
-            }
-            
             FileInfo fileInfo = new(Path.Combine(GamePaths.ModConfig, relativePath));
             GamePaths.EnsurePathExists(fileInfo.Directory!.FullName);
         
             var settings = JsonConvert.DefaultSettings?.Invoke() ?? new JsonSerializerSettings();
             settings.Formatting = Formatting.Indented;
-            settings.Converters.Add(new JsonConverterWithCommentInjection());
+
+            if (InsanityLibConfig.Instance!.AutoConfig.DocumentationInConfigFile)
+            {
+                settings.Converters.Add(new JsonConverterWithCommentInjection());
+            }
+            settings.Converters.Add(new ExtendedEnumJsonConverter());
 
             using var stream = File.CreateText(fileInfo.FullName);
             using var writer = new JsonTextWriter(stream)

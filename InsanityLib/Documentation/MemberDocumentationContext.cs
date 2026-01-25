@@ -115,8 +115,6 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
         var description = new StringBuilder(GetDescription());
         description.AppendLine();
 
-
-
         var validatorAttributes = Member.GetCustomAttributes<ValidationAttribute>().ToArray();
 
         foreach(var attr in validatorAttributes.OrderBy(attr => MessageOrder[attr.GetType()]))

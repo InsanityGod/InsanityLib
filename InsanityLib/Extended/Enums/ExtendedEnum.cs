@@ -1,4 +1,6 @@
-﻿using System;
+﻿using InsanityLib.Generators.Attributes;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Vintagestory.API.Datastructures;
@@ -7,16 +9,22 @@ namespace InsanityLib.Extended.Enums;
 
 public class ExtendedEnum
 {
+    [AutoClear]
+    internal readonly static Dictionary<Type, ExtendedEnum> EnumExtensions = [];
+
     public Type EnumType { get; }
 
     internal readonly OrderedDictionary<object, int> OffsetLookup = [];
     protected int currentOffset;
 
+    public readonly int defaultMaxValue;
+
     public ExtendedEnum(Type enumType)
     {
         if(enumType.GetCustomAttribute<FlagsAttribute>() is not null) throw new InvalidOperationException($"Cannot extend {enumType}: Enum extension is not supported for flags");
         EnumType = enumType;
-        currentOffset = Enum.GetValues(enumType).Cast<int>().Max() + 1;
+        defaultMaxValue = Enum.GetValues(enumType).Cast<int>().Max();
+        currentOffset = defaultMaxValue + 1;
 
     }
 
@@ -46,11 +54,12 @@ public class ExtendedEnum
     /// <param name="val">The value of the Enum</param>
     public int ToExtendedEnum<T>(T val) where T : Enum => (int)Enum.ToObject(typeof(T), val) + OffsetLookup[typeof(T)];
 
+    //TODO maybe store as asset location as well?
     public virtual int? FromString(string value)
     {
         foreach ((var obj, var offset) in OffsetLookup) 
         {
-            if(obj is string strObj && string.Equals(strObj, value, StringComparison.OrdinalIgnoreCase)) return offset; //TODO maybe store as asset location as well?
+            if(obj is string strObj && string.Equals(strObj, value, StringComparison.OrdinalIgnoreCase)) return offset;
             
             if(obj is not Type type) continue;
             var name =  Array.Find(Enum.GetNames(type), name => string.Equals(name, value, StringComparison.OrdinalIgnoreCase));
@@ -60,5 +69,14 @@ public class ExtendedEnum
         }
 
         return null;
+    }
+
+    public virtual string? ToString(int value)
+    {
+        if (currentOffset < 2 || defaultMaxValue >= value) return Enum.ToObject(EnumType, value).ToString();
+
+        var extendedMapping = new EnumNameValueMapping(EnumType);
+
+        return extendedMapping.GetStringValue(value);
     }
 }

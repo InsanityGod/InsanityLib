@@ -1,16 +1,12 @@
-﻿using ConfigLib;
-using InsanityLib.Auto.Command;
-using InsanityLib.Auto.Config.ConfigLib;
-using InsanityLib.Config;
+﻿using InsanityLib.Auto.Command;
 using InsanityLib.Documentation;
+using InsanityLib.Extended.Enums;
 using InsanityLib.Extended.Transitions;
 using InsanityLib.Extensions;
-using InsanityLib.Generators.Attributes;
 using InsanityLib.Util;
 using InsanityLib.Util.ContentFeatures;
 using System;
 using System.ComponentModel.Design;
-using System.Runtime.CompilerServices;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -46,10 +42,10 @@ public partial class InsanityLibModSystem : ModSystem, IServiceProvider
 
         ReflectionUtil.LoadedSides ??= api.Side;
         ReflectionUtil.LoadedSides |= api.Side;
-        
-        AutoSetup(api);
 
-        EnumExtensionUtil.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
+        ExtendedEnum.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
+
+        AutoSetup(api);
     }
 
     public override void AssetsLoaded(ICoreAPI api)
