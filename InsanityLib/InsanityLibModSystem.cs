@@ -19,7 +19,7 @@ public partial class InsanityLibModSystem : ModSystem, IServiceProvider
 
     public object? GetService(Type serviceType)
     {
-        var result = ServiceContainer.GetService(serviceType);
+        var result = ServiceContainer?.GetService(serviceType);
         if (result is not null) return result;
 
         if(_api is null) return null;

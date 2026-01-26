@@ -7,6 +7,8 @@ using Vintagestory.API.Datastructures;
 
 namespace InsanityLib.Extended.Enums;
 
+//TODO maybe rework this to allow for a "domain"
+//TODO support for flags
 public class ExtendedEnum
 {
     [AutoClear]
@@ -37,7 +39,6 @@ public class ExtendedEnum
         var offset = Enum.GetValues(enumType).Cast<int>().Max() + 1;
         OffsetLookup[enumType] = currentOffset;
         currentOffset += offset;
-        //TODO
     }
 
     /// <summary>
@@ -54,7 +55,6 @@ public class ExtendedEnum
     /// <param name="val">The value of the Enum</param>
     public int ToExtendedEnum<T>(T val) where T : Enum => (int)Enum.ToObject(typeof(T), val) + OffsetLookup[typeof(T)];
 
-    //TODO maybe store as asset location as well?
     public virtual int? FromString(string value)
     {
         foreach ((var obj, var offset) in OffsetLookup) 

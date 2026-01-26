@@ -1,5 +1,4 @@
 ﻿using InsanityLib.Extended.Enums;
-using InsanityLib.Generators.Attributes;
 using System;
 using System.Collections.Generic;
 

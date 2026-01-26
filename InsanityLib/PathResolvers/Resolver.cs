@@ -1,4 +1,5 @@
 ﻿using InsanityLib.PathResolvers.Implementations;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,5 +53,29 @@ public static class Resolver
 
         result = null;
         return false;
+    }
+
+    public static void ResolveAll(ICoreAPI api, JToken token)
+    {
+        switch (token.Type)
+        {
+            case JTokenType.Object:
+            case JTokenType.Array:
+            case JTokenType.Property:
+
+                foreach (var child in token.Children().ToArray())
+                {
+                    ResolveAll(api, child);
+                }
+                break;
+
+            case JTokenType.String:
+                if(token.Parent is not null && TryResolve(token.Value<string>(), api, out var result))
+                {
+                    var resolvedToken = result is null ? JValue.CreateNull() : JToken.FromObject(result);
+                    token.Replace(resolvedToken);
+                }
+                break;
+        }
     }
 }

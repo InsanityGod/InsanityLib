@@ -48,7 +48,6 @@ public class JsonConverterWithCommentInjection : JsonConverter
 
     private static void WritePropertyNameWithDescription(JsonWriter writer, MemberInfo member)
     {
-        if(writer is not JsonTextWriter jsonTextWriter) return;
         var writerTraverse = Traverse.Create(writer);
         var currentState = writerTraverse.Field("_currentState");
         var currentPositionObj = writerTraverse.Field("_currentPosition").GetValue();

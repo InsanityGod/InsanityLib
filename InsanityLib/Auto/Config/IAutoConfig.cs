@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InsanityLib.Interfaces.Reflection;
+using System;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Config;
@@ -12,10 +13,10 @@ public interface IAutoConfig<out T> : IAutoConfig where T : class, new()
 
     object? IAutoConfig.ConfigInstance => ConfigInstance;
 
-    Type IAutoConfig.ConfigInstanceType => typeof(T);
+    Type ITypeAssociated.AssociatedType => typeof(T);
 }
 
-public interface IAutoConfig
+public interface IAutoConfig : ITypeAssociated
 {
     /// <summary>
     /// The path to the config file. <br />
@@ -27,11 +28,6 @@ public interface IAutoConfig
     /// The loaded instance of the config
     /// </summary>
     object? ConfigInstance { get; }
-
-    /// <summary>
-    /// The type associated with the ConfigInstance
-    /// </summary>
-    Type ConfigInstanceType { get; }
 
     /// <summary>
     /// Whether the config file should be synced from server to client

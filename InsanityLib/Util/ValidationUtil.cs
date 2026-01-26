@@ -88,13 +88,12 @@ public static class ValidationUtil
         }
     }
 
-    public static void EnsureCorrectDomainForAsset(this AssetLocation code, IAsset asset, ILogger logger = null)
+    public static void EnsureCorrectDomainForAsset(this AssetLocation code, AssetLocation origin, ILogger? logger = null)
     {
-        if(code.Domain != asset.Location.Domain)
+        if(code.Domain != origin.Domain)
         {
-            var orginalCodeStr = code.ToString();
-            code.Domain = asset.Location.Domain;
-            logger?.Warning(Logging.DomainDoesNotMatchFileOrigin, asset.Location, orginalCodeStr, code);
+            logger?.Warning(Logging.DomainDoesNotMatchFileOrigin, origin, code.Domain, code, origin.Domain);
+            code.Domain = origin.Domain;
         }
     }
 }

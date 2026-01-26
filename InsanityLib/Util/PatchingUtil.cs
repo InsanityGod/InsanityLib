@@ -35,7 +35,7 @@ internal static class PatchingUtil
 
         if (resolver.TryResolvePath(path[(scheme.Length + 3)..], api, out var result))
         {
-            patch.Value.Token = result.AsJToken();
+            patch.Value.Token = result is null ? JValue.CreateNull() : result.AsJToken();
             return true;
         }
 
@@ -43,8 +43,8 @@ internal static class PatchingUtil
             Logging.PatchPathResolverFailed,
             patchIndex,
             patchSourceFile,
-            patch.Value,
-            $"Failed to resolve path '{path}'"
+            path.ToString(),
+            "Path not found"
         );
         return false;
     }
@@ -53,7 +53,7 @@ internal static class PatchingUtil
     {
         if (patch.Condition is null) return true;
         
-        ReadOnlySpan<char> path = patch.Condition.When; //TODO maybe allow for resolving both When and IsValue?
+        ReadOnlySpan<char> path = patch.Condition.When;
         var scheme = Resolver.FindScheme(path);
         
         if(scheme.IsEmpty) return true;
@@ -74,8 +74,7 @@ internal static class PatchingUtil
 
         if (resolver.TryResolvePath(path[(scheme.Length + 3)..], api, out var result))
         {
-            //TODO maybe allow for a truthy/falsy comparison?
-            var value = result.AsJToken().ToString();
+            var value = result?.AsJToken().ToString() ?? "null";
 
             if(string.Equals(value, patch.Condition.IsValue, StringComparison.InvariantCultureIgnoreCase))
             {
@@ -99,8 +98,8 @@ internal static class PatchingUtil
             Logging.PatchPathResolverFailed,
             patchIndex,
             asset.Location,
-            patch.Value,
-            $"Failed to resolve path '{path}'"
+            path.ToString(),
+            "Path not found"
         );
 
         return false;

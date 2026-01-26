@@ -72,7 +72,7 @@
 		
 		<ProjectReference Include="..\InsanityLib.Generators\InsanityLib.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\InsanityLib.Analyzers\InsanityLib.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<ProjectReference Include="..\InsanityLib.Generators.Attributes\InsanityLib.Generators.Attributes.csproj" private="false" PrivateAssets="all"/>
+		<ProjectReference Include="..\InsanityLib.Generators.Attributes\InsanityLib.Generators.Attributes.csproj" private="false" PrivateAssets="all" />
 
 		<None Include="..\InsanityLib.Generators\bin\$(Configuration)\InsanityLib.Generators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 		<None Include="..\InsanityLib.Analyzers\bin\$(Configuration)\InsanityLib.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" visible="false" />

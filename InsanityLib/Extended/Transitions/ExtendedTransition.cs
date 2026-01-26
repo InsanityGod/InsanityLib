@@ -9,44 +9,41 @@ using Vintagestory.API.Common;
 
 namespace InsanityLib.Extended.Transitions;
 
-public sealed class ExtendedTransition : ExtendedEnum
+public sealed class ExtendedTransition() : ExtendedEnum(typeof(EnumTransitionType))
 {
-    public ExtendedTransition() : base(typeof(EnumTransitionType)) { }
-
     private readonly Dictionary<EnumTransitionType, ITransitionHandler> HandlerLookup = [];
 
-    public void RegisterTransitionType(IServiceProvider provider, TransitionType transitionType)
+    public void RegisterTransitionType(IServiceProvider provider, ILogger logger, TransitionType transitionType)
     {
         if(OffsetLookup.ContainsKey(transitionType.Code.ToString())) return;
         
         if(!CustomTransition.ClassRegistry.TryGetValue(transitionType.Handler, out var transitionHandlerType))
         {
-            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"No such transitionHandler '{transitionType.Handler}'");
+            logger.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"No such transitionHandler '{transitionType.Handler}'");
             return;
         }
 
 
         if (transitionHandlerType.AutoCreate(provider, true) is not ITransitionHandler handler)
         {
-            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"Could not instantiate '{transitionHandlerType.FullName}'");
+            logger.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"Could not instantiate '{transitionHandlerType.FullName}'");
             return;
         }
 
         try
         {
-            //TODO see about making these not publicly accessible
             handler.TransitionType = (EnumTransitionType)currentOffset;
             handler.TransitionCode = transitionType.Code;
-            handler.LoadAttributes(transitionType.Attributes);
+            if(transitionType.Attributes is not null) handler.LoadAttributes(transitionType.Attributes);
         }
         catch(Exception ex)
         {
-            provider.GetService<ILogger>()?.Error(Logging.ExecutionFailed, nameof(ITransitionHandler.LoadAttributes), transitionHandlerType.FullName, ex);
+            logger.Error(Logging.ExecutionFailed, nameof(ITransitionHandler.LoadAttributes), transitionHandlerType.FullName, ex);
             return;
         }
         HandlerLookup[(EnumTransitionType)currentOffset] = handler;
         OffsetLookup[transitionType.Code.ToString()] = currentOffset++;
     }
 
-    public ITransitionHandler FindHandler(EnumTransitionType value) => HandlerLookup.GetValueOrDefault(value);
+    public ITransitionHandler? FindHandler(EnumTransitionType value) => HandlerLookup.GetValueOrDefault(value);
 }

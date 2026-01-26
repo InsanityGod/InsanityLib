@@ -14,17 +14,17 @@ public class TransitionType
     /// The code for this transition
     /// </summary>
     [Required]
-    public AssetLocation Code { get; set; }
+    public required AssetLocation Code { get; init; }
 
     /// <summary>
     /// The handler to use for the transition
     /// </summary>
     [DefaultValue("insanitylib:transitionhandler")]
-    public AssetLocation Handler { get; set; } = "insanitylib:transitionhandler";
+    public AssetLocation Handler { get; init; } = "insanitylib:transitionhandler";
 
     /// <summary>
     /// Attributes for the transition handler
     /// </summary>
     [JsonConverter(typeof(JsonAttributesConverter))]
-    public JsonObject Attributes { get; set; }
+    public JsonObject? Attributes { get; init; }
 }

@@ -76,7 +76,7 @@ public class AutoConfigLib(ICoreAPI api, IAutoConfig autoConfig)
         }
     }
 
-    private void SaveInternal() => AutoConfig.TrySaveConfig(EditConfigInstance, Config.ConfigInstanceType, Config.RelativePath, Api, Api.Logger);
+    private void SaveInternal() => AutoConfig.TrySaveConfig(EditConfigInstance, Config.AssociatedType, Config.RelativePath, Api, Api.Logger);
 
     /// <summary>
     /// Discards all changes
@@ -97,7 +97,7 @@ public class AutoConfigLib(ICoreAPI api, IAutoConfig autoConfig)
         //Defaulting to loaded config
         json ??= JsonConvert.SerializeObject(Config.ConfigInstance, Formatting.None); //JSON copy object for editing
         
-        EditConfigInstance = JsonConvert.DeserializeObject(json, Config.ConfigInstanceType);
+        EditConfigInstance = JsonConvert.DeserializeObject(json, Config.AssociatedType);
         ReCompose();
     }
 
@@ -106,7 +106,7 @@ public class AutoConfigLib(ICoreAPI api, IAutoConfig autoConfig)
     /// </summary>
     public void Defaults()
     {
-        var newInstance = Config.ConfigInstanceType.AutoCreate(Api.GetServiceProvider());
+        var newInstance = Config.AssociatedType.AutoCreate(Api.GetServiceProvider());
         if(newInstance is not null) EditConfigInstance = newInstance;
         ReCompose();
     }
@@ -128,7 +128,7 @@ public class AutoConfigLib(ICoreAPI api, IAutoConfig autoConfig)
         try
         {
             var context = new ImGuiContext(this, AccessTools.Property(typeof(AutoConfigLib), nameof(EditConfigInstance)), id: Config.RelativePath, serviceProvider: Api.GetServiceProvider());
-            Component = ImGuiComposer.TryCompose(context, Config.ConfigInstanceType);
+            Component = ImGuiComposer.TryCompose(context, Config.AssociatedType);
             ComposeError = null;
         }
         catch(Exception ex)

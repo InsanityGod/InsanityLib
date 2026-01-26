@@ -1,5 +1,4 @@
-﻿using InsanityLib.Extensions;
-using InsanityLib.Util;
+﻿using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +10,6 @@ namespace InsanityLib.Extended.Enums;
 
 public class EnumNameValueMapping
 {
-
-    //TODO extended enum support
-
-    //TODO make enums in configs load/save as string instead of number
     public EnumNameValueMapping(Type enumType, bool includeExtended = true)
     {
         EnumType = enumType;
@@ -35,7 +30,7 @@ public class EnumNameValueMapping
             {
                 if(value is string singleRegistry)
                 {
-                    var code = singleRegistry.ToAssetLocation(); //TODO maybe an option to include domain between brackets
+                    var code = singleRegistry.ToAssetLocation();
                     
                     StrValues = StrValues.Append(singleRegistry);
                     Names = Names.Append(code.Path.ToHumanReadable());

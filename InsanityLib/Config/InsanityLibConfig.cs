@@ -1,7 +1,6 @@
 ﻿using InsanityLib.Auto.Config;
 using InsanityLib.Config.Sub;
 using InsanityLib.Generators.Attributes;
-using Vintagestory.API.Common;
 
 namespace InsanityLib.Config;
 

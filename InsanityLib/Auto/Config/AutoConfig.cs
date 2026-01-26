@@ -1,5 +1,4 @@
-﻿using InsanityLib.Auto.Config.ConfigLib;
-using InsanityLib.Config;
+﻿using InsanityLib.Config;
 using InsanityLib.Extended.Enums;
 using InsanityLib.Extensions;
 using InsanityLib.Generators.Attributes;
@@ -11,7 +10,6 @@ using System.IO;
 using System.Text;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
-using Vintagestory.GameContent;
 
 namespace InsanityLib.Auto.Config;
 //TODO maybe some events to hook into loading logic
@@ -137,7 +135,7 @@ public static class AutoConfig
         path = path.EnsureFileExtension(".json");
         if(Loaded.TryGetValue(path, out var config))
         {
-            if(config.ConfigInstanceType != typeof(T)) throw new InvalidOperationException($"Attempt to load config '{path}' with type '{typeof(T)}' but it's actually type '{config.ConfigInstanceType}'");
+            if(config.AssociatedType != typeof(T)) throw new InvalidOperationException($"Attempt to load config '{path}' with type '{typeof(T)}' but it's actually type '{config.AssociatedType}'");
         }
         else
         {

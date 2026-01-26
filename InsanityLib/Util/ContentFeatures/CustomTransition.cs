@@ -1,5 +1,4 @@
-﻿using InsanityLib.Extended.Enums;
-using InsanityLib.Extended.Transitions;
+﻿using InsanityLib.Extended.Transitions;
 using InsanityLib.Extensions;
 using InsanityLib.Generators.Attributes;
 using System;
@@ -19,17 +18,17 @@ public static class CustomTransition
 
     public static ExtendedTransition ExtendedEnum => (ExtendedTransition)Extended.Enums.ExtendedEnum.EnumExtensions[typeof(EnumTransitionType)];
 
+    //TODO Auto generate this!
     public static void LoadAssets(ICoreAPI api)
     {
         var serviceProvider = api.GetServiceProvider();
         var logger = serviceProvider.GetService<ILogger>();
         
-        foreach (var asset in api.Assets.GetMany("transitiontypes/"))
+        foreach ((var origin, var transitionType) in api.Assets.GetMany<TransitionType>(logger, "transitiontypes/"))
         {
-            var transitionType = asset.ToObject<TransitionType>();
-            transitionType.Code.EnsureCorrectDomainForAsset(asset, logger);
+            transitionType.Code.EnsureCorrectDomainForAsset(origin, logger);
 
-            ExtendedEnum.RegisterTransitionType(serviceProvider, transitionType);
+            ExtendedEnum.RegisterTransitionType(serviceProvider, logger, transitionType);
         }
     }
 }

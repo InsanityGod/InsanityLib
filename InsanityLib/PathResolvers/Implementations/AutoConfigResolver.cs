@@ -32,7 +32,7 @@ public class AutoConfigResolver : IPathResolver
             api.Logger.Warning(
                 Logging.PathResolverFailed,
                 nameof(AutoConfigResolver),
-                path[..^remainder.Length].ToString(),
+                $"{configName}/{path[..^remainder.Length]}",
                 remainder.ToString(),
                 reason
             );
