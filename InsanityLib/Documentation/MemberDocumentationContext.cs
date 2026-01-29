@@ -23,7 +23,7 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
 
     public bool HasXmlDocumentation => MemberNode is not null;
 
-    public void Initialize()
+    public void Initialize(IServiceProvider serviceProvider)
     {
         if (!AssemblyDocumentationContext.HasXmlDocumentation) return;
 

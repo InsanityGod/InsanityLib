@@ -1,7 +1,5 @@
 ﻿using InsanityLib.Constants;
 using InsanityLib.Extended.Enums;
-using InsanityLib.Extensions;
-using InsanityLib.Util;
 using InsanityLib.Util.ContentFeatures;
 using System;
 using System.Collections.Generic;
@@ -13,34 +11,37 @@ public sealed class ExtendedTransition() : ExtendedEnum(typeof(EnumTransitionTyp
 {
     private readonly Dictionary<EnumTransitionType, ITransitionHandler> HandlerLookup = [];
 
-    public void RegisterTransitionType(IServiceProvider provider, ILogger logger, TransitionType transitionType)
+    public void RegisterTransitionType(ILogger logger, TransitionType transitionType)
     {
         if(OffsetLookup.ContainsKey(transitionType.Code.ToString())) return;
         
-        if(!CustomTransition.ClassRegistry.TryGetValue(transitionType.Handler, out var transitionHandlerType))
+        if(!CustomTransition.ClassRegistry.TryGetValue(transitionType.Handler, out var registryEntry))
         {
-            logger.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"No such transitionHandler '{transitionType.Handler}'");
+            logger.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"Unknown transitionHandler '{transitionType.Handler}'");
             return;
         }
 
-
-        if (transitionHandlerType.AutoCreate(provider, true) is not ITransitionHandler handler)
+        ITransitionHandler? handler = null;
+        try
         {
-            logger.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"Could not instantiate '{transitionHandlerType.FullName}'");
+            handler = registryEntry.Constructor(transitionType.Code, (EnumTransitionType)currentOffset);
+        }
+        catch(Exception ex)
+        {
+            logger.Error(ex);
             return;
         }
 
         try
         {
-            handler.TransitionType = (EnumTransitionType)currentOffset;
-            handler.TransitionCode = transitionType.Code;
             if(transitionType.Attributes is not null) handler.LoadAttributes(transitionType.Attributes);
         }
         catch(Exception ex)
         {
-            logger.Error(Logging.ExecutionFailed, nameof(ITransitionHandler.LoadAttributes), transitionHandlerType.FullName, ex);
+            logger.Error(ex);
             return;
         }
+
         HandlerLookup[(EnumTransitionType)currentOffset] = handler;
         OffsetLookup[transitionType.Code.ToString()] = currentOffset++;
     }

@@ -8,7 +8,7 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.GameContent;
 
-namespace InsanityLib.Extended.Transitions;
+namespace InsanityLib.Extended.Transitions.Patches;
 
 [HarmonyPatch]
 internal static class DisplayPatches

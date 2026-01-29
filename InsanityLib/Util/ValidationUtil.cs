@@ -87,13 +87,4 @@ public static class ValidationUtil
             NestedValidate(value, nestedContext, $"{path}/{member.Name}");
         }
     }
-
-    public static void EnsureCorrectDomainForAsset(this AssetLocation code, AssetLocation origin, ILogger? logger = null)
-    {
-        if(code.Domain != origin.Domain)
-        {
-            logger?.Warning(Logging.DomainDoesNotMatchFileOrigin, origin, code.Domain, code, origin.Domain);
-            code.Domain = origin.Domain;
-        }
-    }
 }

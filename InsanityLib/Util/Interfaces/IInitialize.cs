@@ -1,6 +1,8 @@
-﻿namespace InsanityLib.Util.Interfaces;
+﻿using System;
+
+namespace InsanityLib.Util.Interfaces;
 
 public interface IInitialize
 {
-    public void Initialize();
+    public void Initialize(IServiceProvider serviceProvider);
 }

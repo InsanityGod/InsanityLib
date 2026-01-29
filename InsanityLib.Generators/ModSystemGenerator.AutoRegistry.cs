@@ -7,12 +7,10 @@ namespace InsanityLib.Generators;
 
 public sealed partial class ModSystemGenerator
 {
-    (ISymbol Symbol, AttributeData Attribute)[] assetCategoryAttributes;
+
 
     public void GenerateAutoRegistryMethod(IndentedTextWriter writer, GeneratorContext info)
     {
-        assetCategoryAttributes = [.. info.Compilation.GetSymbolsWithAttribute("InsanityLib.Generators.Attributes.AssetCategoryAttribute")];
-        if (assetCategoryAttributes.Length > 0) GenerateRegisterAssetCategoryMethod(writer, info);
 
         writer.WriteMultiLine("""
         /// <summary>
@@ -61,7 +59,7 @@ public sealed partial class ModSystemGenerator
             //InsanityLib
             foreach(var blockEntity in info.Compilation.GetAllConcreteImplementations("InsanityLib.Extended.Transitions.ITransitionHandler"))
             {
-                writer.WriteLine($"""InsanityLib.Util.ContentFeatures.CustomTransition.RegisterHandler("{info.ModID}:{blockEntity.Name}", typeof({blockEntity.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}));""");
+                writer.WriteLine($"""InsanityLib.Util.ContentFeatures.CustomTransition.RegisterHandler<{blockEntity.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}>(new("{info.ModID}", "{blockEntity.Name}"));""");
             }
 
             foreach((var type, var attr) in assetCategoryAttributes)
@@ -74,25 +72,6 @@ public sealed partial class ModSystemGenerator
                 writer.WriteLiteral(attr.ConstructorArguments[2].Value, info.Compilation.GetTypeByMetadataName("Vintagestory.API.Common.EnumAppSide"), false);
                 writer.WriteLine($", typeof({type.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}));");
             }
-        }
-    }
-
-
-    public void GenerateRegisterAssetCategoryMethod(IndentedTextWriter writer, GeneratorContext info)
-    {
-        writer.WriteMultiLine("""
-        /// <summary>
-        /// Will register the assetcategory using <see cref="InsanityLib.Extended.AssetCategories.ExtendedAssetCategory" > if InsanityLib is present and asssetType is supplied
-        /// </summary>
-        """);
-        using(new BlockContext("protected AssetCategory RegisterOrGetAssetCategory(ICoreAPI api, string code, bool affectsGameplay, EnumAppSide sideType, Type assetType = null)").Use(writer))
-        {
-            writer.WriteLine("if(AssetCategory.categories.TryGetValue(code, out var result)) return result;");
-            using(new IfContext($"assetType is not null{(info.HasInsanityLibDependency ? "" : """&& api.ModLoader.IsModEnabled("insanitylib")""")}").Use(writer))
-            {
-                writer.WriteLine("return new ExtendedAssetCategory(assetType, code, affectsGameplay, sideType);");
-            }
-            writer.WriteLine("return new AssetCategory(code, affectsGameplay, sideType);");
         }
     }
 }

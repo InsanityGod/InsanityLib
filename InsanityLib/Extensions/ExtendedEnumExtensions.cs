@@ -6,6 +6,12 @@ namespace InsanityLib.Extensions;
 
 public static class ExtendedEnumExtensions
 {
+    /// <summary>
+    /// Registers TExtension as an extension of TActual.<br/>
+    /// This allowes one to 
+    /// </summary>
+    /// <typeparam name="TActual"></typeparam>
+    /// <typeparam name="TExtension"></typeparam>
     public static void RegisterEnumExtension<TActual, TExtension>() where TActual : Enum where TExtension : Enum
     {
         if (!ExtendedEnum.EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))

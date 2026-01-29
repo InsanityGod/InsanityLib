@@ -6,7 +6,7 @@ namespace InsanityLib.Extensions;
 public static class CommandExtensions
 {
     /// <summary>
-    /// Gets or creates a command with the given path and ensures it's not  <see cref="IChatCommand.Incomplete"/>. <br/>
+    /// Gets or creates a command with the given path and ensures it's not  <see cref="IChatCommand.Incomplete"/>.
     /// </summary>
     public static IChatCommand GetOrCreateStub(this IChatCommandApi chatCommandApi, string path, IChatCommand? parentCommand = null)
     {

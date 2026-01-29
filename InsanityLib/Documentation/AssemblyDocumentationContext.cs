@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Generators.Attributes;
 using InsanityLib.Util.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -22,12 +23,12 @@ public class AssemblyDocumentationContext(Assembly assembly) : IInitialize
         if(Cache.TryGetValue(assembly, out var context)) return context;
 
         context = new(assembly);
-        context.Initialize();
+        context.Initialize(InsanityLibModSystem.GlobalServiceContainer);
 
         return context;
     }
 
-    public void Initialize()
+    public void Initialize(IServiceProvider serviceProvider)
     {
         if (Assembly is null || Assembly.IsDynamic) return;
 

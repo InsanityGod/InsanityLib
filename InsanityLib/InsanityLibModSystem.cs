@@ -34,7 +34,9 @@ public partial class InsanityLibModSystem : ModSystem, IServiceProvider
         
         return null;
     }
-   
+
+    partial void OnTransitionTypeLoaded(ICoreAPI api, AssetLocation origin, TransitionType asset) => CustomTransition.ExtendedEnum.RegisterTransitionType(Mod.Logger, asset);
+
     public override void StartPre(ICoreAPI api)
     {
         if (api is ICoreClientAPI clientApi) GlobalServiceContainer.AddService(clientApi);
@@ -42,15 +44,13 @@ public partial class InsanityLibModSystem : ModSystem, IServiceProvider
 
         ReflectionUtil.LoadedSides ??= api.Side;
         ReflectionUtil.LoadedSides |= api.Side;
-
         ExtendedEnum.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
-
         AutoSetup(api);
     }
 
     public override void AssetsLoaded(ICoreAPI api)
     {
-        CustomTransition.LoadAssets(api);
+        AutoAssetsLoaded(api);
     }
 
     public void EnsureConfigLoaded(ICoreAPI api) => LoadAutoConfigs(api);

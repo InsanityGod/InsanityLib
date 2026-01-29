@@ -34,14 +34,14 @@ public sealed partial class ModSystemGenerator
         );
 
         var prefferedModSystemClassName = $"{safeRoot}ModSystem";
-        var modSystem = info.Compilation.GetAllConcrete("Vintagestory.API.Common.ModSystem")
+        info.ContainingType = info.Compilation.GetAllConcrete("Vintagestory.API.Common.ModSystem")
             .Where(SymbolExtensions.IsPartial)
             .OrderByDescending(symbol => symbol.Name == prefferedModSystemClassName)
             .ThenBy(SymbolExtensions.GetNamespaceDepth)
             .FirstOrDefault();
         
-        var className = modSystem?.Name ?? prefferedModSystemClassName;
-        var classNamespace = modSystem?.ContainingNamespace.ToDisplayString() ?? info.Root;
+        var className = info.ContainingType?.Name ?? prefferedModSystemClassName;
+        var classNamespace = info.ContainingType?.ContainingNamespace.ToDisplayString() ?? info.Root;
 
         writer.WriteLine();
         writer.WriteLine($"namespace {classNamespace};");
@@ -57,9 +57,12 @@ public sealed partial class ModSystemGenerator
 
             GenerateStaticPatchCategoryList(writer, info);
             GenerateAutoPatcherMethod(writer, info);
+
+            GenerateAssetCategoryMethods(writer, info);
             GenerateAutoRegistryMethod(writer, info);
 
             GenerateAutoSetupMethod(writer, info);
+            GenerateAutoAssetsLoadedMethod(writer, info);
 
             GenerateAutoDisposeMethod(writer, info);
         }

@@ -15,8 +15,6 @@ public static class Logging
     public const string AutoFixFailed = "[InsanityLib] Could not auto fix validation error while validating '{0}', error: '{1}' at path '{2}'";
     public const string AutoFixSucceed = "[InsanityLib] Auto fixed validation error while validating '{0}', error: '{1}' at path '{2}', new value: '{3}'";
 
-    public const string DomainDoesNotMatchFileOrigin = "[InsanityLib] Domain mismatch in '{0}': found '{1}' in '{2}', should have been '{3}'";
-
     public const string PatchPathResolverFailed = "[InsanityLib] Patch {0} in {1} failed because path {2} could not be resolved: {3}";
     public const string PatchUnmentCondition = "[InsanityLib] Patch {0} in {1}: Unmet IsValue condition for '{2}' ({3}!={4})";
     

@@ -7,7 +7,7 @@ public struct ForeachContext(string item, string enumerable) : IWriteableContain
 {
     public readonly void WriteStart(IndentedTextWriter writer)
     {
-        writer.WriteLine($"foreach (var {item} in {enumerable})");
+        writer.WriteLine($"foreach ({item} in {enumerable})");
         writer.WriteLine("{");
         writer.Indent++;
     }

@@ -54,7 +54,7 @@ public sealed partial class ModSystemGenerator
                 var categories = GetOrFindPatchCategories(info);
                 if(categories.Length > 0)
                 {
-                    using (new ForeachContext("category", "PatchCategories").Use(writer))
+                    using (new ForeachContext("var category", "PatchCategories").Use(writer))
                     using (new IfContext("api.ModLoader.IsModEnabled(category)").Use(writer))
                     using (TryContext.Catch(CatchContext.Log("Exception", "Mod.Logger.Error", "Failed compatibility patch for '{0}': {1}", "category, exception")).Use(writer))
                     {

@@ -13,4 +13,6 @@ public class GeneratorContext(Compilation compilation, string root, string modID
     public string ProjectDir { get; set; } = projectDir;
 
     public bool HasInsanityLibDependency { get; set; } = hasInsanityLibDependency;
+
+    public INamedTypeSymbol ContainingType { get; set; }
 }

@@ -8,7 +8,6 @@ public sealed partial class Generator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        
         var rootNameSpace = context.AnalyzerConfigOptionsProvider.Select(
             (options, _) => options.GlobalOptions.TryGetValue("build_property.RootNamespace", out var ns) ? ns : "UnknownRootNameSpace"
         );
