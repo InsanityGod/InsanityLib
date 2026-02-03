@@ -1,4 +1,5 @@
 ﻿using InsanityLib.PathResolvers.Implementations;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,6 @@ namespace InsanityLib.PathResolvers;
 
 public static class Resolver
 {
-    //TODO allow for using these in more the just JSON patches
     public static List<IPathResolver> Resolvers { get; } =
     [
         new WorldPropertiesResolver(),
@@ -16,7 +16,7 @@ public static class Resolver
         new ConfigLibResolver(),
     ];
 
-    public static IPathResolver Find(ReadOnlySpan<char> scheme)
+    public static IPathResolver? Find(ReadOnlySpan<char> scheme)
     {
         foreach (var resolver in Resolvers)
         {
@@ -33,7 +33,7 @@ public static class Resolver
         return pathWithScheme[..schemeEndIndex];
     }
 
-    public static bool TryResolve(ReadOnlySpan<char> pathWithScheme, ICoreAPI api, out object result)
+    public static bool TryResolve(ReadOnlySpan<char> pathWithScheme, ICoreAPI api, out object? result)
     {
         var scheme = FindScheme(pathWithScheme);
         if (scheme.IsEmpty)
@@ -45,12 +45,36 @@ public static class Resolver
         return TryResolve(scheme, pathWithScheme[(scheme.Length + 3)..], api, out result);
     }
 
-    public static bool TryResolve(ReadOnlySpan<char> scheme, ReadOnlySpan<char> path, ICoreAPI api, out object result)
+    public static bool TryResolve(ReadOnlySpan<char> scheme, ReadOnlySpan<char> path, ICoreAPI api, out object? result)
     {
         var resolver = Find(scheme);
         if(resolver is not null) return resolver.TryResolvePath(path, api, out result);
 
         result = null;
         return false;
+    }
+
+    public static void ResolveAll(ICoreAPI api, JToken token)
+    {
+        switch (token.Type)
+        {
+            case JTokenType.Object:
+            case JTokenType.Array:
+            case JTokenType.Property:
+
+                foreach (var child in token.Children().ToArray())
+                {
+                    ResolveAll(api, child);
+                }
+                break;
+
+            case JTokenType.String:
+                if(token.Parent is not null && TryResolve(token.Value<string>(), api, out var result))
+                {
+                    var resolvedToken = result is null ? JValue.CreateNull() : JToken.FromObject(result);
+                    token.Replace(resolvedToken);
+                }
+                break;
+        }
     }
 }

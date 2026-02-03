@@ -1,18 +1,19 @@
 ﻿using ConfigLib;
 using HarmonyLib;
 using InsanityLib.Constants;
-using InsanityLib.Util.SpanUtil;
+using InsanityLib.Extensions;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.PathResolvers.Implementations;
+#pragma warning disable CS8624 // Argument cannot be used as an output for parameter due to differences in the nullability of reference types.
 
 public class ConfigLibResolver : IPathResolver
 {
     public string Scheme => "configlib";
 
-    public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object result)
+    public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object? result)
     {
         if(!api.ModLoader.IsModEnabled("configlib"))
         {
@@ -24,12 +25,12 @@ public class ConfigLibResolver : IPathResolver
         return TryResolvePathInternal(path, api, out result);
     }
 
-    private bool TryResolvePathInternal(ReadOnlySpan<char> path, ICoreAPI api, out object result)
+    private static bool TryResolvePathInternal(ReadOnlySpan<char> path, ICoreAPI api, out object? result)
     {
         var configLib = api.ModLoader.GetModSystem<ConfigLibModSystem>();
         var configs = Traverse.Create(configLib).Field<Dictionary<string, ConfigLib.Config>>("_configs").Value;
 
-        foreach((ReadOnlySpan<char> configPath, var config) in configs)
+        foreach ((ReadOnlySpan<char> configPath, var config) in configs)
         {
             var configName = configPath.WithoutSuffix(".json");
             if (!path.StartsWith(configName)) continue;

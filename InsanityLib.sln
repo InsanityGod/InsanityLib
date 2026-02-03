@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsanityLib", "InsanityLib\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CakeBuild", "ZZCakeBuild\CakeBuild.csproj", "{FB91CADF-70CF-4D96-B4B7-CEBE225C6CEE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsanityLib.Generators", "InsanityLib.Generators\InsanityLib.Generators.csproj", "{EA57095E-78EA-4E00-9A63-45788ECE364A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsanityLib.Generators.Attributes", "InsanityLib.Generators.Attributes\InsanityLib.Generators.Attributes.csproj", "{93EB60B2-C2D3-423E-B8DB-6F2CFA088FA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsanityLib.Analyzers", "InsanityLib.Analyzers\InsanityLib.Analyzers.csproj", "{6FC349E2-58E8-41EE-93E5-6CC1EEE795EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,8 +27,23 @@ Global
 		{FB91CADF-70CF-4D96-B4B7-CEBE225C6CEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB91CADF-70CF-4D96-B4B7-CEBE225C6CEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB91CADF-70CF-4D96-B4B7-CEBE225C6CEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA57095E-78EA-4E00-9A63-45788ECE364A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA57095E-78EA-4E00-9A63-45788ECE364A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA57095E-78EA-4E00-9A63-45788ECE364A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA57095E-78EA-4E00-9A63-45788ECE364A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93EB60B2-C2D3-423E-B8DB-6F2CFA088FA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93EB60B2-C2D3-423E-B8DB-6F2CFA088FA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93EB60B2-C2D3-423E-B8DB-6F2CFA088FA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93EB60B2-C2D3-423E-B8DB-6F2CFA088FA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FC349E2-58E8-41EE-93E5-6CC1EEE795EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FC349E2-58E8-41EE-93E5-6CC1EEE795EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FC349E2-58E8-41EE-93E5-6CC1EEE795EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FC349E2-58E8-41EE-93E5-6CC1EEE795EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {986C62D0-6DD3-4907-A9FF-A46647131E93}
 	EndGlobalSection
 EndGlobal
