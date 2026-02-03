@@ -55,7 +55,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageOutputPath>bin\$(Configuration)</PackageOutputPath>
 		
-		<PackageId>VintageStory.$(MSBuildProjectName)</PackageId>
+		<PackageId>TheInsanityGod.VintageStory.$(MSBuildProjectName)</PackageId>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<IncludeSymbols>True</IncludeSymbols>
 
@@ -76,8 +76,8 @@
 
 		<None Include="..\InsanityLib.Generators\bin\$(Configuration)\InsanityLib.Generators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 		<None Include="..\InsanityLib.Analyzers\bin\$(Configuration)\InsanityLib.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" visible="false" />
-		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.dll" Pack="true" PackagePath="lib/netstandard2.0" visible="false" />
-		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.xml" Pack="true" PackagePath="lib/netstandard2.0" visible="false" />
+		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.dll" Pack="true" PackagePath="lib/net8.0" visible="false" />
+		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.xml" Pack="true" PackagePath="lib/net8.0" visible="false" />
 		
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 		<PackageReference Include="JsonPeek" Version="1.2.0" />

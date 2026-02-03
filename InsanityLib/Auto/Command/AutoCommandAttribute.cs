@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Constants;
 using InsanityLib.Exceptions;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.Reflection;

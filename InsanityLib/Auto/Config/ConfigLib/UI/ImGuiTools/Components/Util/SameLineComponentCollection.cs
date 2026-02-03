@@ -1,6 +1,6 @@
 ﻿using ImGuiNET;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
-using InsanityLib.Util.Interfaces;
+using InsanityLib.Interfaces.Validation;
 
 namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 

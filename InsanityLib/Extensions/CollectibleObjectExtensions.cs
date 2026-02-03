@@ -1,9 +1,8 @@
-﻿using InsanityLib.Extensions;
-using Vintagestory.API.Common;
+﻿using Vintagestory.API.Common;
 
-namespace InsanityLib.Util;
+namespace InsanityLib.Extensions;
 
-public static class CollectibleObjectUtil
+public static class CollectibleObjectExtensions
 {
     /// <summary>
     /// Get the CollectibleObject used to place this Block.
@@ -31,7 +30,7 @@ public static class CollectibleObjectUtil
     /// Get the Block being placed by this CollectibleObject if any.
     /// Allows for using the "PlacedBlock" attribute to redirect.
     /// </summary>
-    public static Block GetPlacedBlock(this CollectibleObject collectible, ICoreAPI api)
+    public static Block? GetPlacedBlock(this CollectibleObject collectible, ICoreAPI api)
     {
         if (collectible.Attributes is not null)
         {
@@ -41,7 +40,7 @@ public static class CollectibleObjectUtil
                 Block block = api.World.GetBlock(redirect);
                 if (block is not null) return block;
                 
-                api.GetService<ILogger>().Error($"[WearAndTear] Invalid PlacedBlock redirect {collectible.Code} -> {redirect}");
+                api.Logger.Error($"[WearAndTear] Invalid PlacedBlock redirect {collectible.Code} -> {redirect}");
             }
         }
 

@@ -1,4 +1,4 @@
-﻿namespace InsanityLib.Util.Interfaces;
+﻿namespace InsanityLib.Interfaces.Scanning;
 
 public interface IRecursivePrevention
 {

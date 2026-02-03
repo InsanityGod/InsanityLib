@@ -1,11 +1,7 @@
 ﻿using HarmonyLib;
-using InsanityLib.Exceptions;
 using InsanityLib.Util;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Reflection.Emit;
-using System.Text.RegularExpressions;
 using Vintagestory.API.Common;
 using Vintagestory.ServerMods.NoObf;
 

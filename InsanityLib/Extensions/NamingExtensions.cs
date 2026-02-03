@@ -86,38 +86,14 @@ public static partial class NamingExtensions
         var displayNameAttr = parameter.GetCustomAttribute<DisplayNameAttribute>();
         if(displayNameAttr is not null) return Lang.Get(displayNameAttr.DisplayName);
         
-        return parameter.Name.ToHumanReadable();
-    }
-
-    public static readonly string[] RegistryAffixes =
-    [
-        "Item",
-        "Block",
-        "BlockEntity",
-        "Entity",
-        "Behavior",
-        "CollectibleBehavior",
-        "BlockBehavior",
-        "BlockEntityBehavior",
-        "TransitionHandler"
-    ];
-
-    public static string GetRegistryName(this MemberInfo member, string? domain = null, bool removeComminAffixes = false)
-    {
-        //TODO attributes
-        var memberName = member.Name;
-
-        if(removeComminAffixes) foreach(var affix in RegistryAffixes) memberName = memberName.AsSpan().RemoveAffix(affix).ToString();
-
-        if(!string.IsNullOrEmpty(domain)) return $"{domain}:{memberName}";
-        return memberName;
+        return parameter.Name!.ToHumanReadable();
     }
 
     /// <summary>
     /// Converts a string to an AssetLocation in a way that does not automatically add the default domain <br/>
     /// Meaning that if you parse it back it will be the same as the input string
     /// </summary>
-    public static AssetLocation ToAssetLocation(this string str)
+    public static AssetLocation? ToAssetLocation(this string str)
     {
         if(string.IsNullOrWhiteSpace(str)) return null;
         return str.Contains(':') ? (AssetLocation)str : new AssetLocation(null, str);

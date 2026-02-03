@@ -1,14 +1,13 @@
-﻿using InsanityLib.Extensions;
-using System;
+﻿using System;
 using System.Linq;
 using Vintagestory.API.Common;
 
-namespace InsanityLib.Util;
+namespace InsanityLib.Extensions;
 
-public static class ComparisonUtil
+public static class ComparisonExtensions
 {
     //TODO CompareWithoutVariantMethod
-    public static bool CompareWithoutOrientation(RegistryObject item1, RegistryObject item2)
+    public static bool CompareWithoutOrientation(this RegistryObject item1, RegistryObject item2)
     {
         if (item1.Code is null || item2.Code is null || item1.Code.Domain != item2.Code.Domain) return false;
 

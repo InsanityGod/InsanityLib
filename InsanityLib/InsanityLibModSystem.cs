@@ -4,7 +4,6 @@ using InsanityLib.Extended.Enums;
 using InsanityLib.Extended.Transitions;
 using InsanityLib.Extensions;
 using InsanityLib.Util;
-using InsanityLib.Util.ContentFeatures;
 using System;
 using System.ComponentModel.Design;
 using Vintagestory.API.Client;

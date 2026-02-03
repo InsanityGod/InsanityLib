@@ -1,6 +1,5 @@
 ﻿using InsanityLib.Constants;
 using InsanityLib.Extended.Enums;
-using InsanityLib.Util.ContentFeatures;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;

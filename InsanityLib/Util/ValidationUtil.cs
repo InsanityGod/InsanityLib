@@ -14,7 +14,7 @@ namespace InsanityLib.Util;
 
 public static class ValidationUtil
 {
-    public static NestedValidationContext TryNestedValidate(this object obj, IServiceProvider provider, bool tryAutoFix = false, bool logging = false, string identifier = null)
+    public static NestedValidationContext TryNestedValidate(this object obj, IServiceProvider provider, bool tryAutoFix = false, bool logging = false, string? identifier = null)
     {
         var nestedContext = new NestedValidationContext
         {
@@ -29,7 +29,7 @@ public static class ValidationUtil
         return nestedContext;
     }
 
-    private static void NestedValidate(object obj, NestedValidationContext nestedContext, string path)
+    private static void NestedValidate(object? obj, NestedValidationContext nestedContext, string path)
     {
         if(obj is null || !obj.GetType().IsComplexClassType()) return;
         if(obj is IDictionary dictionary)
@@ -50,7 +50,7 @@ public static class ValidationUtil
             return;
         }
 
-        ILogger logger = nestedContext.Logging ? nestedContext.Provider?.GetService<ILogger>() : null;
+        ILogger? logger = nestedContext.Logging ? nestedContext.Provider?.GetService<ILogger>() : null;
         var context = new ValidationContext(obj, nestedContext.Provider, items: null);
         var newResults = new List<ValidationResult>();
 
@@ -68,7 +68,7 @@ public static class ValidationUtil
 
             var memberName = result.MemberNames.First();
             var members = obj.GetType().GetMember(memberName);
-            if (members.Length == 1 && members[0].TryAutoSetDefaultValue(obj, nestedContext.Provider))
+            if (members.Length == 1 && members[0].TryAutoSetDefaultValue(obj, nestedContext.Provider!))
             {
                 logger?.Warning(Logging.AutoFixSucceed, nestedContext.Identifier, result, $"{path}/{memberName}", members[0].GetValue(obj)); 
                 continue;

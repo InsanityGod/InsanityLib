@@ -8,7 +8,7 @@ public class NestedValidationContext
 {
     internal NestedValidationContext() { }
 
-    public IServiceProvider Provider { get; init; }
+    public IServiceProvider? Provider { get; init; }
     public HashSet<object> ScannedObjects { get; init; } = [];
     public List<ValidationResult> Results { get; init; } = [];
     public bool TryAutoFix { get; init; } = false;

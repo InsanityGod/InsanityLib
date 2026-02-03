@@ -1,5 +1,4 @@
 ﻿using InsanityLib.Extensions;
-using InsanityLib.Util;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -21,8 +20,8 @@ public sealed class ContextualEntityProvider : IContextualArgumentProvider<Entit
 
     public static Entity? ProvideRaw (IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) => contextualSource switch
     {
-        EContextualSource.Caller => serviceProvider.GetService<Caller>().Entity.Required(contextualSource, parameterInfo.ParameterType),
-        EContextualSource.CallerTarget => serviceProvider.GetService<Caller>().Entity.Required(contextualSource, parameterInfo.ParameterType).GetTargetEntity()?.Entity,
+        EContextualSource.Caller => serviceProvider.GetService<Caller>()!.Entity.Required(contextualSource, parameterInfo.ParameterType),
+        EContextualSource.CallerTarget => serviceProvider.GetService<Caller>()!.Entity.Required(contextualSource, parameterInfo.ParameterType).GetTargetEntity()?.Entity,
         _ => throw new NotSupportedException($"Unknown/Unsupported {nameof(EContextualSource)}: {contextualSource}"),
     };
 }

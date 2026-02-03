@@ -143,7 +143,7 @@ public abstract class ValueComponentBase : ComponentBase
         if(ImGui.MenuItem("Paste")) Paste();
     }
 
-    public virtual void Copy() => InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>().Forms.SetClipboardText(ValueAsObject?.ToString() ?? string.Empty);
+    public virtual void Copy() => InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>()!.Forms.SetClipboardText(ValueAsObject?.ToString() ?? string.Empty);
 
-    public virtual void Paste() => Context.TryAutoSetValue(InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>().Forms.GetClipboardText(), this);
+    public virtual void Paste() => Context.TryAutoSetValue(InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>()!.Forms.GetClipboardText(), this);
 }

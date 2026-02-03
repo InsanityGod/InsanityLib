@@ -202,7 +202,7 @@ public class AutoConfigLib(ICoreAPI api, IAutoConfig autoConfig)
 
     public static void NotifyUserOfException(Exception ex, IImGuiComponent component)
     {
-        var clientApi = InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>();
+        var clientApi = InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>()!;
         var context = new ImGuiContext(component, null, id: "ErrorPopup", serviceProvider: clientApi.GetServiceProvider());
         BlockingPopup = new Popup(context)
         {

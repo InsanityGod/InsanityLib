@@ -1,11 +1,9 @@
-﻿using InsanityLib.Extended.Transitions;
-using InsanityLib.Extensions;
-using InsanityLib.Generators.Attributes;
+﻿using InsanityLib.Generators.Attributes;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
 
-namespace InsanityLib.Util.ContentFeatures;
+namespace InsanityLib.Extended.Transitions;
 
 delegate ITransitionHandler CreateTransitionHandler(AssetLocation transitionCode, EnumTransitionType transitionType);
 public static class CustomTransition
@@ -26,5 +24,5 @@ public static class CustomTransition
     });
    
 
-    public static ExtendedTransition ExtendedEnum => (ExtendedTransition)Extended.Enums.ExtendedEnum.EnumExtensions[typeof(EnumTransitionType)];
+    public static ExtendedTransition ExtendedEnum => (ExtendedTransition)Enums.ExtendedEnum.EnumExtensions[typeof(EnumTransitionType)];
 }

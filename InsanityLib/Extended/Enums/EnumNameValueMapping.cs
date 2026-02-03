@@ -1,4 +1,5 @@
-﻿using InsanityLib.Util;
+﻿using InsanityLib.Extensions;
+using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ public class EnumNameValueMapping
             {
                 if(value is string singleRegistry)
                 {
-                    var code = singleRegistry.ToAssetLocation();
+                    var code = singleRegistry.ToAssetLocation()!;
                     
                     StrValues = StrValues.Append(singleRegistry);
                     Names = Names.Append(code.Path.ToHumanReadable());

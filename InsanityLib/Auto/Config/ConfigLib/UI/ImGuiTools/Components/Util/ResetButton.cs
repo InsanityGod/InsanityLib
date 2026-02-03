@@ -1,6 +1,6 @@
 ﻿using ImGuiNET;
 using InsanityLib.Auto.Cleanup;
-using InsanityLib.Util;
+using InsanityLib.Extensions;
 using System;
 using System.ComponentModel;
 using System.Reflection;

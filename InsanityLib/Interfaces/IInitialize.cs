@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace InsanityLib.Util.Interfaces;
+namespace InsanityLib.Interfaces;
 
 public interface IInitialize
 {

@@ -1,6 +1,7 @@
 ﻿using InsanityLib.Extended.Enums;
+using InsanityLib.Extensions;
+using InsanityLib.Interfaces;
 using InsanityLib.Util;
-using InsanityLib.Util.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

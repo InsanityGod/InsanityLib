@@ -18,13 +18,13 @@ public sealed partial class ModSystemGenerator
         /// Method for automatically disposing stuff (based on attributes and stuff registered in other auto methods)
         /// </summary>
         """);
-        //info.Compilation.GetSymbolsWithAttribute(IndentedTextWriter)
+        
         using (new BlockContext("protected void AutoDispose()").Use(writer))
         {
             if (HasDisposalLogic)
             {
                 writer.WriteMultiLine("""
-                if(_api is not null)
+                if(_api is not null && ServiceContainer is not null)
                 {
                     foreach (var operation in DisposalOperations.OrderBy(operation => operation.ExecutionOrder))
                     {

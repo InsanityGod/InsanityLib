@@ -1,5 +1,5 @@
 ﻿using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Helpers;
-using InsanityLib.Util;
+using InsanityLib.Extensions;
 using System;
 using System.Collections;
 using System.Reflection;
@@ -15,11 +15,11 @@ public class KeyContext : ImGuiContext
     
     public bool ExistsInDictionary { get; internal set; }
 
-    public object LastValidKey { get; internal set; }
+    public object? LastValidKey { get; internal set; }
 
     public readonly ValidationResultHolder KeyValidation = new();
 
-    public object CurrentKey { get; internal set; }
+    public object? CurrentKey { get; internal set; }
     
     public override ImGuiContext New(string? id = null, MemberInfo? member = null, string? name = null) => new(member is null ? TargetObject! : CurrentKey, member ?? Member, this, id, name);
 
@@ -29,12 +29,12 @@ public class KeyContext : ImGuiContext
         LastValidKey = currentKey;
         CurrentKey = currentKey;
 
-        ValueContext = new(TargetObject, Member, valueType, this, parentContext, $"{Id}-value", name: string.Empty);
+        ValueContext = new(TargetObject!, Member!, valueType, this, parentContext, $"{Id}-value", name: string.Empty);
 
         Description = null;
     }
 
-    public override bool TryGetValue(out object value)
+    public override bool TryGetValue(out object? value)
     {
         if (!CanRead)
         {
@@ -45,7 +45,7 @@ public class KeyContext : ImGuiContext
         return true;
     }
 
-    public override bool TrySetValue(object value, object ChangedBy)
+    public override bool TrySetValue(object? value, object ChangedBy)
     {
         KeyValidation.LastValidationResult = null;
 
@@ -56,7 +56,7 @@ public class KeyContext : ImGuiContext
 
         if(base.TryGetValue(out var container) && container is IDictionary dict)
         {
-            if (dict.Contains(value))
+            if (dict.Contains(value!))
             {
                 KeyValidation.LastValidationResult = "Could not insert key, as it alrady exists in the dictionary!";
                 return false;
@@ -65,9 +65,9 @@ public class KeyContext : ImGuiContext
             try
             {
                 //TODO check if other items where trying to use this key and remove their Duplicate Key! message
-                var toMove = ExistsInDictionary ? dict[LastValidKey] : ValueContext.CachedObject;
-                if(ExistsInDictionary) dict.Remove(LastValidKey);
-                dict.Add(value, toMove);
+                var toMove = ExistsInDictionary ? dict[LastValidKey!] : ValueContext.CachedObject;
+                if(ExistsInDictionary) dict.Remove(LastValidKey!);
+                dict.Add(value!, toMove);
                 LastValidKey = value;
 
                 ExistsInDictionary = true;
@@ -87,7 +87,7 @@ public class KeyContext : ImGuiContext
         }
     }
 
-    public override bool TryAutoSetValue(object value, object ChangedBy)
+    public override bool TryAutoSetValue(object? value, object ChangedBy)
     {
         if(!CanWrite) return false;
         try

@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Contexts;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
-using InsanityLib.Util;
+using InsanityLib.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Numerics;

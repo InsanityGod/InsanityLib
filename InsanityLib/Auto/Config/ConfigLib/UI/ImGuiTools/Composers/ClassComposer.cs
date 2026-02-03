@@ -1,7 +1,7 @@
 ﻿using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Components.Util;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
 using InsanityLib.Config;
-using InsanityLib.Util;
+using InsanityLib.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
@@ -67,7 +67,7 @@ public class ClassComposer : IImGuiComposer
         return true;
     }
 
-    private int SortGroup(IImGuiComponent x, IImGuiComponent y)
+    private static int SortGroup(IImGuiComponent x, IImGuiComponent y)
     {
         // Check if either component is a container and get their hierarchy display
         static EHierarchyDisplay GetHierarchy(IImGuiComponent comp) => comp is IImGuiComponentContainer container ? container.DisplayProperties.Hierarchy : EHierarchyDisplay.None;

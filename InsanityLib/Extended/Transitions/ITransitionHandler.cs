@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util.Interfaces;
+﻿using InsanityLib.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;

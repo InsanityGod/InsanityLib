@@ -30,7 +30,7 @@ public class EnumComponent : ValueComponentBase<long>
 
     public string? DisplayStr { get; private set; }
 
-    protected override void OnValueChanged(object sender, PropertyChangedEventArgs args)
+    protected override void OnValueChanged(object? sender, PropertyChangedEventArgs args)
     {
         base.OnValueChanged(sender, args);
         UpdateValues();
@@ -70,12 +70,12 @@ public class EnumComponent : ValueComponentBase<long>
         }
     }
 
-    public override void Copy() => InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>().Forms.SetClipboardText(Mapping.GetStringValue(value));
+    public override void Copy() => InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>()!.Forms.SetClipboardText(Mapping.GetStringValue(value));
 
     public override void Paste()
     {
         int strIndex;
-        var clipboard = InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>().Forms.GetClipboardText();
+        var clipboard = InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>()!.Forms.GetClipboardText();
         if (Mapping.IsEnumFlag)
         {
             var strings = clipboard.Split(", ");

@@ -2,12 +2,12 @@
 
 public static class Logging
 {
-    public const string ExecutionFailed = "[InsanityLib] failed executing {0} on {1}: {2}";
-    public const string ExternalExecutionFailed = "[InsanityLib] [{0}] failed executing {1} on {2}: {3}";
+    public const string ExecutionFailed = "[InsanityLib] failed executing '{0}' on '{1}': {2}";
+    public const string ExternalExecutionFailed = "[InsanityLib] [{0}] failed executing '{1}' on '{2}': {3}";
     
     public const string AutoDefaultFailed = "[InsanityLib] failed setting auto default value on static member {0}:\n{1}";
     
-    public const string DefaultExecutionFailed = "[InsanityLib] failed executing {0} on {1}, using default value instead: {2}";
+    public const string DefaultExecutionFailed = "[InsanityLib] failed executing '{0}' on '{1}', using default value instead: {2}";
     public const string ConfigOutdated = "[InsanityLib] Config '{0}' is outdated/invalid ('{1}' should have been '{2}' instead of '{3}')";
     public const string AutoConfigUpdate = "[InsanityLib] Config '{0}' is outdated/invalid ('{1}' should have been '{2}' instead of '{3}') attempting auto update (you should check the config afterwards)";
 

@@ -9,7 +9,6 @@ namespace InsanityLib.PathResolvers;
 
 public static class Resolver
 {
-    //TODO allow for using these in more the just JSON patches
     public static List<IPathResolver> Resolvers { get; } =
     [
         new WorldPropertiesResolver(),

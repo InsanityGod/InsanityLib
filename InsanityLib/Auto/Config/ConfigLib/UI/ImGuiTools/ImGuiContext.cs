@@ -1,7 +1,8 @@
 ﻿using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Contexts;
 using InsanityLib.Documentation;
+using InsanityLib.Extensions;
+using InsanityLib.Interfaces.Validation;
 using InsanityLib.Util;
-using InsanityLib.Util.Interfaces;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -37,7 +38,7 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
 
     public virtual ImGuiContext New(string? id = null, MemberInfo? member = null, string? name = null) => new(member is null ? TargetObject! : Member?.GetValue(TargetObject)!, member ?? Member, this, id, name);
 
-    public ImGuiContext(object targetObject, MemberInfo? member, ImGuiContext? parentContext = null, string? id = null, string? name = null, IServiceProvider? serviceProvider = null)
+    public ImGuiContext(object? targetObject, MemberInfo? member, ImGuiContext? parentContext = null, string? id = null, string? name = null, IServiceProvider? serviceProvider = null)
     {
         TargetObject = targetObject;
         Member = member;
@@ -97,7 +98,7 @@ public class ImGuiContext : IServiceProvider, IValidationResultProvider
         //Optional
     }
 
-    public void NotifyChanged(object sender) => PropertyChanged?.Invoke(sender, new PropertyChangedEventArgs(Member.Name));
+    public void NotifyChanged(object sender) => PropertyChanged?.Invoke(sender, new PropertyChangedEventArgs(Member?.Name));
 
     public virtual bool TryGetValue(out object? value)
     {

@@ -1,5 +1,4 @@
 ﻿using InsanityLib.Extensions;
-using InsanityLib.Util;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -18,6 +17,6 @@ public sealed class ContextualBlockEntityProvider : IContextualArgumentProvider<
     {
         var pos = ContextualBlockPosProvider.Instance.Provide(serviceProvider, parameterInfo, contextualSource);
         if (pos is null) return null;
-        return serviceProvider.GetService<IWorldAccessor>().BlockAccessor.GetBlockEntity(pos);
+        return serviceProvider.GetService<IWorldAccessor>()!.BlockAccessor.GetBlockEntity(pos);
     }
 }

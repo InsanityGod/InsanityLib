@@ -2,7 +2,6 @@
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Interfaces;
 using InsanityLib.Constants;
 using InsanityLib.Extensions;
-using InsanityLib.Util;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
@@ -41,7 +40,7 @@ public class ValueComposer : IImGuiComposer
         }
         catch(Exception ex)
         {
-            context.GetService<ICoreAPI>().Logger.Error(Logging.ComposeFailure, type, ex);
+            context.GetService<ICoreAPI>()!.Logger.Error(Logging.ComposeFailure, type, ex);
             return null;
         }
     }

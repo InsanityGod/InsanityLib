@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using InsanityLib.Util;
 using HarmonyLib;
 using System.Collections;
 using InsanityLib.Documentation;
+using InsanityLib.Extensions;
 
 namespace InsanityLib.Auto.Config;
 

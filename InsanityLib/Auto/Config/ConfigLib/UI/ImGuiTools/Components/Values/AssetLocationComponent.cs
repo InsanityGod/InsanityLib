@@ -1,5 +1,5 @@
 ﻿using ImGuiNET;
-using InsanityLib.Util;
+using InsanityLib.Extensions;
 using System;
 using System.ComponentModel;
 using Vintagestory.API.Common;
@@ -32,7 +32,7 @@ public class AssetLocationComponent(ImGuiContext context) : ValueComponentBase<s
         }
     }
 
-    protected override void OnValueChanged(object sender, PropertyChangedEventArgs args)
+    protected override void OnValueChanged(object? sender, PropertyChangedEventArgs args)
     {
         if(!Context.TryGetValue(out var obj)) return;
 

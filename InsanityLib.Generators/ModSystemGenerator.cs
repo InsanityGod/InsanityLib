@@ -30,6 +30,8 @@ public sealed partial class ModSystemGenerator
             using InsanityLib.Extensions;
             using InsanityLib.Extended.AssetCategories;
             using InsanityLib.Auto.Config;
+
+            #nullable enable
             """
         );
 

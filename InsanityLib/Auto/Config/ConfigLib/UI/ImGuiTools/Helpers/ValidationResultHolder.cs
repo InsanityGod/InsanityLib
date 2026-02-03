@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util.Interfaces;
+﻿using InsanityLib.Interfaces.Validation;
 
 namespace InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Helpers;
 

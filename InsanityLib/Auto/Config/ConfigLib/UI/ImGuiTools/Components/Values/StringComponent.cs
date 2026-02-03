@@ -20,7 +20,7 @@ public class StringComponent : ValueComponentBase<string>
         else if(maxLengthAttr is not null) MaxStringLength = (uint)maxLengthAttr.Length;
     }
 
-    protected override void OnValueChanged(object sender, PropertyChangedEventArgs args)
+    protected override void OnValueChanged(object? sender, PropertyChangedEventArgs args)
     {
         base.OnValueChanged(sender, args);
         value ??= string.Empty;

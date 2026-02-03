@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util;
+﻿using InsanityLib.Extensions;
 using System;
 using System.Collections;
 using System.Reflection;
@@ -45,12 +45,12 @@ public class ValueContext : ImGuiContext
 
         if(container is IList list)
         {
-            value = list[(int)KeyContext.LastValidKey];
+            value = list[(int)KeyContext.LastValidKey!];
             return true;
         }
         else if(container is IDictionary dict)
         {
-            value = dict[KeyContext.LastValidKey];
+            value = dict[KeyContext.LastValidKey!];
             return true;
         }
 
@@ -73,13 +73,13 @@ public class ValueContext : ImGuiContext
         {
             if(container is IList list)
             {
-                list[(int)KeyContext.LastValidKey] = value;
+                list[(int)KeyContext.LastValidKey!] = value;
                 NotifyChanged(ChangedBy);
                 return true;
             }
             else if(container is IDictionary dict)
             {
-                dict[KeyContext.LastValidKey] = value;
+                dict[KeyContext.LastValidKey!] = value;
                 NotifyChanged(ChangedBy);
                 return true;
             }

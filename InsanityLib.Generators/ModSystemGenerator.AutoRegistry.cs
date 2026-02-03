@@ -1,6 +1,5 @@
 ﻿using InsanityLib.Generators.Contexts;
 using InsanityLib.Generators.Extensions;
-using Microsoft.CodeAnalysis;
 using System.CodeDom.Compiler;
 
 namespace InsanityLib.Generators;
@@ -59,7 +58,7 @@ public sealed partial class ModSystemGenerator
             //InsanityLib
             foreach(var blockEntity in info.Compilation.GetAllConcreteImplementations("InsanityLib.Extended.Transitions.ITransitionHandler"))
             {
-                writer.WriteLine($"""InsanityLib.Util.ContentFeatures.CustomTransition.RegisterHandler<{blockEntity.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}>(new("{info.ModID}", "{blockEntity.Name}"));""");
+                writer.WriteLine($"""InsanityLib.Extended.Transitions.CustomTransition.RegisterHandler<{blockEntity.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}>(new("{info.ModID}", "{blockEntity.Name}"));""");
             }
 
             foreach((var type, var attr) in assetCategoryAttributes)

@@ -22,7 +22,7 @@ public class StringArgumentParserProvider : IArgumentParserProvider<string>
             return new WordRangeArgParser(
                 parameterInfo.GetHumanReadableName(),
                 !parameterInfo.HasDefaultValue,
-                [.. allowedValuesAttr.Values.Select(obj => obj.ToString())]
+                [.. allowedValuesAttr.Values.Select(obj => obj!.ToString())]
             );
         }
 

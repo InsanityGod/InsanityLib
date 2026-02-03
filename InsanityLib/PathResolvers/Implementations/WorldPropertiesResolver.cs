@@ -11,7 +11,7 @@ public class WorldPropertiesResolver : IPathResolver
 {
     public string Scheme => "worldproperties";
 
-    public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object result)
+    public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object? result)
     {
         var assets = Traverse.Create(api.Assets).Field<IDictionary<string, List<IAsset>>>("assetsByCategory").Value[AssetCategory.worldproperties.Code];
         var domainSeperatorIndex = path.IndexOf(':');

@@ -1,7 +1,6 @@
 ﻿using InsanityLib.Generators.Contexts;
 using InsanityLib.Generators.Extensions;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.CodeDom.Compiler;
 
 namespace InsanityLib.Generators;
@@ -30,8 +29,13 @@ public sealed partial class ModSystemGenerator
         /// Loads an assetCategory (should be called after the assets are loaded)
         /// </summary>
         """);
+
+        var foreachTarget = """api.GetManyExtended<T>(Mod.Logger, $"{categoryCode}/")""";
+        if(!info.HasInsanityLibDependency) foreachTarget = """api.ModLoader.IsModEnabled("insanitylib") ? """ + foreachTarget + """ : api.Assets.GetMany<T>(Mod.Logger, $"{categoryCode}/")""";
+
+
         using (new BlockContext("protected void LoadAssetCategory<T>(ICoreAPI api, string categoryCode, Action<ICoreAPI, AssetLocation, T> OnLoad)").Use(writer))
-        using(new ForeachContext("(var origin, var asset)", """api.Assets.GetMany<T>(Mod.Logger, $"{categoryCode}/")""").Use(writer))
+        using(new ForeachContext("(var origin, var asset)", foreachTarget).Use(writer))
         {
             writer.WriteLine("OnLoad(api, origin, asset);");
         }
@@ -72,14 +76,14 @@ public sealed partial class ModSystemGenerator
         return null;
     }
 
-    public void GenerateRegisterAssetCategoryMethod(IndentedTextWriter writer, GeneratorContext info)
+    public static void GenerateRegisterAssetCategoryMethod(IndentedTextWriter writer, GeneratorContext info)
     {
         writer.WriteMultiLine("""
         /// <summary>
         /// Will register the assetcategory using <see cref="InsanityLib.Extended.AssetCategories.ExtendedAssetCategory" > if InsanityLib is present and asssetType is supplied
         /// </summary>
         """);
-        using(new BlockContext("protected AssetCategory RegisterOrGetAssetCategory(ICoreAPI api, string code, bool affectsGameplay, EnumAppSide sideType, Type assetType = null)").Use(writer))
+        using(new BlockContext("protected AssetCategory RegisterOrGetAssetCategory(ICoreAPI api, string code, bool affectsGameplay, EnumAppSide sideType, Type? assetType = null)").Use(writer))
         {
             writer.WriteLine("if(AssetCategory.categories.TryGetValue(code, out var result)) return result;");
             using(new IfContext($"assetType is not null{(info.HasInsanityLibDependency ? "" : """&& api.ModLoader.IsModEnabled("insanitylib")""")}").Use(writer))

@@ -13,7 +13,7 @@ public sealed class ContextualBlockPosProvider : IContextualArgumentProvider<Blo
 
     public BlockPos? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) => contextualSource switch
     {
-        EContextualSource.Caller => serviceProvider.GetService<Caller>().Pos.PosRequired().AsBlockPos,
+        EContextualSource.Caller => serviceProvider.GetService<Caller>()!.Pos.PosRequired().AsBlockPos,
         EContextualSource.CallerTarget =>  ContextualBlockSelectionProvider.Instance.Provide(serviceProvider, parameterInfo, EContextualSource.Caller)?.Position,
         _ => throw new NotSupportedException($"Unknown/Unsupported {nameof(EContextualSource)}: {contextualSource}"),
     };

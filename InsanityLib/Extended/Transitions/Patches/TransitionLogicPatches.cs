@@ -19,7 +19,7 @@ public static class TransitionLogicPatches
         var matcher = new CodeMatcher(instructions);
         matcher.MatchEndForward(
             new CodeMatch(code =>code.opcode == OpCodes.Ldloc_S && code.operand is LocalBuilder pos && pos.LocalIndex == 18),
-            new CodeMatch(() => true),
+            new CodeMatch(_ => true),
             new CodeMatch(OpCodes.Stind_R4)
         );
 
@@ -119,5 +119,5 @@ public static class TransitionLogicPatches
         return matcher.InstructionEnumeration();
     }
     
-    public static TransitionableProperties[] FilterPerishableTransitions(TransitionableProperties[] transitions) => transitions?.Where(trans => trans.Type == EnumTransitionType.Perish).ToArray();
+    public static TransitionableProperties[]? FilterPerishableTransitions(TransitionableProperties[] transitions) => transitions?.Where(trans => trans.Type == EnumTransitionType.Perish).ToArray();
 }

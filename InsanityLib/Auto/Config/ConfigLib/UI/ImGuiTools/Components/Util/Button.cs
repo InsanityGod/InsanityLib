@@ -1,5 +1,5 @@
 ﻿using ImGuiNET;
-using InsanityLib.Util;
+using InsanityLib.Extensions;
 using System;
 using System.Numerics;
 

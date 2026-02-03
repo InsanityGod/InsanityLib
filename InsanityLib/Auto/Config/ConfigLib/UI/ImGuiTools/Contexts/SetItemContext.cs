@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using InsanityLib.Auto.Config.ConfigLib.UI.ImGuiTools.Helpers;
-using InsanityLib.Util;
+using InsanityLib.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

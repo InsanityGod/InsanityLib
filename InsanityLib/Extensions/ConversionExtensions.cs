@@ -2,9 +2,9 @@
 using System;
 using System.ComponentModel;
 
-namespace InsanityLib.Util;
+namespace InsanityLib.Extensions;
 
-public static class ConversionUtil
+public static class ConversionExtensions
 {
     public static T? AutoConvert<T>(this object value) => (T?)value.AutoConvert(typeof(T));
 
@@ -63,7 +63,7 @@ public static class ConversionUtil
     /// </summary>
     /// <returns>casted object</returns>
     /// <exception cref="InvalidCastException">When the cast failed</exception>
-    public static object? Cast(this object value, Type targetType) => AccessTools.Method(typeof(ConversionUtil), nameof(CastWrapper))
+    public static object? Cast(this object value, Type targetType) => AccessTools.Method(typeof(ConversionExtensions), nameof(CastWrapper))
         .MakeGenericMethod(targetType)
         .Invoke(null, [value]);
 
@@ -73,7 +73,7 @@ public static class ConversionUtil
     /// Get the default value of a type
     /// </summary>
     /// <returns>default value as if you ran default(YourType)</returns>
-    public static object? Default(this Type type) => AccessTools.Method(typeof(ConversionUtil), nameof(DefaultWrapper))
+    public static object? Default(this Type type) => AccessTools.Method(typeof(ConversionExtensions), nameof(DefaultWrapper))
         .MakeGenericMethod(type)
         .Invoke();
 

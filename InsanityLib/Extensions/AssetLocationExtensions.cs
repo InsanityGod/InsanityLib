@@ -1,9 +1,9 @@
 ﻿using System;
 using Vintagestory.API.Common;
 
-namespace InsanityLib.Util;
+namespace InsanityLib.Extensions;
 
-public static class AssetLocationUtil
+public static class AssetLocationExtensions
 {
     public static AssetLocation FillWildCard(this AssetLocation location, ReadOnlySpan<char> filler) => new(location.Domain, location.Path.Replace("*", filler.ToString()));
 

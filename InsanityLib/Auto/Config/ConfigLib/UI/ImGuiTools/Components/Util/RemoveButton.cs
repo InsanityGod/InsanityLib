@@ -38,12 +38,12 @@ public class RemoveButton : Button
         {
             if (KeyContext!.ExistsInDictionary)
             {
-                dict.Remove(KeyContext.LastValidKey);
+                dict.Remove(KeyContext.LastValidKey!);
             }
         }
         else if(container is IList list)
         {
-            var currentKey = (int)KeyContext!.CurrentKey;
+            var currentKey = (int)KeyContext!.CurrentKey!;
             if(container is Array)
             {
                 var newArray = Array.CreateInstance(KeyContext.ValueContext.ValueType, list.Count - 1);
@@ -72,7 +72,7 @@ public class RemoveButton : Button
 
         foreach (var keyContext in keys)
         {
-            var key = (int)keyContext!.CurrentKey;
+            var key = (int)keyContext!.CurrentKey!;
             if (key > fromKey)
             {
                 key--;

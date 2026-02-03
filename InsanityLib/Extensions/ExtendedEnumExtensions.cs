@@ -8,10 +8,8 @@ public static class ExtendedEnumExtensions
 {
     /// <summary>
     /// Registers TExtension as an extension of TActual.<br/>
-    /// This allowes one to 
+    /// This allowes one to store TExtension inside TActual with an offset.
     /// </summary>
-    /// <typeparam name="TActual"></typeparam>
-    /// <typeparam name="TExtension"></typeparam>
     public static void RegisterEnumExtension<TActual, TExtension>() where TActual : Enum where TExtension : Enum
     {
         if (!ExtendedEnum.EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))
@@ -23,6 +21,10 @@ public static class ExtendedEnumExtensions
         extendedEnum.RegisterExtension<TExtension>();
     }
 
+    /// <summary>
+    /// Extracts the TExtension stored inside TActual (by subtracting the offset calculated during registration)
+    /// </summary>
+    /// <exception cref="InvalidOperationException" />
     public static TExtension ToExtensionEnum<TActual, TExtension>(this TActual actual) where TActual : Enum where TExtension : Enum
     {
         if (ExtendedEnum.EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))
@@ -32,6 +34,10 @@ public static class ExtendedEnumExtensions
         throw new InvalidOperationException($"{typeof(TActual).FullName} is not an extended enum");
     }
 
+    /// <summary>
+    /// Stores TExtension inside TActual (by adding the offset calculated during registration)
+    /// </summary>
+    /// <exception cref="InvalidOperationException" />
     public static TActual FromExtensionEnum<TExtension, TActual>(this TExtension extension) where TActual : Enum where TExtension : Enum
     {
         if (ExtendedEnum.EnumExtensions.TryGetValue(typeof(TActual), out var extendedEnum))

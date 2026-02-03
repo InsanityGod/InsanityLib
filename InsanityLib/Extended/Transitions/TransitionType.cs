@@ -19,8 +19,8 @@ public class TransitionType
     /// <summary>
     /// The handler to use for the transition
     /// </summary>
-    [DefaultValue("insanitylib:transitionhandler")]
-    public AssetLocation Handler { get; init; } = "insanitylib:transitionhandler";
+    [DefaultValue("insanitylib:TransitionHandler")]
+    public AssetLocation Handler { get; init; } = new("insanitylib", "TransitionHandler");
 
     /// <summary>
     /// Attributes for the transition handler

@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using InsanityLib.Constants;
+using InsanityLib.Extensions;
 using InsanityLib.Generators.Attributes;
 using InsanityLib.Util;
 using System;
@@ -28,7 +29,7 @@ public sealed class AutoDefaultValueAttribute(object? value = null) : DefaultVal
     public string? AutoMethodName { get; init; }
 
     [DisposalLogic(ExecutionOrder = int.MinValue)]
-    internal static void DefaultAll(IServiceProvider serviceContainer, ILogger logger)
+    internal static void DefaultAll(IServiceProvider serviceContainer, ILogger? logger)
     {
         foreach ((var member, var attr) in ReflectionUtil.FindAllMembersWithAttributes<AutoDefaultValueAttribute>())
         {
@@ -39,7 +40,7 @@ public sealed class AutoDefaultValueAttribute(object? value = null) : DefaultVal
             }
             catch(Exception ex)
             {
-                logger.Error(Logging.AutoDefaultFailed, member, ex);
+                logger?.Error(Logging.AutoDefaultFailed, member, ex);
             }
         }
     }

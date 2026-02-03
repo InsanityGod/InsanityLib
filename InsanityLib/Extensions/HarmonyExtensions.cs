@@ -3,9 +3,9 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace InsanityLib.Util;
+namespace InsanityLib.Extensions;
 
-public static class HarmonyUtil
+public static class HarmonyExtensions
 {
     public static CodeMatch CodeMatchConstructor(this Type type) => new(instruction => instruction.IsConstructorFor(type));
 
