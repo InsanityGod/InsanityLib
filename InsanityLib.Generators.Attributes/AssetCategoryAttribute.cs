@@ -14,7 +14,7 @@ public class AssetCategoryAttribute(string code, bool affectsGameplay, EnumAppSi
     public string Code { get; } = code;
 
     /// <summary>
-    /// Determines wether it will be used on server, client or both.
+    /// Determines whether it will be used on server, client or both.
     /// </summary>
     public EnumAppSide SideType { get; } = sideType;
 
@@ -23,13 +23,4 @@ public class AssetCategoryAttribute(string code, bool affectsGameplay, EnumAppSi
     /// </summary>
     public bool AffectsGameplay { get; } = affectsGameplay;
 
-    //internal ExtendedAssetCategory CreateForType(Type type)
-    //{
-    //    if (AssetCategory.categories.TryGetValue(Code, out var existing))
-    //    {
-    //        var existingType = existing is ExtendedAssetCategory extended ? extended.ClassType : existing.GetType();
-    //        throw new InvalidOperationException($"[InsanityLib] [{type.FindModName()}] [{existingType.FindModName()}] Duplicate AssetCategory '{Code}' for both '{type.FullName}' and '{existingType.FullName}'");
-    //    }
-    //    return new(type, Code, AffectsGameplay, SideType);
-    //}
 }

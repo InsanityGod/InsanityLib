@@ -80,7 +80,7 @@ public sealed partial class ModSystemGenerator
     {
         writer.WriteMultiLine("""
         /// <summary>
-        /// Will register the assetcategory using <see cref="InsanityLib.Extended.AssetCategories.ExtendedAssetCategory" > if InsanityLib is present and asssetType is supplied
+        /// Will register the assetcategory using <see cref="InsanityLib.Extended.AssetCategories.ExtendedAssetCategory" /> if InsanityLib is present and asssetType is supplied
         /// </summary>
         """);
         using(new BlockContext("protected AssetCategory RegisterOrGetAssetCategory(ICoreAPI api, string code, bool affectsGameplay, EnumAppSide sideType, Type? assetType = null)").Use(writer))

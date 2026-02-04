@@ -39,6 +39,7 @@
 			<Description>$(DescriptionFromJson)</Description>
 			<Authors>$(AuthorsFromJson)</Authors>
 			<Version>$(VersionFromJson)</Version>
+			<PackageVersion>$(VersionFromJson)</PackageVersion>
 			
 			<HasInsanityLibDependency>*</HasInsanityLibDependency>
 		</PropertyGroup>
@@ -52,25 +53,34 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		
 		<!-- Package -->
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<PackageOutputPath>bin\$(Configuration)</PackageOutputPath>
+		<PackageOutputPath>$(SolutionDir)Releases</PackageOutputPath>
 		
 		<PackageId>TheInsanityGod.VintageStory.$(MSBuildProjectName)</PackageId>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<IncludeSymbols>True</IncludeSymbols>
 
+		<PackageIcon>modicon.png</PackageIcon>
+
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<PackageIcon>modicon.png</PackageIcon>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageProjectUrl>https://mods.vintagestory.at/insanitylib</PackageProjectUrl>
+		<PackageTags>VintageStory, Modding, C#</PackageTags>
+		
 		<Nullable>enable</Nullable>
-
+		
 		<DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="VintageStory.AutoConfigLib" Version="1.0.0" />
+		<PackageReference Include="TheInsanityGod.VintageStory.AutoConfigLib" Version="2.0.9" />
 		
-		<ProjectReference Include="..\InsanityLib.Generators\InsanityLib.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\InsanityLib.Generators\InsanityLib.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" Pack="true" />
 		<ProjectReference Include="..\InsanityLib.Analyzers\InsanityLib.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\InsanityLib.Generators.Attributes\InsanityLib.Generators.Attributes.csproj" private="false" PrivateAssets="all" />
 
@@ -141,11 +151,40 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Pack>false</Pack>
 		</Content>
-		<Content Include="modicon.png;..\LICENSE.txt">
+		<Content Include="modicon.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</Content>
+		
+		<None Include="..\LICENSE.txt" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest"/>
+		<None Include="modicon.png" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest"/>
+		<None Include="..\README.md" Pack="true" PackagePath="" CopyToOutputDirectory="Never" />
 	</ItemGroup>
 
+	<Target Name="ZipMod" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+		<PropertyGroup>
+			<!-- Source: mod output -->
+			<ModOutputDir>$(OutputPath)</ModOutputDir>
+
+			<!-- Destination: solution-level Releases folder -->
+			<ReleaseDir>$(SolutionDir)Releases</ReleaseDir>
+
+			<!-- Safe filename -->
+			<SafeTitle>$([System.Text.RegularExpressions.Regex]::Replace('$(ModID)', '[^a-zA-Z0-9_-]', '_'))</SafeTitle>
+			<ZipFile>$(ReleaseDir)\$(ModID)_$(version).zip</ZipFile>
+		</PropertyGroup>
+
+		<!-- Ensure source exists -->
+		<Error Condition="!Exists('$(ModOutputDir)')" Text="Mod output directory not found: $(ModOutputDir)" />
+
+		<!-- Make sure destination exists -->
+		<MakeDir Directories="$(ReleaseDir)" />
+
+		<!-- Delete existing zip if present -->
+		<Delete Files="$(ZipFile)" Condition="Exists('$(ZipFile)')" />
+
+		<!-- Create the zip -->
+		<ZipDirectory SourceDirectory="$(ModOutputDir)" DestinationFile="$(ZipFile)" />
+	</Target>
 </Project>
