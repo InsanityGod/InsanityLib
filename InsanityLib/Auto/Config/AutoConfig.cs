@@ -91,7 +91,7 @@ public sealed class AutoConfig<T> : IAutoConfig<T> where T : class, new()
         //Load from disk
         try
         {
-            ConfigInstance = api.LoadModConfig<T>(RelativePath);
+            ConfigInstance = api.LoadModConfig<T>(RelativePath) ?? new();
             ValidateAndFix(api.GetServiceProvider());
         }
         catch(Exception ex)
