@@ -1,18 +1,19 @@
 ﻿using InsanityLib.Generators.Contexts;
 using InsanityLib.Generators.Extensions;
+using Microsoft.CodeAnalysis;
 using System.CodeDom.Compiler;
 
 namespace InsanityLib.Generators;
 
 public sealed partial class ModSystemGenerator
 {
-    private bool hasModConfigs;
+    private (ISymbol Symbol, AttributeData Attribute)[] configlist;
+    private bool HasModConfigs => configlist is not null && configlist.Length > 0;
 
     public void GenerateAutoModConfigMethods(IndentedTextWriter writer, GeneratorContext info)
     {
-        var configlist = info.Compilation.GetSymbolsWithAttribute("InsanityLib.Generators.Attributes.AutoConfigAttribute").ToArray();
-        hasModConfigs = configlist.Length > 0;
-        if(!hasModConfigs) return;
+        configlist = [.. info.Compilation.GetSymbolsWithAttribute("InsanityLib.Generators.Attributes.AutoConfigAttribute")];
+        if(!HasModConfigs) return;
 
         writer.WriteMultiLine("""
         /// <summary>

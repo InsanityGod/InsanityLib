@@ -59,6 +59,11 @@ public sealed partial class ModSystemGenerator
                 writer.WriteLiteral(attr.ConstructorArguments[0].Value);
                 writer.WriteLine(");");
             }
+
+            foreach((var symbol, var _) in configlist)
+            {
+                writer.WriteLine($"{symbol.GetStaticMemberPath()} = null;");
+            }
         }
     }
 
