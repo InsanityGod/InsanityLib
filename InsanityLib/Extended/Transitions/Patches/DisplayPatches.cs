@@ -2,6 +2,7 @@
 using InsanityLib.Extensions;
 using System.Collections.Generic;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -113,6 +114,9 @@ internal static class DisplayPatches
         if(transitionStates is null) return;
         var builder = new StringBuilder(__result);
         builder.AppendLine();
+
+        //Linux has a weird issue where the first character gets cut off when appending text (see issue #1 on BrainFreeze), this is a workaround for that.
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) builder.Append(' ');
         
         foreach(var transitionState in transitionStates)
         {

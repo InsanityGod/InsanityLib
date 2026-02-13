@@ -1,4 +1,5 @@
-﻿using InsanityLib.Auto.Command;
+﻿using InsanityLib.Auto.Cleanup;
+using InsanityLib.Auto.Command;
 using InsanityLib.Documentation;
 using InsanityLib.Extended.Enums;
 using InsanityLib.Extended.Transitions;
@@ -14,6 +15,7 @@ namespace InsanityLib;
 
 public partial class InsanityLibModSystem : ModSystem, IServiceProvider
 {
+    [AutoDefaultValue(AutoType = typeof(ServiceContainer))]
     public static IServiceContainer GlobalServiceContainer { get; set; } = new ServiceContainer();
 
     public object? GetService(Type serviceType)

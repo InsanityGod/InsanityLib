@@ -58,7 +58,8 @@ public sealed partial class ModSystemGenerator
             //InsanityLib
             foreach(var blockEntity in info.Compilation.GetAllConcreteImplementations("InsanityLib.Extended.Transitions.ITransitionHandler"))
             {
-                writer.WriteLine($"""InsanityLib.Extended.Transitions.CustomTransition.RegisterHandler<{blockEntity.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}>(new("{info.ModID}", "{blockEntity.Name}"));""");
+                //AssetLocations are loaded in lower case when parsed from json, so we need to ensure the code is registered in lower case to avoid issues with case sensitivity
+                writer.WriteLine($"""InsanityLib.Extended.Transitions.CustomTransition.RegisterHandler<{blockEntity.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}>(new("{info.ModID}", "{blockEntity.Name.ToLower()}"));""");
             }
 
             foreach((var type, var attr) in assetCategoryAttributes)

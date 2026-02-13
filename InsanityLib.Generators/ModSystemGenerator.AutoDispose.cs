@@ -21,6 +21,14 @@ public sealed partial class ModSystemGenerator
         
         using (new BlockContext("protected void AutoDispose()").Use(writer))
         {
+            writer.WriteMultiLine("""
+            if(_api is not null)
+            {
+                foreach (var id in GameTickListenerIds) _api.Event.UnregisterGameTickListener(id);
+                GameTickListenerIds.Clear();
+            }
+            """);
+
             if (HasDisposalLogic)
             {
                 writer.WriteMultiLine("""

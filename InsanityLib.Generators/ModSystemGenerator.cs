@@ -23,6 +23,7 @@ public sealed partial class ModSystemGenerator
             using Newtonsoft.Json;
             using System.ComponentModel.Design;
             using System.Diagnostics.CodeAnalysis;
+            using System.Collections.Generic;
             using Vintagestory.API.Client;
             using Vintagestory.API.Common;
             using Vintagestory.API.Server;
@@ -53,6 +54,8 @@ public sealed partial class ModSystemGenerator
         {
             writer.WriteLine();
             
+            GenerateUtility(writer, info);
+
             GenerateServiceLogic(writer, info);
 
             GenerateAutoModConfigMethods(writer, info);

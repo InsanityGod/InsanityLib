@@ -13,6 +13,7 @@ public sealed partial class ModSystemGenerator
     private string[] GetOrFindPatchCategories(GeneratorContext info) => patchCategories ??= [.. 
         info.Compilation.GetSymbolsWithAttribute("HarmonyLib.HarmonyPatchCategory")
         .Select(result => $"\"{result.Attribute.ConstructorArguments[0].Value.ToString().Replace("\"", "\"\"")}\"")
+        .Distinct()
     ];
 
     public void GenerateStaticPatchCategoryList(IndentedTextWriter writer, GeneratorContext info)
