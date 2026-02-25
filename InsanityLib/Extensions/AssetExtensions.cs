@@ -3,7 +3,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using Vintagestory.API.Common;
+using Vintagestory.Common;
 
 namespace InsanityLib.Extensions;
 
@@ -46,4 +49,11 @@ public static class AssetExtensions
 		}
 		return results;
     }
+
+    [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "assetsByCategory")]
+    private static extern ref IDictionary<string, List<IAsset>> GetAssetsByCategory(AssetManager instance);
+
+    public static IEnumerable<IAsset> GetAssets(this IAssetManager assetManager, AssetCategory assetCategory) => assetManager.GetAssets(assetCategory.Code);
+    public static IEnumerable<IAsset> GetAssets(this IAssetManager assetManager, string assetCategory) => 
+        GetAssetsByCategory((AssetManager)assetManager).TryGetValue(assetCategory, out var assets) ? assets : Enumerable.Empty<IAsset>();
 }

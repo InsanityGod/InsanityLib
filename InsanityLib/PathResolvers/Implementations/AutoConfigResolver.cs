@@ -13,7 +13,7 @@ public class AutoConfigResolver : IPathResolver
 
     public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object? result)
     {
-        foreach ((ReadOnlySpan<char> configPath, var config) in AutoConfig.Loaded) //Sadly can't use AlternativeLookup yet
+        foreach ((ReadOnlySpan<char> configPath, var config) in AutoConfig.Loaded)
         {
             var configName = configPath.WithoutSuffix(".json");
             if (!path.StartsWith(configName)) continue;

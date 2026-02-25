@@ -46,7 +46,7 @@
 	</Target>
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<OutputPath>bin\$(Configuration)\Mods\mod</OutputPath>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
@@ -157,8 +157,8 @@
 			<PackagePath>\</PackagePath>
 		</Content>
 		
-		<None Include="..\LICENSE.txt" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest"/>
-		<None Include="modicon.png" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest"/>
+		<None Include="..\LICENSE.txt" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="modicon.png" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="..\README.md" Pack="true" PackagePath="" CopyToOutputDirectory="Never" />
 	</ItemGroup>
 

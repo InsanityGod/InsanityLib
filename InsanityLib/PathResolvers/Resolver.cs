@@ -6,7 +6,7 @@ using System.Linq;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.PathResolvers;
-
+//TODO allow for operations such as ??, ||, &&, etc
 public static class Resolver
 {
     public static List<IPathResolver> Resolvers { get; } =
@@ -14,6 +14,7 @@ public static class Resolver
         new WorldPropertiesResolver(),
         new AutoConfigResolver(),
         new ConfigLibResolver(),
+        new ModResolver(),
     ];
 
     public static IPathResolver? Find(ReadOnlySpan<char> scheme)

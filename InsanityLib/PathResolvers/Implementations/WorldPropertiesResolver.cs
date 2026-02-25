@@ -1,7 +1,7 @@
-﻿using HarmonyLib;
-using InsanityLib.Constants;
+﻿using InsanityLib.Constants;
+using InsanityLib.Extensions;
+using InsanityLib.Util.Span;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Common;
 
@@ -13,20 +13,13 @@ public class WorldPropertiesResolver : IPathResolver
 
     public bool TryResolvePath(ReadOnlySpan<char> path, ICoreAPI api, out object? result)
     {
-        var assets = Traverse.Create(api.Assets).Field<IDictionary<string, List<IAsset>>>("assetsByCategory").Value[AssetCategory.worldproperties.Code];
-        var domainSeperatorIndex = path.IndexOf(':');
-        ReadOnlySpan<char> domain;
-        if(domainSeperatorIndex == -1) domain = default;
-        else
-        {
-            domain = path[..domainSeperatorIndex];
-            path = path[(domainSeperatorIndex + 1)..]; //Skip the domain separator
-        }
+        var assets = api.Assets.GetAssets(AssetCategory.worldproperties);
+        var assetLocation = AssetLocationSpan.Create(path, allowNoDomain: true);
 
         foreach (var asset in assets)
         {
             //Magic number 16 is the length of "worldproperties/" and 5 is the length of ".json"
-            if((!domain.IsEmpty && !domain.SequenceEqual(asset.Location.Domain)) || !path.SequenceEqual(((ReadOnlySpan<char>)asset.Location.Path)[16..^5])) continue;
+            if(!assetLocation.DomainSatifies(asset.Location.Path) || !path.SequenceEqual(asset.Location.Path.AsSpan()[16..^5])) continue;
 
             if (!asset.IsLoaded()) asset.Origin.LoadAsset(asset);
 
