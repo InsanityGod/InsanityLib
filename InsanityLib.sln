@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.12.35521.163
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11520.95 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsanityLib", "InsanityLib\InsanityLib.csproj", "{26D49782-8E1A-442C-84E9-F4754B4BCF08}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsanityLib.Generators.Attributes", "InsanityLib.Generators.Attributes\InsanityLib.Generators.Attributes.csproj", "{93EB60B2-C2D3-423E-B8DB-6F2CFA088FA8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsanityLib.Analyzers", "InsanityLib.Analyzers\InsanityLib.Analyzers.csproj", "{6FC349E2-58E8-41EE-93E5-6CC1EEE795EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsanityLib.Tests", "InsanityLib.Tests\InsanityLib.Tests.csproj", "{CC6AC063-0FB1-4491-9078-276E851C8600}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{6FC349E2-58E8-41EE-93E5-6CC1EEE795EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FC349E2-58E8-41EE-93E5-6CC1EEE795EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FC349E2-58E8-41EE-93E5-6CC1EEE795EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC6AC063-0FB1-4491-9078-276E851C8600}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC6AC063-0FB1-4491-9078-276E851C8600}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC6AC063-0FB1-4491-9078-276E851C8600}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC6AC063-0FB1-4491-9078-276E851C8600}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
