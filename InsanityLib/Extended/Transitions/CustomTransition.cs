@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Generators.Attributes;
+using InsanityLib.Util.Span;
 using System;
 using System.Collections.Generic;
 using Vintagestory.API.Common;
@@ -10,7 +11,7 @@ public static class CustomTransition
 {
 
     [AutoClear]
-    internal readonly static Dictionary<AssetLocation, (Type Type, CreateTransitionHandler Constructor)> ClassRegistry = [];
+    internal readonly static Dictionary<AssetLocation, (Type Type, CreateTransitionHandler Constructor)> ClassRegistry = new(AssetLocationSpanComparer.Instance);
     
     public static void RegisterHandler<T>(AssetLocation code) where T : ITransitionHandler, new() => ClassRegistry[code] = (typeof(T), (transitionCode, transitionType) =>
     {
