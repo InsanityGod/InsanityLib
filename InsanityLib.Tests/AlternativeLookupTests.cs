@@ -1,27 +1,26 @@
 ﻿using InsanityLib.Util.Span;
 using Vintagestory.API.Common;
 
-namespace InsanityLib.Tests
+namespace InsanityLib.Tests;
+
+public class AlternativeLookupTests
 {
-    public class AlternativeLookupTests
+    private readonly Dictionary<AssetLocation, string> test = new(AssetLocationSpanComparer.Instance)
     {
-        private readonly Dictionary<AssetLocation, string> test = new()
-        {
-            [new AssetLocation("test1", "someasset")] = "Some Asset",
-            [new AssetLocation("test2","anotherasset")] = "Another Asset",
-            [new AssetLocation("test3", "helloworld")] = "Hello World"
-        };
+        [new AssetLocation("test1", "someasset")] = "Some Asset",
+        [new AssetLocation("test2","anotherasset")] = "Another Asset",
+        [new AssetLocation("test3", "helloworld")] = "Hello World"
+    };
 
-        [Fact]
-        public void AssetLocationSpanLookup()
-        {
-            var toFind = "test2:anotherasset";
+    [Fact]
+    public void AssetLocationSpanLookup()
+    {
+        var toFind = "test2:anotherasset";
 
-            var lookup = test.GetAlternateLookup<AssetLocationSpan>();
-            
-            Assert.True(lookup.TryGetValue(toFind, out var result));
+        var lookup = test.GetAlternateLookup<AssetLocationSpan>();
 
-            Assert.Equal("Another Asset", result);
-        }
+
+        Assert.True(lookup.TryGetValue(toFind, out var result));
+        Assert.Equal("Another Asset", result);
     }
 }
