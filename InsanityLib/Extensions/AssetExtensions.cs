@@ -1,4 +1,5 @@
 ﻿using InsanityLib.PathResolvers;
+using InsanityLib.Util.Span;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -28,7 +29,7 @@ public static class AssetExtensions
     public static Dictionary<AssetLocation, T> GetManyExtended<T>(this ICoreAPI api, ILogger logger, string pathBegins, string? domain = null)
     {
         var assets = api.Assets.GetMany(pathBegins, domain, true);
-        Dictionary<AssetLocation, T> results = new(assets.Count);
+        Dictionary<AssetLocation, T> results = new(assets.Count, AssetLocationSpanComparer.Instance);
 		foreach (IAsset asset in assets)
 		{
 			try
