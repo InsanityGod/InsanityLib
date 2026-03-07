@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using InsanityLib.Auto.Cleanup;
 using InsanityLib.Extensions;
 using System;
 using System.Collections.Generic;
@@ -13,10 +12,9 @@ namespace InsanityLib.Util;
 
 public static class ReflectionUtil
 {
-    [AutoDefaultValue(null)]
-    public static EnumAppSide? LoadedSides { get; internal set; }
+    public static EnumAppSide LoadedSides { get; internal set; }
 
-    public static bool SideLoaded(EnumAppSide side) => LoadedSides is not null && LoadedSides.Value.Is(side);
+    public static bool SideLoaded(EnumAppSide side) => (LoadedSides & side) != 0;
 
     public static ICoreAPI GetApi(bool prioritizeServer = true)
     {
