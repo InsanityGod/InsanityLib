@@ -1,11 +1,12 @@
 ﻿using HarmonyLib;
-using InsanityLib.Extensions;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 
 namespace InsanityLib.Extended.Transitions.Patches;
@@ -13,86 +14,94 @@ namespace InsanityLib.Extended.Transitions.Patches;
 [HarmonyPatch]
 internal static class DisplayPatches
 {
-
+    //TODO CreatedBy!
     [HarmonyPatch(typeof(CollectibleBehaviorHandbookTextAndExtraInfo), "addProcessesIntoInfo")]
     [HarmonyTranspiler]
-    internal static IEnumerable<CodeInstruction> AddHandbookInfo(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+    internal static IEnumerable<CodeInstruction> AddProcessesIntoInfoPatch(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
     {
-        var matcher = new CodeMatcher(instructions, generator);
+        var matcher = new CodeMatcher(instructions, generator).Start();
         
-        matcher.MatchEndForward
+        matcher.MatchStartForward
         (
-            new CodeMatch(OpCodes.Ldfld, AccessTools.Field(typeof(TransitionableProperties), nameof(TransitionableProperties.Type))),
+            CodeMatch.LoadsConstant("handbook-processesinto-transition-"),
             new CodeMatch(),
-            new CodeMatch(),
-            new CodeMatch(OpCodes.Switch)
+            new CodeMatch(OpCodes.Ldflda, AccessTools.Field(typeof(TransitionableProperties), nameof(TransitionableProperties.Type)))
         );
-        var switchLoc = matcher.Pos;
+
+        var startPos = matcher.Pos;
+        matcher.MatchEndForward(
+            //new CodeMatch(OpCodes.Ldloc_S, 60) refuses to work for who knows what reason
+            new CodeMatch(instruction => instruction.opcode == OpCodes.Ldloc_S && instruction.operand is LocalBuilder l && l.LocalIndex == 60)
+        );
+        matcher.RemoveInstructionsInRange(startPos, matcher.Pos - 1);
+        matcher.Start().Advance(startPos + 1);
+        matcher.RemoveInstruction();
+        matcher.Advance(-1);
         
-        matcher.MatchEndBackwards(typeof(ClearFloatTextComponent).CodeMatchStoresLocal());
-        var verticalSpaceLocalIndex = matcher.Instruction.GetStoredLocalIndex();
-
-        matcher.MatchEndForward(typeof(bool).CodeMatchStoresLocal());
-        var addedItemStackLocalIndex = matcher.Instruction.GetStoredLocalIndex();
-
-        matcher.MatchEndForward(typeof(TransitionableProperties).CodeMatchStoresLocal());
-        var propsLocalIndex = matcher.Instruction.GetStoredLocalIndex();
-
-        matcher.Start();
-        matcher.Advance(switchLoc);
-        matcher.InsertAfter(
+        matcher.InsertAndAdvance(
             CodeInstruction.LoadArgument(1), //capi
-            CodeInstruction.LoadArgument(4), //components
-            CodeInstruction.LoadLocal(verticalSpaceLocalIndex), //verticalSpace
-            CodeInstruction.LoadArgument(2), //openDetailPageFor
-            CodeInstruction.LoadLocal(propsLocalIndex), //props
-            CodeInstruction.LoadLocal(addedItemStackLocalIndex, true), //addedItemStack
-            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DisplayPatches), nameof(AddProccessIntoInfoToHandbook)))
+            CodeInstruction.LoadLocal(58) //prop
+        );
+        
+        matcher.MatchEndForward(
+            new CodeMatch(instruction => instruction.operand is MethodInfo { Name: "Get", DeclaringType.Name: "Lang" })
+        );
+        matcher.Instruction.opcode = OpCodes.Call;
+        matcher.Instruction.operand = AccessTools.Method(typeof(DisplayPatches), nameof(GetProcessIntoStringForHandbook));
+
+        return matcher.InstructionEnumeration();
+    }
+
+    internal static string GetProcessIntoStringForHandbook(ICoreClientAPI capi, TransitionableProperties prop, string displayTime, params object[] extra)
+    {
+        var handler = CustomTransition.ExtendedEnum.FindHandler(prop.Type);
+        if(handler is not null)
+        {
+            return handler.GetProcessIntoStringForHandbook(capi, prop, displayTime, extra);
+        }
+        return Lang.Get("handbook-processesinto-transition-" + prop.Type.ToString().ToLowerInvariant() + displayTime, extra);
+    }
+
+    [HarmonyPatch(typeof(CollectibleBehaviorHandbookTextAndExtraInfo), "addCreatedByInfo")]
+    [HarmonyTranspiler]
+    internal static IEnumerable<CodeInstruction> AddCreatedByInfoPatch(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+    {
+        var matcher = new CodeMatcher(instructions, generator).Start();
+        
+        matcher.MatchStartForward
+        (
+            CodeMatch.LoadsConstant("handbook-createdby-transition-")
+        );
+
+        var startPos = matcher.Pos;
+        matcher.MatchEndForward(
+            new CodeMatch(instruction => instruction.operand is MethodInfo { Name: "Concat", DeclaringType.Name: "String" })
+        );
+        matcher.RemoveInstructionsInRange(startPos + 3, matcher.Pos);
+        matcher.Start().Advance(startPos);
+        matcher.RemoveInstruction();
+        matcher.InsertAndAdvance(
+            CodeInstruction.LoadArgument(1) //capi
+        );
+        matcher.Advance(1);
+        matcher.InsertAfterAndAdvance(
+            new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(DisplayPatches), nameof(GetCreatedByLangKeyForHandbook)))
         );
 
         return matcher.InstructionEnumeration();
     }
 
-    internal static void AddProccessIntoInfoToHandbook(ICoreClientAPI capi, List<RichTextComponentBase> components, ClearFloatTextComponent verticalSpace, ActionConsumable<string> openDetailPageFor, TransitionableProperties prop, ref bool addedItemStack)
+    internal static string GetCreatedByLangKeyForHandbook(ICoreClientAPI capi, EnumTransitionType type)
     {
-        var handler = CustomTransition.ExtendedEnum.FindHandler(prop.Type);
-
-        if (handler is null) return;
-        addedItemStack = true;
-
-        handler.AddProccessIntoInfoToHandbook(capi, components, verticalSpace, openDetailPageFor, prop);
+        var handler = CustomTransition.ExtendedEnum.FindHandler(type);
+        if(handler is not null)
+        {
+            return handler.GetCreatedByLangKeyForHandbook(capi, type);
+        }
+        return "handbook-createdby-transition-" + type.ToString().ToLowerInvariant();
     }
 
-    [HarmonyPatch(typeof(CollectibleObject), nameof(CollectibleObject.OnTransitionNow))]
-    [HarmonyPostfix]
-    internal static void PostTransition(CollectibleObject __instance, ItemSlot slot, TransitionableProperties props, ref ItemStack __result)
-    {
-        var handler = CustomTransition.ExtendedEnum.FindHandler(props.Type);
-        if (handler is null) return;
 
-        handler.PostOnTransitionNow(__instance, slot, props, ref __result);
-    }
-
-    [HarmonyPatch(typeof(CollectibleObject), nameof(CollectibleObject.GetTransitionRateMul))]
-    [HarmonyPostfix]
-    internal static void GetTransitionRateMul(IWorldAccessor world, ItemSlot inSlot, EnumTransitionType transType, ref float __result)
-    {
-        var handler = CustomTransition.ExtendedEnum.FindHandler(transType);
-        if (handler is null) return;
-
-        __result = handler.GetTransitionRateMul(world, inSlot, __result);
-    }
-
-    [HarmonyPatch(typeof(InventoryBase), "GetDefaultTransitionSpeedMul")]
-    [HarmonyPrefix]
-    internal static bool GetDefaultTransitionSpeedMul(EnumTransitionType transitionType, ref float __result)
-    {
-        var handler = CustomTransition.ExtendedEnum.FindHandler(transitionType);
-        if (handler is null) return true;
-
-        __result = handler.DefaultTransitionSpeedMul;
-        return false;
-    }
 
     [HarmonyPatch(typeof(CollectibleObject), "AppendPerishableInfoText", typeof(ItemSlot), typeof(StringBuilder), typeof(IWorldAccessor), typeof(TransitionState) , typeof(bool))]
     [HarmonyPrefix]

@@ -6,8 +6,14 @@ namespace InsanityLib.Generators;
 
 public sealed partial class ModSystemGenerator
 {
+    
     public void GenerateServiceLogic(IndentedTextWriter writer, GeneratorContext info)
     {
+        writer.WriteMultiLine("""
+        private IServiceProvider InsanityLibGlobalServiceProvider => InsanityLib.InsanityLibModSystem.GlobalServiceContainer;
+        """);
+        writer.WriteLine();
+
         writer.WriteMultiLine("""
         /// <summary>
         /// Access to the service container for this side
@@ -36,7 +42,7 @@ public sealed partial class ModSystemGenerator
             {
                 writer.Write("InsanityLib.InsanityLibModSystem.GlobalServiceContainer");
             }
-            else writer.Write("""api.ModLoader.IsModEnabled("insanitylib") ? InsanityLib.InsanityLibModSystem.GlobalServiceContainer : null""");
+            else writer.Write("""api.ModLoader.IsModEnabled("insanitylib") ? InsanityLibGlobalServiceProvider : null""");
             writer.WriteLine(");");
 
             writer.WriteLine();

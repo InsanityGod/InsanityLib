@@ -1,11 +1,8 @@
-﻿using Cairo;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
-using Vintagestory.GameContent;
 
 namespace InsanityLib.Extended.Transitions;
 
@@ -51,23 +48,7 @@ public class TransitionHandler : ITransitionHandler
 		}
     }
 
-    public virtual void AddProccessIntoInfoToHandbook(ICoreClientAPI capi, List<RichTextComponentBase> components, ClearFloatTextComponent verticalSpace, ActionConsumable<string> openDetailPageFor, TransitionableProperties prop)
-    {
-		components.Add(verticalSpace);
-		components.Add(new RichTextComponent(capi, Lang.Get($"{TransitionCode.Domain}:transition-{TransitionCode.Path}-handbook", prop.TransitionHours.avg) + "\n", CairoFont.WhiteSmallText().WithWeight(FontWeight.Bold)));
+    public string GetProcessIntoStringForHandbook(ICoreClientAPI capi, TransitionableProperties prop, string displayTime, object[] extra) => Lang.Get($"{TransitionCode.Domain}:handbook-processesinto-transition-" + TransitionCode.Path + displayTime, extra);
 
-		components.Add(
-            new ItemstackTextComponent(
-                capi,
-                prop.TransitionedStack.ResolvedItemstack,
-                40.0,
-                10.0,
-                EnumFloat.Inline, 
-                stack => openDetailPageFor(GuiHandbookItemStackPage.PageCodeForStack(stack))
-            )
-            {
-                PaddingLeft = 2.0
-            }
-        );
-    }
+    public string GetCreatedByLangKeyForHandbook(ICoreClientAPI capi, EnumTransitionType type) => $"{TransitionCode.Domain}:handbook-createdby-transition-{TransitionCode.Path}";
 }

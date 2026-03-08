@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Util.Span;

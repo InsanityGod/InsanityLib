@@ -12,6 +12,37 @@ namespace InsanityLib.Extended.Transitions.Patches;
 [HarmonyPatch]
 public static class TransitionLogicPatches
 {
+    [HarmonyPatch(typeof(CollectibleObject), nameof(CollectibleObject.OnTransitionNow))]
+    [HarmonyPostfix]
+    internal static void PostTransition(CollectibleObject __instance, ItemSlot slot, TransitionableProperties props, ref ItemStack __result)
+    {
+        var handler = CustomTransition.ExtendedEnum.FindHandler(props.Type);
+        if (handler is null) return;
+
+        handler.PostOnTransitionNow(__instance, slot, props, ref __result);
+    }
+
+    [HarmonyPatch(typeof(CollectibleObject), nameof(CollectibleObject.GetTransitionRateMul))]
+    [HarmonyPostfix]
+    internal static void GetTransitionRateMul(IWorldAccessor world, ItemSlot inSlot, EnumTransitionType transType, ref float __result)
+    {
+        var handler = CustomTransition.ExtendedEnum.FindHandler(transType);
+        if (handler is null) return;
+
+        __result = handler.GetTransitionRateMul(world, inSlot, __result);
+    }
+
+    [HarmonyPatch(typeof(InventoryBase), "GetDefaultTransitionSpeedMul")]
+    [HarmonyPrefix]
+    internal static bool GetDefaultTransitionSpeedMul(EnumTransitionType transitionType, ref float __result)
+    {
+        var handler = CustomTransition.ExtendedEnum.FindHandler(transitionType);
+        if (handler is null) return true;
+
+        __result = handler.DefaultTransitionSpeedMul;
+        return false;
+    }
+
     [HarmonyPatch(typeof(CollectibleObject), "UpdateAndGetTransitionStatesNative")]
     [HarmonyTranspiler]
     public static IEnumerable<CodeInstruction> PreventNegativeTransitionHours(IEnumerable<CodeInstruction> instructions)

@@ -1,6 +1,5 @@
 ﻿using InsanityLib.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -15,11 +14,13 @@ public interface ITransitionHandler : IInitialize
     AssetLocation TransitionCode { get; init; }
     
     EnumTransitionType TransitionType { get; init; }
-
-    void AddProccessIntoInfoToHandbook(ICoreClientAPI capi, List<RichTextComponentBase> components, ClearFloatTextComponent verticalSpace, ActionConsumable<string> openDetailPageFor, TransitionableProperties prop);
     
     void AppendAppendPerishableInfoText(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, TransitionState state, bool nowSpoiling);
+    
+    string GetCreatedByLangKeyForHandbook(ICoreClientAPI capi, EnumTransitionType type);
 
+    string GetProcessIntoStringForHandbook(ICoreClientAPI capi, TransitionableProperties prop, string displayTime, object[] extra);
+    
     float GetTransitionRateMul(IWorldAccessor world, ItemSlot inSlot, float currentResult);
 
     void IInitialize.Initialize(IServiceProvider serviceProvider)

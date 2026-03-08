@@ -30,31 +30,50 @@ public static class ExtendedPatchingPatches
     {
         var matcher = new CodeMatcher(instructions, generator);
         matcher.DefineLabel(out var unmentConditionPath);
+    
+        matcher.MatchStartForward(
+            new CodeMatch(OpCodes.Ldc_I4_0),
+            CodeMatch.IsStloc(),
+            new CodeMatch(),
+            CodeMatch.IsLdloc(),
+            CodeMatch.IsLdloc(),
+            new CodeMatch(OpCodes.Ldelem_Ref)
+        );
+        matcher.Advance(1);
+        var patchIndex = (LocalBuilder)matcher.Instruction.operand;
+
+        matcher.MatchEndForward(
+            new CodeMatch(OpCodes.Ldelem_Ref),
+            CodeMatch.IsStloc()
+        );
+        var patch = (LocalBuilder)matcher.Instruction.operand;
 
         matcher.MatchStartForward(
             CodeMatch.LoadsField(AccessTools.Field(typeof(JsonPatch), nameof(JsonPatch.Condition))),
             CodeMatch.Branches()
         );
         matcher.Advance(-1);
+        var oldLabels = matcher.Labels;
+        matcher.Labels = [];
 
         matcher.InsertAndAdvance(
-            new CodeInstruction(OpCodes.Ldloc_S, 12), //JsonPatch patch
-            new CodeInstruction(OpCodes.Ldloc_S, 11), //int patchIndex
-            new CodeInstruction(OpCodes.Ldloc_S, 8), //IAsset asset
-            new CodeInstruction(OpCodes.Ldarg_0),
+            CodeInstruction.LoadLocal(patch.LocalIndex).WithLabels(oldLabels), //JsonPatch patch
+            CodeInstruction.LoadLocal(patchIndex.LocalIndex), //int patchIndex
+            CodeInstruction.LoadLocal(15), //IAsset asset
+            CodeInstruction.LoadLocal(0),
             new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ModJsonPatchLoader), "api")), //ICoreAPI api
             new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PatchingUtil), nameof(PatchingUtil.PreProcessJsonPatchCondition))),
             new CodeInstruction(OpCodes.Brfalse_S, unmentConditionPath) //If not successful, go to unmet condition path
         );
-
+    
         matcher.MatchStartForward(
-            new CodeMatch(instruction => instruction.opcode == OpCodes.Ldloc_S && instruction.operand is LocalBuilder local && local.LocalIndex == 4),
+            new CodeMatch(instruction => instruction.opcode == OpCodes.Ldloc_S && instruction.operand is LocalBuilder local && local.LocalIndex == 5), //5 = unmetConditionCount
             new CodeMatch(OpCodes.Ldc_I4_1),
             new CodeMatch(OpCodes.Add),
-            new CodeMatch(instruction => instruction.opcode == OpCodes.Stloc_S && instruction.operand is LocalBuilder local && local.LocalIndex == 4)
+            new CodeMatch(instruction => instruction.opcode == OpCodes.Stloc_S && instruction.operand is LocalBuilder local && local.LocalIndex == 5)
         );
         matcher.Labels.Add(unmentConditionPath);
-
+    
         return matcher.InstructionEnumeration();
     }
 }
