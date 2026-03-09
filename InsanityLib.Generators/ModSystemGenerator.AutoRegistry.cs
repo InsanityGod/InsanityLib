@@ -54,6 +54,16 @@ public sealed partial class ModSystemGenerator
             {
                 writer.WriteLine($"""api.RegisterBlockEntityBehaviorClass("{info.ModID}:{blockEntity.Name}", typeof({blockEntity.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}));""");
             }
+            
+            foreach(var blockEntity in info.Compilation.GetAllConcrete("Vintagestory.API.Common.Entities.Entity"))
+            {
+                writer.WriteLine($"""api.RegisterEntity("{info.ModID}:{blockEntity.Name}", typeof({blockEntity.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}));""");
+            }
+
+            foreach(var blockEntity in info.Compilation.GetAllConcrete("Vintagestory.API.Common.Entities.EntityBehavior"))
+            {
+                writer.WriteLine($"""api.RegisterEntityBehaviorClass("{info.ModID}:{blockEntity.Name}", typeof({blockEntity.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}));""");
+            }
 
             //InsanityLib
             foreach(var blockEntity in info.Compilation.GetAllConcreteImplementations("InsanityLib.Extended.Transitions.ITransitionHandler"))
