@@ -158,7 +158,6 @@
 		</Content>
 		
 		<None Include="..\LICENSE.txt" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
-		<None Include="modicon.png" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="..\README.md" Pack="true" PackagePath="" CopyToOutputDirectory="Never" />
 	</ItemGroup>
 
