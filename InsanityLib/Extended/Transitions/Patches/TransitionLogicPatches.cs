@@ -62,19 +62,6 @@ public static class TransitionLogicPatches
         return matcher.InstructionEnumeration();
     }
 
-
-    [HarmonyPatch(typeof(BarrelRecipe), nameof(BarrelRecipe.TryCraftNow))]
-    [HarmonyTranspiler]
-    public static IEnumerable<CodeInstruction> FixBarrelRecipeTransitionLogic(IEnumerable<CodeInstruction> instructions)
-    {
-        var matcher = new CodeMatcher(instructions);
-        matcher.MatchStartForward(new CodeMatch(OpCodes.Stloc_2));
-        
-        matcher.InsertAndAdvance(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(TransitionLogicPatches), nameof(FilterPerishableTransitions))));
-
-        return matcher.InstructionEnumeration();
-    }
-
     //TODO figure out what exactly this solved and see if there is a better way to do that
     [HarmonyPatch(typeof(CollectibleObject), nameof(CollectibleObject.CarryOverFreshness), typeof(ICoreAPI), typeof(ItemSlot[]), typeof(ItemStack[]), typeof(TransitionableProperties))]
     [HarmonyPrefix]
