@@ -32,7 +32,10 @@ public sealed partial class ModSystemGenerator
             writer.WriteLine("AutoPatch(api);");
             writer.WriteLine("AutoRegistry(api);");
 
-            writer.WriteLine(info.HasInsanityLibDependency ? "LoadAutoConfigs(api);" : "LoadConfigs(api);");
+            if (HasModConfigs)
+            {
+                writer.WriteLine(info.HasInsanityLibDependency ? "LoadAutoConfigs(api);" : "LoadConfigs(api);");
+            }
         }
     }
 
