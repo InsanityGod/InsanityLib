@@ -3,7 +3,6 @@ using InsanityLib.Generators.Enums;
 using InsanityLib.Generators.Extensions;
 using Microsoft.CodeAnalysis;
 using System.CodeDom.Compiler;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace InsanityLib.Generators;
@@ -25,7 +24,6 @@ public sealed partial class ModSystemGenerator
         string[] removePrefix = null;
         string[] removeSuffix = null;
     
-        // ---- constructor args (positional) ----
         if (attr.ConstructorArguments.Length > 2 && !attr.ConstructorArguments[2].IsNull)
         {
             removePrefix = ExtractStringArray(attr.ConstructorArguments[2]);
@@ -36,7 +34,6 @@ public sealed partial class ModSystemGenerator
             removeSuffix = ExtractStringArray(attr.ConstructorArguments[3]);
         }
     
-        // ---- named args (IMPORTANT) ----
         foreach (var named in attr.NamedArguments)
         {
             switch (named.Key)
