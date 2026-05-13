@@ -1,8 +1,11 @@
 ﻿using InsanityLib.Auto.Command;
+using InsanityLib.Auto.Config;
 using InsanityLib.Documentation;
 using InsanityLib.Extended.Enums;
 using InsanityLib.Extended.Transitions;
 using InsanityLib.Util;
+using Newtonsoft.Json;
+using System.Text;
 using Vintagestory.API.Common;
 
 namespace InsanityLib;
@@ -38,8 +41,13 @@ public partial class InsanityLibModSystem : ModSystem
     {
         base.AssetsFinalize(api);
 
-        // These should be loaded by now
-        api.World.Config.RemoveAttribute("insanitylib_configs");
+        if(api.Side != EnumAppSide.Server) return;
+        var configTree = api.World.Config.GetOrAddTreeAttribute("insanitylib_configs");
+
+        foreach((var path, var config) in AutoConfig.Loaded)
+        {
+            configTree.SetBytes(path,  Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(config.ConfigInstance, Formatting.None)));
+        }
     }
 
     public override void Dispose()
