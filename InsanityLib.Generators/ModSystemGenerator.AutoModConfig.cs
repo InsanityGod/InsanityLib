@@ -68,7 +68,7 @@ public sealed partial class ModSystemGenerator
                 
                 using(new IfContext("api.Side == EnumAppSide.Server && serverSynced").Use(writer))
                 {
-                    writer.WriteLine("""api.World.Config.GetOrAddTreeAttribute("configs").SetBytes(path, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(null, Formatting.None)));""");
+                    writer.WriteLine("""api.World.Config.GetOrAddTreeAttribute("configs").SetBytes(path, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result, Formatting.None)));""");
                 }
 
                 writer.WriteLine("api.StoreModConfig(result, path);");
