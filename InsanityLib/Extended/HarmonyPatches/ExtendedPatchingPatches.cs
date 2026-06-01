@@ -60,7 +60,7 @@ public static class ExtendedPatchingPatches
             CodeInstruction.LoadLocal(patch.LocalIndex).WithLabels(oldLabels), //JsonPatch patch
             CodeInstruction.LoadLocal(patchIndex.LocalIndex), //int patchIndex
             CodeInstruction.LoadLocal(15), //IAsset asset
-            CodeInstruction.LoadLocal(0),
+            CodeInstruction.LoadArgument(0),
             new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ModJsonPatchLoader), "api")), //ICoreAPI api
             new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(PatchingUtil), nameof(PatchingUtil.PreProcessJsonPatchCondition))),
             new CodeInstruction(OpCodes.Brfalse_S, unmentConditionPath) //If not successful, go to unmet condition path
