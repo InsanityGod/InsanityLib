@@ -2,6 +2,7 @@
 using InsanityLib.Generators.Extensions;
 using Microsoft.CodeAnalysis;
 using System.CodeDom.Compiler;
+using System.Diagnostics;
 
 namespace InsanityLib.Generators;
 
@@ -9,7 +10,7 @@ public sealed partial class ModSystemGenerator
 {
     public void GenerateModSystemFile(SourceProductionContext context, GeneratorContext info)
     {
-       var safeRoot = info.Root.Replace(".", string.Empty);
+        var safeRoot = info.Root.Replace(".", string.Empty);
         
         var sw = new StringWriter();
         var writer = new IndentedTextWriter(sw, "    ");
@@ -65,6 +66,7 @@ public sealed partial class ModSystemGenerator
 
             GenerateAssetCategoryMethods(writer, info);
             GenerateAutoRegistryMethod(writer, info);
+            GenerateAutoNetworkMethod(writer, info);
 
             GenerateAutoSetupMethod(writer, info);
             GenerateAutoAssetsLoadedMethod(writer, info);

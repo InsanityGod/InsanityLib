@@ -15,4 +15,6 @@ public class GeneratorContext(Compilation compilation, string root, string modID
     public bool HasInsanityLibDependency { get; set; } = hasInsanityLibDependency;
 
     public INamedTypeSymbol ContainingType { get; set; }
+    
+    public SourceProductionContext Context { get; set; }
 }

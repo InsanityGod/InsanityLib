@@ -13,4 +13,13 @@ internal static class Diagnostics
         isEnabledByDefault: true,
         helpLinkUri: "https://github.com/InsanityGod/InsanityLib/wiki/Diagnostics#insanity001-modid-msbuild-property-is-missing"
     );
+
+    internal static readonly DiagnosticDescriptor DuplicateMatch = new(
+        id: "INSANITY008",
+        title: "Duplicate match found",
+        messageFormat: "This attribute has a duplicate match and will not work as intended, duplicate match: {0}",
+        category: "Setup",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true
+    );
 }

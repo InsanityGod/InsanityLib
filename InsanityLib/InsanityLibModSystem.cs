@@ -10,6 +10,8 @@ using Vintagestory.API.Common;
 
 namespace InsanityLib;
 
+//TODO maybe add some utility for sending packets with callback logic
+
 public partial class InsanityLibModSystem : ModSystem
 {
     partial void OnTransitionTypeLoaded(ICoreAPI api, AssetLocation origin, TransitionType asset) => CustomTransition.ExtendedEnum.RegisterTransitionType(Mod.Logger, asset);

@@ -42,5 +42,33 @@ internal static class Diagnostics
         isEnabledByDefault: true
     );
 
+    internal static readonly DiagnosticDescriptor SignatureDoesNotMatch = new(
+        id: "INSANITY006",
+        title: "The method signature does not match expected arguments/parameters/generics/etc",
+        messageFormat: "Invalid usage of '{0}', method '{1}' parameters do not match the expected signature, {2}",
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Error,
+        //TODO helpLinkUri
+        isEnabledByDefault: true
+    );
+
+    internal static readonly DiagnosticDescriptor StaticOrModSystemClassMembersOnly = new(
+        id: "INSANITY007",
+        title: "Attribute is only allowed on static members or members of a ModSystem class",
+        messageFormat: "Attribute '{0}' can only be applied to static members or members of a ModSystem class",
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true
+    );
+
+    internal static readonly DiagnosticDescriptor DuplicateMatch = new(
+        id: "INSANITY008",
+        title: "Duplicate match found",
+        messageFormat: "This attribute has a duplicate match and will not work as intended, duplicate match: {0}",
+        category: "Setup",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true
+    );
+
     //TODO maybe some warnings about AutoMethods not being called?
 }

@@ -41,6 +41,7 @@ public sealed partial class Generator : IIncrementalGenerator
 
     private static void GenerateModSystem(SourceProductionContext context, GeneratorContext info)
     {
+        info.Context = context;
         if(ShouldFail(context, info)) return;
 
         var generator = new ModSystemGenerator();
