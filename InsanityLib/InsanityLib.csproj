@@ -76,7 +76,14 @@
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
-	
+
+	<ItemGroup>
+		<PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all" ExcludeAssets="runtime" />
+		<Publicize Include="DynamicClassesModSystem" />
+		<Publicize Include="VintagestoryLib" />
+		<Publicize Include="Newtonsoft.Json" />
+	</ItemGroup>
+		
 	<ItemGroup>
 		<PackageReference Include="TheInsanityGod.VintageStory.AutoConfigLib" Version="2.0.9" />
 		
@@ -88,7 +95,7 @@
 		<None Include="..\InsanityLib.Analyzers\bin\$(Configuration)\InsanityLib.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" visible="false" />
 		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.dll" Pack="true" PackagePath="lib/net10.0" visible="false" />
 		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.xml" Pack="true" PackagePath="lib/net10.0" visible="false" />
-		
+
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 		<PackageReference Include="JsonPeek" Version="1.2.0" />
 		<Reference Include="configlib">
@@ -99,12 +106,20 @@
 			<HintPath>..\..\Dep\vsimgui_1.1.7\ImGui.NET.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="VSImGui">
-			<HintPath>..\..\Dep\vsimgui_1.1.7\VSImGui.dll</HintPath>
+		<Reference Include="DynamicClassesModSystem">
+			<HintPath>..\..\Dep\sonitosrebirth_v1.0.3\DynamicClassesModSystem.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="xlib">
-			<HintPath>..\..\Dep\xlib_v0.8.16\xlib.dll</HintPath>
+			<HintPath>..\..\Dep\XLib Fork v1.0.35\xlib.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="xskills">
+			<HintPath>..\..\Dep\xSkills Fork v1.0.94\xskills.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VSImGui">
+			<HintPath>..\..\Dep\vsimgui_1.1.7\VSImGui.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="VintagestoryAPI">
@@ -147,6 +162,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Content Include="assets\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Content Include="modinfo.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Pack>false</Pack>

@@ -4,6 +4,7 @@ using InsanityLib.Extensions;
 using InsanityLib.Generators.Attributes;
 using InsanityLib.Util;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -170,7 +171,7 @@ public static class AutoConfig
 
             if (InsanityLibConfig.Instance!.AutoConfig.DocumentationInConfigFile)
             {
-                settings.Converters.Add(new JsonConverterWithCommentInjection());
+                settings.Converters.Add(new JsonConverterWithCommentInjection(settings.ContractResolver ?? DefaultContractResolver.Instance));
             }
             settings.Converters.Add(new ExtendedEnumJsonConverter());
 

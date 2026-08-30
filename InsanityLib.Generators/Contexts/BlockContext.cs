@@ -3,7 +3,7 @@ using System.CodeDom.Compiler;
 
 namespace InsanityLib.Generators.Contexts;
 
-public struct BlockContext(string start) : IWriteableContainer
+public struct BlockContext(string start, bool appendEmptyLine = true) : IWriteableContainer
 {
     public readonly void WriteStart(IndentedTextWriter writer)
     {
@@ -16,6 +16,6 @@ public struct BlockContext(string start) : IWriteableContainer
     {
         writer.Indent--;
         writer.WriteLine("}");
-        writer.WriteLine();
+        if(appendEmptyLine) writer.WriteLine();
     }
 }

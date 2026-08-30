@@ -30,11 +30,11 @@ public sealed partial class ModSystemGenerator
         /// </summary>
         """);
 
-        var foreachTarget = """api.GetManyExtended<T>(Mod.Logger, $"{categoryCode}/")""";
+        var foreachTarget = """api.EnumerateManyExtended<T>(Mod.Logger, $"{categoryCode}/")""";
         if(!info.HasInsanityLibDependency) foreachTarget = """api.ModLoader.IsModEnabled("insanitylib") ? """ + foreachTarget + """ : api.Assets.GetMany<T>(Mod.Logger, $"{categoryCode}/")""";
 
 
-        using (new BlockContext("protected void LoadAssetCategory<T>(ICoreAPI api, string categoryCode, Action<ICoreAPI, AssetLocation, T> OnLoad)").Use(writer))
+        using (new BlockContext("protected void LoadAssetCategory<T>(ICoreAPI api, string categoryCode, Action<ICoreAPI, AssetLocation, T> OnLoad)", false).Use(writer))
         using(new ForeachContext("(var origin, var asset)", foreachTarget).Use(writer))
         {
             writer.WriteLine("OnLoad(api, origin, asset);");
@@ -50,7 +50,6 @@ public sealed partial class ModSystemGenerator
         {
             writer.WriteLine($"""LoadAssetCategory<{type.ToDisplayString(SymbolExtensions.QualifiedEnoughFormat)}>(api, "{attr.ConstructorArguments[0].Value}", {GetPartialAssetCategoryMethodName(type)});""");
         }
-
     }
 
     private static string GetPartialAssetCategoryMethodName(ISymbol assetType) => $"On{assetType.Name}Loaded";

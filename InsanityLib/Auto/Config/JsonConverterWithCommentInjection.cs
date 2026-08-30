@@ -1,107 +1,72 @@
-﻿using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Reflection;
-using HarmonyLib;
-using System.Collections;
 using InsanityLib.Documentation;
-using InsanityLib.Extensions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace InsanityLib.Auto.Config;
 
-public class JsonConverterWithCommentInjection : JsonConverter
+public sealed class JsonConverterWithCommentInjection(IContractResolver resolver) : JsonConverter
 {
-    public static DefaultContractResolver DefaultResolver { get; } = new DefaultContractResolver();
-    public override bool CanConvert(Type objectType) =>
-        objectType.IsComplexClassType()
-        && !typeof(Array).IsAssignableFrom(objectType)
-        && !typeof(IEnumerable).IsAssignableFrom(objectType)
-        && DefaultResolver.ResolveContract(objectType).GetType() != typeof(JsonStringContract); //Ignore classes that would normally be saved as a string (like AssetLocations)
+    public override bool CanConvert(Type objectType) => resolver.ResolveContract(objectType) is JsonObjectContract;
 
-    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer,object? value, JsonSerializer serializer)
     {
-        if(value is null)
+        if (value is null)
         {
             writer.WriteNull();
             return;
         }
 
+        if (writer is not JsonTextWriter textWriter) throw new JsonSerializationException($"{nameof(JsonConverterWithCommentInjection)} requires a {nameof(JsonTextWriter)}.");
+
+        JsonObjectContract contract = (JsonObjectContract)serializer.ContractResolver.ResolveContract(value.GetType());
+
         writer.WriteStartObject();
-        IEnumerable<MemberInfo> props = value.GetType()
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.CanRead && p.CanWrite);
 
-        IEnumerable<MemberInfo> fields = value.GetType()
-            .GetFields(BindingFlags.Public | BindingFlags.Instance);
-
-        foreach (var member in props.Union(fields))
+        foreach (var property in contract.Properties)
         {
-            WritePropertyNameWithDescription(writer, member);
-            var propValue = member.GetValue(value);
-            serializer.Serialize(writer, propValue);
+            if (property.Ignored || !property.Readable) continue;
+
+            WritePropertyNameWithDescription(textWriter, property);
+
+            var propertyValue = property.ValueProvider?.GetValue(value);
+
+            serializer.Serialize(writer, propertyValue);
         }
 
         writer.WriteEndObject();
     }
 
-    private static void WritePropertyNameWithDescription(JsonWriter writer, MemberInfo member)
+    private static void WritePropertyNameWithDescription(JsonTextWriter writer, JsonProperty property)
     {
-        var writerTraverse = Traverse.Create(writer);
-        var currentState = writerTraverse.Field("_currentState");
-        var currentPositionObj = writerTraverse.Field("_currentPosition").GetValue();
-        currentPositionObj.GetType().GetField("PropertyName", AccessTools.all)!.SetValue(currentPositionObj, member.Name);
+        var member = property.DeclaringType?
+            .GetMember(property.UnderlyingName ?? property.PropertyName!)
+            .FirstOrDefault();
 
-        var tokenBeingWritten = JsonToken.PropertyName;
+        var description = member?
+            .GetDocumentationContext()?
+            .GetExtendedDescription();
 
-        var stateArray = writerTraverse.Field("StateArray");
-        var newState = ((Array)stateArray.GetValue<Array>().GetValue((int)tokenBeingWritten)!).GetValue((int)currentState.GetValue())!;
-
-        if ((int)newState == 9) throw new JsonWriterException($"Token {tokenBeingWritten} in state {currentState.GetValue()} would result in an invalid JSON object.");
-
-        var currentStateInt = (int)currentState.GetValue();
-        if (currentStateInt == 3 || currentStateInt == 5 || currentStateInt == 7)
-        {
-            writerTraverse.Method("WriteValueDelimiter").GetValue();
-        }
-
-        //    Start = 0,
-        //    Property = 1,
-        //    ObjectStart = 2,
-        //    Object = 3,
-        //    ArrayStart = 4,
-        //    Array = 5,
-        //    ConstructorStart = 6,
-        //    Constructor = 7,
-        //    Closed = 8,
-        //    Error = 9
-
-        var writeIndent = writerTraverse.Method("WriteIndent");
-
-        var doc = member.GetDocumentationContext();
-        var description = doc?.GetExtendedDescription();
-        if (currentStateInt != 2 && !string.IsNullOrEmpty(description)) writer.WriteWhitespace(Environment.NewLine);
-
-        writeIndent.GetValue();
+        writer.InternalWritePropertyName(property.PropertyName!);
 
         if (!string.IsNullOrEmpty(description))
         {
             foreach (var line in description.Split(["\r\n", "\n", "\r"], StringSplitOptions.None))
             {
-                writer.WriteRaw($"// {line.Trim()}");
-                writeIndent.GetValue();
+                writer.WriteIndent();
+                writer.WriteRaw($"// ");
+                writer.WriteRaw(line.Trim());
             }
         }
+        writer.WriteIndent();
 
-        currentState.SetValue(newState.Cast(currentState.GetValueType()));
-
-        writerTraverse.Method("WriteEscapedString", member.Name, true).GetValue();
+        writer.WriteEscapedString(property.PropertyName!, writer.QuoteName);
 
         writer.WriteRaw(":");
     }
 
     public override bool CanRead => false;
 
-    public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) => throw new NotImplementedException("Reading JSON with comments is not supported.");
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) => throw new NotSupportedException("Reading JSON with comments is not supported.");
 }

@@ -1,5 +1,6 @@
 ﻿using InsanityLib.Auto.Command;
 using InsanityLib.Auto.Command.Argument;
+using InsanityLib.Extended.Traits.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vintagestory.API.Common;
@@ -54,6 +55,15 @@ public static class DebugCommands
     );
 
     public const string ForecastText = "{0} says that there will be a {1}% chance of rain on {2}";
+
+    [AutoCommand]
+    public static TextCommandResult GetTraitLevel(InsanityLibModSystem system, [CommandParameter(ContextualSource = EContextualSource.Caller)] IPlayer player, string code)
+    { 
+        var trait = system.GetExtendedTrait(code);
+        if(trait is null) return TextCommandResult.Error($"Unknown trait: '{code}'");
+
+        return TextCommandResult.Success($"Trait Level: {system.GetEffectiveTraitLevel(trait, player)}");
+    }
 
     #endif
 }

@@ -15,7 +15,7 @@ public sealed partial class ModSystemGenerator
         /// </summary>
         """);
 
-        writer.WriteLine("private ICoreAPI? _api;");
+        writer.WriteLine("internal ICoreAPI? _api;");
         writer.WriteLine();
 
         writer.WriteMultiLine("""
@@ -29,7 +29,7 @@ public sealed partial class ModSystemGenerator
         {
             writer.WriteLine("_api = api;");
             writer.WriteLine("EnsureServiceContainerPresence(api);");
-            writer.WriteLine("AutoPatch(api);");
+            if(hasPatches) writer.WriteLine("AutoPatch(api);");
             writer.WriteLine("AutoRegistry(api);");
 
             if (HasNetworkMessages)
