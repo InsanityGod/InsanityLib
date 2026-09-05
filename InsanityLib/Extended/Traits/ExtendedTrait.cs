@@ -3,7 +3,6 @@ using InsanityLib.Generators.Attributes;
 using InsanityLib.Util;
 using InsanityLib.Util.Span;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

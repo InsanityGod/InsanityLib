@@ -10,11 +10,11 @@ namespace InsanityLib.Extended.Traits.Compatibility.XLib.Patches;
 [HarmonyPatch]
 public static class TraitDescriptionPatch
 {
-    public static IEnumerable<MethodBase> TargetMethods()
-    {
-        var method = AccessTools.Method("XLib.XLeveling.Ability:FormattedDescription");
-        if(method is not null) yield return method;
-    }
+    [HarmonyPrepare]
+    public static bool Prepare() => TargetMethod() is not null;
+
+    [HarmonyTargetMethod]
+    public static MethodBase TargetMethod() => AccessTools.Method("XLib.XLeveling.Ability:FormattedDescription");
 
     [HarmonyPatch]
     [HarmonyPrefix]

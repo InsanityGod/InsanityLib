@@ -1,6 +1,5 @@
 ﻿using InsanityLib.Auto.Command;
 using InsanityLib.Auto.Command.Argument;
-using InsanityLib.Extended.Traits.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vintagestory.API.Common;
