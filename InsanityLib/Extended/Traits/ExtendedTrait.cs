@@ -1,11 +1,17 @@
 ﻿using InsanityLib.Extended.Traits.Interfaces;
 using InsanityLib.Generators.Attributes;
+using InsanityLib.Util;
+using InsanityLib.Util.Span;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Utilities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 
 namespace InsanityLib.Extended.Traits;
@@ -99,6 +105,63 @@ public class ExtendedTrait : ITraitSystemConstraint
 
         return pair.Value.Value;
     });
+
+    public string GetDisplayName() => Lang.Get($"{Code.Domain}:traittitle-{Code.Path}");
+
+    public string GetUnformattedDescription()
+    {
+        var builder = new StringBuilder();
+
+        var descriptionKey = $"{Code.Domain}:traitdesc-{Code.Path}";
+        var description = Lang.GetUnformatted(descriptionKey);
+        if(description != descriptionKey)
+        {
+            builder.Append(description);
+        }
+
+        if(Attributes.Count > 0)
+        {
+            if(builder.Length > 0) builder.Append(Environment.NewLine);
+            builder.Append(LangUtil.CombineUnformatted(GetAttributeDescriptions(), Environment.NewLine));
+        }
+
+        return builder.ToString();
+    }
+
+    public string GetFormattedDescription(int? level = null)
+    {
+        var builder = new StringBuilder();
+
+        var descriptionKey = $"{Code.Domain}:traitdesc-{Code.Path}";
+        var description = Lang.Get(descriptionKey);
+
+        if (description != descriptionKey)
+        {
+            builder.Append(description);
+        }
+        
+        int effectiveLevel = level ?? LevelForTrait;
+        foreach ((string key, var attrValue) in Attributes)
+        {
+            if(builder.Length > 0) builder.Append(Environment.NewLine);
+            AssetLocationSpan attrCode = key;
+            
+            var value = attrValue.ValuePerLevel is not null && effectiveLevel >= 1 && effectiveLevel <= attrValue.ValuePerLevel.Length
+                ? attrValue.ValuePerLevel[effectiveLevel - 1]
+                : attrValue.Value * level;
+
+            builder.Append(Lang.Get($"{attrCode.Domain}:charattribute-{attrCode.Path}", value));
+        }
+        return builder.ToString();
+    }
+
+    private IEnumerable<string> GetAttributeDescriptions()
+    {
+        foreach(AssetLocationSpan attr in Attributes.Keys)
+        {
+            yield return Lang.GetUnformatted($"{attr.Domain}:charattribute-{attr.Path}");
+        }
+    }
 
     //TODO method for checking if it's applied to player (should return the level)
     //TODO method for gaining experience
