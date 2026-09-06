@@ -6,7 +6,7 @@
         "TheInsanityGod"
     ],
     "description": "Library with utility code for modding Vintage Story",
-    "version": "2.1.0",
+    "version": "2.1.0-dev.1",
     "dependencies": {
       "game": ""
     }

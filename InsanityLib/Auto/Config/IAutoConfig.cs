@@ -34,6 +34,8 @@ public interface IAutoConfig : ITypeAssociated
     /// </summary>
     bool ServerSync { get; }
 
+    void RegisterToConfigKit(ICoreAPI api);
+
     /// <summary>
     /// Loads the config or creates it if non existing
     /// </summary>

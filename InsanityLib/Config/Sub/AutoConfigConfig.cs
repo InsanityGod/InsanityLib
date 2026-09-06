@@ -22,4 +22,9 @@ public class AutoConfigConfig
     /// (this for instances moves CollapseHeaders down to the bottom of the section)
     /// </summary>
     public bool AutoElementOrdering { get; set; } = true;
+
+    /// <summary>
+    /// When enabled configs will be registered to ConfigKit if present.
+    /// </summary>
+    public bool RegisterToConfigKit { get; set; } = true;
 }

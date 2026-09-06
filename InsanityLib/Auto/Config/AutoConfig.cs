@@ -1,4 +1,5 @@
-﻿using InsanityLib.Config;
+﻿using ConfigKit;
+using InsanityLib.Config;
 using InsanityLib.Extended.Enums;
 using InsanityLib.Extensions;
 using InsanityLib.Generators.Attributes;
@@ -43,6 +44,18 @@ public sealed class AutoConfig<T> : IAutoConfig<T> where T : class, new()
     public bool ServerSync { get; }
 
     public bool IsLocalized { get; private set; } //TODO Public methods for toggeling this
+
+    public EnumAppSide RegisteredToConfigKit { get; private set; }
+
+    public void RegisterToConfigKit(ICoreAPI api)
+    {
+        if(!ServerSync || InsanityLibConfig.Instance?.AutoConfig.RegisterToConfigKit != true) return;
+        //TODO support for local configs (no good way to mark entire configs as local currently)
+
+        if((api.Side & RegisteredToConfigKit) != 0) return; //Already registered on this side
+        RegisteredToConfigKit &= api.Side;
+        api.ModLoader.GetModSystem<ConfigKitModSystem>().RegisterCustomManagedConfig(RelativePath, ConfigInstance!, RelativePath);
+    }
 
     public bool TryLoadConfig(ICoreAPI api, ILogger logger)
     {
@@ -146,9 +159,13 @@ public static class AutoConfig
 
         var typedConfig = (IAutoConfig<T>)config;
 
-        if(eagerLoad && typedConfig.ConfigInstance is null) typedConfig.TryLoadConfig(api, logger);
+        if(eagerLoad && typedConfig.ConfigInstance is null)
+        {
+            typedConfig.TryLoadConfig(api, logger);
+        }
 
-        if(api.ModLoader.IsModEnabled("configlib")) new ConfigLib.AutoConfigLib(api, typedConfig).RegisterToConfigLib(api);
+        if (api.ModLoader.IsModEnabled("configlib")) new ConfigLib.AutoConfigLib(api, typedConfig).RegisterToConfigLib(api);
+        if(api.ModLoader.IsModEnabled("configkit"))  config.RegisterToConfigKit(api);
 
         return typedConfig;
     }

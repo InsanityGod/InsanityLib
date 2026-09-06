@@ -85,6 +85,7 @@
 	</ItemGroup>
 		
 	<ItemGroup>
+
 		<PackageReference Include="TheInsanityGod.VintageStory.AutoConfigLib" Version="2.0.9" />
 		
 		<ProjectReference Include="..\InsanityLib.Generators\InsanityLib.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" Pack="true" />
@@ -101,6 +102,10 @@
 		<Reference Include="configlib">
 			<HintPath>..\..\Dep\configlib_1.4.1\configlib.dll</HintPath>
 			<Private>false</Private>
+		</Reference>
+		<Reference Include="ConfigKit">
+			<HintPath>..\..\Dep\configkit_1.2.0\ConfigKit.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="ImGui.NET">
 			<HintPath>..\..\Dep\vsimgui_1.1.7\ImGui.NET.dll</HintPath>
@@ -155,7 +160,7 @@
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<CompilerVisibleProperty Include="ModID" />
 		<CompilerVisibleProperty Include="HasInsanityLibDependency" />
@@ -178,6 +183,27 @@
 		<None Include="..\LICENSE.txt" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="..\README.md" Pack="true" PackagePath="" CopyToOutputDirectory="Never" />
 	</ItemGroup>
+	
+	
+	<!--SETUP for MSBuildStuff-->
+
+	<!--<ItemGroup>
+		<ProjectReference
+			Include="..\InsanityLib.BuildTasks\InsanityLib.BuildTasks.csproj"
+			ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<UsingTask
+		TaskName="InsanityLib.BuildTasks.GenerateConfigIntegration"
+		AssemblyFile="$(SolutionDir)InsanityLib.BuildTasks\bin\$(Configuration)\InsanityLib.BuildTasks.dll" />
+
+	<Target Name="TestMappingTask" BeforeTargets="AfterTargets">
+		<GenerateConfigIntegration
+			OutputPath="$(OutputPath)"
+			ModID="$(ModIDFromJson)" />
+	</Target>-->
+
+	<!--ENDSETUP for MSBuildStuff-->
 
 	<Target Name="ZipMod" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
 		<PropertyGroup>
