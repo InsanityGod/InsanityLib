@@ -24,6 +24,8 @@ public interface IAutoConfig : ITypeAssociated
     /// </summary>
     public string RelativePath { get; }
 
+    public Mod Owner { get; }
+
     /// <summary>
     /// The loaded instance of the config
     /// </summary>

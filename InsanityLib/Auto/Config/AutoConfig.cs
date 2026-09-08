@@ -8,10 +8,12 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Vintagestory.Common;
 
 namespace InsanityLib.Auto.Config;
 //TODO maybe some events to hook into loading logic
@@ -47,6 +49,8 @@ public sealed class AutoConfig<T> : IAutoConfig<T> where T : class, new()
 
     public EnumAppSide RegisteredToConfigKit { get; private set; }
 
+    public required Mod Owner { get; init; }
+
     public void RegisterToConfigKit(ICoreAPI api)
     {
         if(!ServerSync || InsanityLibConfig.Instance?.AutoConfig.RegisterToConfigKit != true) return;
@@ -54,7 +58,7 @@ public sealed class AutoConfig<T> : IAutoConfig<T> where T : class, new()
 
         if((api.Side & RegisteredToConfigKit) != 0) return; //Already registered on this side
         RegisteredToConfigKit &= api.Side;
-        api.ModLoader.GetModSystem<ConfigKitModSystem>().RegisterCustomManagedConfig(RelativePath, ConfigInstance!, RelativePath);
+        api.ModLoader.GetModSystem<ConfigKitModSystem>().RegisterCustomManagedConfig(Owner.Info.ModID, ConfigInstance!, RelativePath);
     }
 
     public bool TryLoadConfig(ICoreAPI api, ILogger logger)
@@ -144,7 +148,7 @@ public static class AutoConfig
     [AutoClear]
     public static Dictionary<string, IAutoConfig> Loaded { get; } = [];
 
-    public static IAutoConfig<T> GetOrRegister<T>(ICoreAPI api, ILogger logger, string path, bool serverSync = false, bool eagerLoad = true, Action<T?>? onLoad = null) where T : class, new()
+    public static IAutoConfig<T> GetOrRegister<T>(ICoreAPI api, Mod mod, string path, bool serverSync = false, bool eagerLoad = true, Action<T?>? onLoad = null) where T : class, new()
     {
         path = path.EnsureFileExtension(".json");
         if(Loaded.TryGetValue(path, out var config))
@@ -153,21 +157,50 @@ public static class AutoConfig
         }
         else
         {
-            config = new AutoConfig<T>(path, onLoad, serverSync);
+            config = new AutoConfig<T>(path, onLoad, serverSync) 
+            {
+                Owner = mod
+            };
             Loaded[path] = config;
         }
-
+        
         var typedConfig = (IAutoConfig<T>)config;
 
         if(eagerLoad && typedConfig.ConfigInstance is null)
         {
-            typedConfig.TryLoadConfig(api, logger);
+            typedConfig.TryLoadConfig(api, mod.Logger);
         }
 
         if (api.ModLoader.IsModEnabled("configlib")) new ConfigLib.AutoConfigLib(api, typedConfig).RegisterToConfigLib(api);
         if(api.ModLoader.IsModEnabled("configkit"))  config.RegisterToConfigKit(api);
 
         return typedConfig;
+    }
+
+    [Obsolete("Use GetOrRegister with Mod parameter instead, this method will be removed in a future version")]
+    public static IAutoConfig<T> GetOrRegister<T>(ICoreAPI api, ILogger logger, string path, bool serverSync = false, bool eagerLoad = true, Action<T?>? onLoad = null) where T : class, new()
+    {
+        Mod? mod = null;
+        if(logger is ModLogger modLogger)
+        {
+            mod = modLogger.Mod;
+        }
+        else
+        {
+            //Extra fallback in case someone is registering configs manually
+            var assembly = new StackTrace().GetFrame(1)?.GetMethod()?.ReflectedType?.Assembly;
+            if(assembly is not null)
+            {
+                mod = assembly.FindMod(api);
+            }
+        }
+
+        if(mod is null)
+        {
+            logger.Warning("[InsanityLib] Failed to associate Mod with AutoConfig '{0}' of type '{1}', will default to InsanityLib... this may cause issues with config management", path, typeof(T));
+        }
+
+        return GetOrRegister(api, mod ?? api.ModLoader.GetMod("insanitylib"), path, serverSync, eagerLoad, onLoad);
     }
 
     internal static bool TrySaveConfig(object? configInstance, Type configInstanceType, string relativePath, ICoreAPI api, ILogger logger)

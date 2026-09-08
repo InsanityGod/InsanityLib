@@ -27,7 +27,7 @@ public sealed partial class ModSystemGenerator
             {
                 writer.Write("AutoConfig.GetOrRegister<");
                 writer.Write(symbol.GetPrimaryType().ToDisplayString(SymbolExtensions.QualifiedEnoughFormat));
-                writer.Write(">(api, Mod.Logger, ");
+                writer.Write(">(api, Mod, ");
                 writer.WriteLiteral(attr.ConstructorArguments[0].Value);
                 writer.Write(", ");
                 writer.WriteLiteral(attr.NamedArguments.GetArgument("ServerSync", false));
