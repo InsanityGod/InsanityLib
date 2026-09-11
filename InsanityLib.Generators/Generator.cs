@@ -21,7 +21,7 @@ public sealed partial class Generator : IIncrementalGenerator
         
         var hasInsanityLibDependency = context.AnalyzerConfigOptionsProvider
             .Select((options, _) => options.GlobalOptions.TryGetValue("build_property.HasInsanityLibDependency", out var dependency) ? dependency : "not_specified");
-
+        
         var additionalInfo = context.CompilationProvider
             .Combine(rootNameSpace)
             .Combine(modID)
@@ -36,7 +36,6 @@ public sealed partial class Generator : IIncrementalGenerator
             ));
 
         context.RegisterSourceOutput(additionalInfo, GenerateModSystem);
-
     }
 
     private static void GenerateModSystem(SourceProductionContext context, GeneratorContext info)

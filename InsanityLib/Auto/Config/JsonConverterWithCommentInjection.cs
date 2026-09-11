@@ -58,8 +58,8 @@ public sealed class JsonConverterWithCommentInjection(IContractResolver resolver
                 writer.WriteRaw($"// ");
                 writer.WriteRaw(line.Trim());
             }
+            writer.WriteIndent();
         }
-        writer.WriteIndent();
 
         writer.WriteEscapedString(property.PropertyName!, writer.QuoteName);
 

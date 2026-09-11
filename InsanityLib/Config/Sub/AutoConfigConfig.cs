@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace InsanityLib.Config.Sub;
 
@@ -23,8 +24,4 @@ public class AutoConfigConfig
     /// </summary>
     public bool AutoElementOrdering { get; set; } = true;
 
-    /// <summary>
-    /// When enabled configs will be registered to ConfigKit if present.
-    /// </summary>
-    public bool RegisterToConfigKit { get; set; } = true;
 }

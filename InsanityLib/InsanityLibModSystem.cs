@@ -10,6 +10,7 @@ using InsanityLib.Extended.Transitions;
 using InsanityLib.Extensions;
 using InsanityLib.Util;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -31,6 +32,7 @@ public partial class InsanityLibModSystem : ModSystem
         RegisterApiServices(api);
         ReflectionUtil.LoadedSides |= api.Side;
         ExtendedEnum.EnumExtensions[typeof(EnumTransitionType)] = new ExtendedTransition();
+
         AutoSetup(api);
     }
 

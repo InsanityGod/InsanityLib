@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
@@ -119,6 +120,7 @@ public static class ReflectionExtensions
         PropertyInfo property => property.PropertyType,
         FieldInfo field => field.FieldType,
         MethodInfo method => method.ReturnType,
+        Type type => type,
         _ => null,
     };
 
@@ -355,5 +357,20 @@ public static class ReflectionExtensions
         
         result = obj;
         return path;
+    }
+
+    public static NullabilityState GetNullableState(this MemberInfo member)
+    {
+        var nullableContext = new NullabilityInfoContext();
+        if(member is FieldInfo field)
+        {
+            return nullableContext.Create(field).WriteState;
+        }
+        else if (member is PropertyInfo property)
+        {
+            return nullableContext.Create(property).WriteState;
+        }
+
+        return NullabilityState.Unknown;
     }
 }

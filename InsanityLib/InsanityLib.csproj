@@ -96,7 +96,7 @@
 		<None Include="..\InsanityLib.Analyzers\bin\$(Configuration)\InsanityLib.Analyzers.dll" Pack="true" PackagePath="analyzers/dotnet/cs" visible="false" />
 		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.dll" Pack="true" PackagePath="lib/net10.0" visible="false" />
 		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.xml" Pack="true" PackagePath="lib/net10.0" visible="false" />
-
+		
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 		<PackageReference Include="JsonPeek" Version="1.2.0" />
 		<Reference Include="configlib">
@@ -105,6 +105,10 @@
 		</Reference>
 		<Reference Include="ConfigKit">
 			<HintPath>..\..\Dep\configkit_1.2.0\ConfigKit.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="integratedmodmanager">
+			<HintPath>..\..\Dep\integratedmodmanager\integratedmodmanager.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="ImGui.NET">
@@ -183,27 +187,6 @@
 		<None Include="..\LICENSE.txt" Pack="true" PackagePath="" CopyToOutputDirectory="PreserveNewest" />
 		<None Include="..\README.md" Pack="true" PackagePath="" CopyToOutputDirectory="Never" />
 	</ItemGroup>
-	
-	
-	<!--SETUP for MSBuildStuff-->
-
-	<!--<ItemGroup>
-		<ProjectReference
-			Include="..\InsanityLib.BuildTasks\InsanityLib.BuildTasks.csproj"
-			ReferenceOutputAssembly="false" />
-	</ItemGroup>
-
-	<UsingTask
-		TaskName="InsanityLib.BuildTasks.GenerateConfigIntegration"
-		AssemblyFile="$(SolutionDir)InsanityLib.BuildTasks\bin\$(Configuration)\InsanityLib.BuildTasks.dll" />
-
-	<Target Name="TestMappingTask" BeforeTargets="AfterTargets">
-		<GenerateConfigIntegration
-			OutputPath="$(OutputPath)"
-			ModID="$(ModIDFromJson)" />
-	</Target>-->
-
-	<!--ENDSETUP for MSBuildStuff-->
 
 	<Target Name="ZipMod" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
 		<PropertyGroup>
@@ -230,4 +213,6 @@
 		<!-- Create the zip -->
 		<ZipDirectory SourceDirectory="$(ModOutputDir)" DestinationFile="$(ZipFile)" />
 	</Target>
+
+	<ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

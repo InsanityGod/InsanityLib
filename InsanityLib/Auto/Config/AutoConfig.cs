@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -49,16 +50,40 @@ public sealed class AutoConfig<T> : IAutoConfig<T> where T : class, new()
 
     public EnumAppSide RegisteredToConfigKit { get; private set; }
 
+    public bool IIMConfigGenerated { get; set; }
+
     public required Mod Owner { get; init; }
 
+    public string GetDisplayName()
+    {
+        var name = Owner.Info.Name;
+
+        if (!string.IsNullOrEmpty(Path.GetDirectoryName(RelativePath)))
+        {
+            char[] seperators = [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar];
+            name = string.Join(
+                " / ",
+                values: Path.ChangeExtension(RelativePath, null)
+                    .Split(seperators)
+                    .Select(NamingExtensions.ToHumanReadable)
+                    .Prepend(name)
+            );
+        }
+
+        return name;
+    }
+
+    //TODO add compile time logic compile as well (so that after recompile mods no longer need InsanityLib present to handle this)
     public void RegisterToConfigKit(ICoreAPI api)
     {
-        if(!ServerSync || InsanityLibConfig.Instance?.AutoConfig.RegisterToConfigKit != true) return;
+        if(!ServerSync) return;
         //TODO support for local configs (no good way to mark entire configs as local currently)
 
         if((api.Side & RegisteredToConfigKit) != 0) return; //Already registered on this side
         RegisteredToConfigKit &= api.Side;
-        api.ModLoader.GetModSystem<ConfigKitModSystem>().RegisterCustomManagedConfig(Owner.Info.ModID, ConfigInstance!, RelativePath);
+        var configKit = api.ModLoader.GetModSystem<ConfigKitModSystem>();
+        configKit.RegisterCustomManagedConfig(RelativePath, ConfigInstance!, RelativePath);
+        ((HashSet<string>)configKit.Domains).Add(Owner.Info.ModID);
     }
 
     public bool TryLoadConfig(ICoreAPI api, ILogger logger)

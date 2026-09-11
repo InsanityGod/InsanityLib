@@ -11,9 +11,10 @@ public static class DocumentationUtil
     
     public static MemberDocumentationContext? GetDocumentationContext(this MemberInfo member)
     {
-        if(member.DeclaringType is null) return null;
+        var type = member.DeclaringType ?? member as Type;
+        if(type is null) return null;
 
-        var memberContext = new MemberDocumentationContext(member.DeclaringType.Assembly.GetDocumentationContext(), member);
+        var memberContext = new MemberDocumentationContext(type.Assembly.GetDocumentationContext(), member);
         memberContext.Initialize(InsanityLibModSystem.GlobalServiceContainer);
 
         return memberContext;
