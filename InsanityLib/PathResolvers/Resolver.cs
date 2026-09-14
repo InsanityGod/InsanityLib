@@ -13,8 +13,11 @@ public static class Resolver
     [
         new WorldPropertiesResolver(),
         new AutoConfigResolver(),
-        new ConfigLibResolver(),
+        new ConfigLibResolver(), //TODO make work with ConfigKit
         new ModResolver(),
+        //TODO IMM resolver maybe?
+        //TODO conversion resolvers maybe?
+
     ];
 
     public static IPathResolver? Find(ReadOnlySpan<char> scheme)

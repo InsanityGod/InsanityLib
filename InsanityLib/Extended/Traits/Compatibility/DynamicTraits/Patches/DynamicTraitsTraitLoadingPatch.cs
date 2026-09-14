@@ -31,7 +31,7 @@ public static class DynamicTraitsTraitLoadingPatch
     private static void AddExtendedTraits(InsanityLibModSystem insanityLib, object traitsDictAsObj)
     {
         if(traitsDictAsObj is not Dictionary<string, TraitInfo> loadedTraits) return;
-
+        
         var traitsByDomain = insanityLib.ExtendedTraits.Values
             .ForSystem(ETraitSystem.DynamicTraits)
             .GroupBy(static extendedTrait => extendedTrait.Code.Domain)
@@ -45,7 +45,7 @@ public static class DynamicTraitsTraitLoadingPatch
                 var newEntry = loadedTraits[trait.Code] = new()
                 {
                     Code = trait.Code,
-                    Incompat = [..trait.Constraints.ForSystem(ETraitSystem.DynamicTraits).Where(constraint => constraint.Type == ETraitConstraintType.ForbiddenTrait).Select(constraint => constraint.Code)],
+                    Incompat = [..trait.Constraints.ForSystem(ETraitSystem.DynamicTraits).Where(constraint => constraint.Enabled && constraint.Type == ETraitConstraintType.Forbidden && constraint.TraitCode is not null).Select(constraint => constraint.TraitCode)],
                     Points = points,
                     TypeOrd = points < 0 ? 1 : 0
                 };

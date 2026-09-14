@@ -2,6 +2,6 @@
 
 public enum ETraitConstraintType
 {
-    RequiredTrait,
-    ForbiddenTrait,
+    Required,
+    Forbidden,
 }
