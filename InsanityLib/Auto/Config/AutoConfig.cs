@@ -263,7 +263,7 @@ public static class AutoConfig
         }
         catch(Exception ex)
         {
-            logger.Error("Failed to save config '{0}' of type '{1}': ", relativePath, configInstanceType, ex);
+            logger.Error("Failed to save config '{0}' of type '{1}', exception: {2}", relativePath, configInstanceType, ex);
             return false;
         }
     }
