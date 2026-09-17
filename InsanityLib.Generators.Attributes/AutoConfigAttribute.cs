@@ -16,5 +16,7 @@ public class AutoConfigAttribute(string path) : Attribute
     /// <summary>
     /// Whether the config file should be synced from server to client
     /// </summary>
-    public bool ServerSync { get; set; }
+    public bool ServerSync { get; set; } 
+    //TODO Split Config Types (ClientOnly - ServerOnly - Universal - Universal Synced) probably an enum flag
+    //TODO reverse synced configs: Client => Server
 }

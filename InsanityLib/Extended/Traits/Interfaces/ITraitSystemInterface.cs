@@ -10,5 +10,5 @@ public interface ITraitSystemInterface
 
     public int GetEffectiveTraitLevel(ExtendedTrait trait, IPlayer player);
 
-    public void AddExperience(ExtendedTrait trait, float experience);
+    public void AddExperience(ExtendedTrait trait, IPlayer player, float experience);
 }

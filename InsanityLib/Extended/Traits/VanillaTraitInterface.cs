@@ -10,7 +10,7 @@ public sealed class VanillaTraitInterface(ICoreAPI api) : ITraitSystemInterface
 
     public ETraitSystem ForSystem => ETraitSystem.Vanilla | ETraitSystem.DynamicTraits;
 
-    public void AddExperience(ExtendedTrait trait, float experience)
+    public void AddExperience(ExtendedTrait trait, IPlayer player, float experience)
     {
         //Not applicable to vanilla
     }

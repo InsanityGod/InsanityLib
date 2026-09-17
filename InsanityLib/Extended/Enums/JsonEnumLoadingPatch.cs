@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using InsanityLib.Extensions;
 using System;
+using System.Collections.Generic;
 
 namespace InsanityLib.Extended.Enums;
 
@@ -12,10 +13,9 @@ internal static class JsonEnumLoadingPatch
     [HarmonyPrefix]
     internal static bool PrefixExtendedEnum(Type enumType, string value, ref object __result)
     {
-        var result = ExtendedEnumExtensions.TryParse(enumType, value);
-        if(result is not null)
+        if(ExtendedEnum.EnumExtensions.GetValueOrDefault(enumType)?.FromString(value) is { } result)
         {
-            __result = result.Value;
+            __result = result;
             return false; //Prevent default execution
         }
 

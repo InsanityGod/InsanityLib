@@ -25,7 +25,7 @@ public class AutoConfigResolver : IPathResolver
 
             object reason;
             if (result is Exception) reason = result;
-            else if (result is null) reason = "Null reference in path";
+            else if (result is null) reason = "Null reference in path"; //TODO maybe allow null references as long as the entire path itself is valid
             else reason = "Invalid path";
 
             api.Logger.Warning(

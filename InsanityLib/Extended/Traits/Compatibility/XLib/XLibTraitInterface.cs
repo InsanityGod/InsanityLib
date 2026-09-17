@@ -1,7 +1,6 @@
 ﻿using InsanityLib.Extended.Traits.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Vintagestory.API.Common;
 using Vintagestory.GameContent;
 using XLib.XLeveling;
@@ -25,6 +24,7 @@ internal class XLibTraitInterface(ICoreAPI api) : ITraitSystemInterface
             {
                 var ability = RegisterTrait(trait);
                 if(ability is not null) abilities.Add(trait, ability);
+                trait.AppliedSystems |= ETraitSystem.XLib;
             }
             catch(Exception ex)
             {
@@ -57,8 +57,7 @@ internal class XLibTraitInterface(ICoreAPI api) : ITraitSystemInterface
         }
 
         string traitCode = trait.Code;
-        Ability? ability = null;
-
+        Ability? ability;
         if (trait.Attributes.Count > 0)
         {
             int statNr = 0;
@@ -93,13 +92,6 @@ internal class XLibTraitInterface(ICoreAPI api) : ITraitSystemInterface
         else if (trait.MaxLevel == 1 && trait.AllowesSystem(ETraitSystem.Vanilla)) //Single level traits without attributes are treated as simply gaining said trait
         {
             ability = new TraitAbility(traitCode, traitCode, trait.GetDisplayName(), trait.GetFormattedDescription());
-
-            ability.OnPlayerAbilityTierChanged += static (ability, oldTier) =>
-            {
-                var player = ability.PlayerSkill.PlayerSkillSet.Player.Entity;
-                applyTraitAttributes(player.Api.ModLoader.GetModSystem<CharacterSystem>(), player);
-            };
-            ability.AddRequirement(new NotRequirement(new TraitRequirement([traitCode])));
         }
         else
         {
@@ -111,7 +103,7 @@ internal class XLibTraitInterface(ICoreAPI api) : ITraitSystemInterface
 
         if (trait.IsSpecialization)
         {
-            if (skill.SpecialisationID != 0)
+            if (skill.SpecialisationID != -1)
             {
                 api.Logger.Error("[InsanityLib] Failed to assign '{0}' as specialization on '{1}' as specialization is already set to '{2}'", ability.Name, skill.Name, skill.Ability(skill.SpecialisationID).Name);
             }
@@ -123,16 +115,21 @@ internal class XLibTraitInterface(ICoreAPI api) : ITraitSystemInterface
 
     private void RegisterConstraints(Ability ability, ExtendedTrait trait)
     {
+        if(trait.MaxLevel == trait.LevelForTrait)
+        {
+            ability.AddRequirement(new NotRequirement(new TraitRequirement([ability.Name])));
+        }
+
         foreach(var constraint in trait.Constraints)
         {
             if(!constraint.Enabled) return;
-            if(constraint.Skill is not null)
+            if (constraint.TraitCode is not null)
             {
-                if (constraint.TraitCode is not null)
-                {
-                    AddRequirement(ability, constraint, GetTraitRequirement(constraint));
-                }
-                else AddRequirement(ability, constraint, GetSkillRequirement(constraint));
+                AddRequirement(ability, constraint, GetTraitRequirement(constraint));
+            }
+            else if(constraint.Skill is not null)
+            {
+                AddRequirement(ability, constraint, GetSkillRequirement(constraint));
             }
         }
     }
@@ -142,9 +139,9 @@ internal class XLibTraitInterface(ICoreAPI api) : ITraitSystemInterface
         if(constraint.TraitCode is not { } traitCode) return null;
         var extendedTrait = insanityLib.GetExtendedTrait(traitCode);
 
-        if(extendedTrait is not null && FindSkill(extendedTrait.Skill) is { } skill && skill.FindAbility(constraint.TraitCode) is { } ability)
+        if(FindSkill(extendedTrait?.Skill ?? constraint.Skill) is { } skill && skill.FindAbility(constraint.TraitCode) is { } ability)
         {
-            Requirement requirement = new AbilityRequirement(ability, constraint.Level, constraint.FromLevel);
+            Requirement requirement = new AbilityRequirement(ability, constraint.Level ?? extendedTrait?.LevelForTrait ?? 1, constraint.FromLevel);
             if(ability is TraitAbility traitAbility)
             {
                 requirement = new OrRequirement(requirement, new TraitRequirement([traitAbility.Trait], constraint.FromLevel));
@@ -161,7 +158,7 @@ internal class XLibTraitInterface(ICoreAPI api) : ITraitSystemInterface
     {
         var skill = FindSkill(constraint.Skill);
         if(skill is null) return null;
-        return new SkillRequirement(skill, constraint.Level, constraint.FromLevel);
+        return new SkillRequirement(skill, constraint.Level ?? 1, constraint.FromLevel);
     }
 
     private static void AddRequirement(Ability ability, TraitConstraint constraint, Requirement? requirement)
@@ -172,16 +169,22 @@ internal class XLibTraitInterface(ICoreAPI api) : ITraitSystemInterface
         ability.AddRequirement(requirement);
     }
 
-    [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "applyTraitAttributes")]
-    private static extern ItemStack applyTraitAttributes(CharacterSystem instance, EntityPlayer eplr); //TODO bind on TraitSkill
-
-    public void AddExperience(ExtendedTrait trait, float experience)
+    public void AddExperience(ExtendedTrait trait, IPlayer player, float experience)
     {
-        throw new System.NotImplementedException(); //TODO
+        PlayerSkill? skill = FindPlayerSkill(trait, player);
+
+        if (skill is null) return;
+        skill.AddExperience(experience);
     }
 
-    public int GetEffectiveTraitLevel(ExtendedTrait trait, IPlayer player)
+    private PlayerSkill? FindPlayerSkill(ExtendedTrait trait, IPlayer player)
     {
-        throw new System.NotImplementedException(); //TODO
+        var skillset = leveling.IXLevelingAPI.GetPlayerSkillSet(player);
+        if(trait.Skill is null) return null;
+        var skill = skillset.FindSkill(trait.Skill) ?? skillset.FindSkill(trait.Skill.Path);
+        return skill;
     }
+
+    public int GetEffectiveTraitLevel(ExtendedTrait trait, IPlayer player) => FindPlayerSkill(trait, player)?.FindAbility(trait.Code)?.Tier ?? 0;
+
 }

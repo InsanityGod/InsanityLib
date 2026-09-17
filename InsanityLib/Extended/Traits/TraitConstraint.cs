@@ -11,20 +11,20 @@ public class TraitConstraint : ITraitSystemConstraint
 
     /// <summary>
     /// The skill required or forbidden for this constrant.
-    /// Mutual Exclusive with <see cref="TraitCode"/>
     /// </summary>
     public AssetLocation? Skill { get; set; }
 
     /// <summary>
-    /// The trait code required or forbidden for this constrant
-    /// Mutual Exclusive with <see cref="Skill"/>
+    /// The trait code required or forbidden for this constrant.
+    /// If targeting a ability that is not a Extended Trait make sure to configure <see cref="Skill"/>
     /// </summary>
     public required AssetLocation? TraitCode { get; set; }
 
     /// <summary>
-    /// The level required or forbidden for this constraint. (level = 0 means level is irrelevant)
+    /// The level required or forbidden for this constraint.
+    /// If not specified and targeting <see cref="TraitCode"/>, <see cref="ExtendedTrait.LevelForTrait"/> will be used otherwise defaults to 1
     /// </summary>
-    public int Level { get; set; }
+    public int? Level { get; set; }
 
     /// <summary>
     /// From which level this constraint applies. (level = 0 means level is irrelevant)
@@ -34,5 +34,5 @@ public class TraitConstraint : ITraitSystemConstraint
     /// <summary>
     /// Whether this constraint is active
     /// </summary>
-    public bool Enabled { get; set;}
+    public bool Enabled { get; set; } = true;
 }

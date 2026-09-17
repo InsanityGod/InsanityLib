@@ -18,6 +18,7 @@ public static class TraitLoadingPatches
         foreach(var trait in insanityLib.ExtendedTraits.Values.ForSystem(ETraitSystem.Vanilla))
         {
             ___traits.Add(trait.AsVanillaTrait(___api));
+            trait.AppliedSystems |= ETraitSystem.Vanilla;
         }
     }
 
@@ -29,7 +30,7 @@ public static class TraitLoadingPatches
         
         foreach(var trait in insanityLib.ExtendedTraits.Values)
         {
-            if(trait.AppendToClasses is null || (trait.AppliedSystems & ETraitSystem.Vanilla) == 0) continue;
+            if(trait.AppendToClasses is null || !trait.AllowesSystem(ETraitSystem.Vanilla)) continue;
             //TODO AppendToRaces/Species
             string traitAsString = trait.Code;
 

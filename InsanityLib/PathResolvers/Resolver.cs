@@ -1,4 +1,5 @@
-﻿using InsanityLib.PathResolvers.Implementations;
+﻿using InsanityLib.Extensions;
+using InsanityLib.PathResolvers.Implementations;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,9 @@ namespace InsanityLib.PathResolvers;
 //TODO allow for operations such as ??, ||, &&, etc
 public static class Resolver
 {
+    //TODO maybe some way to convert types
+    public static readonly char[] Modifiers = ['!', '-'];
+
     public static List<IPathResolver> Resolvers { get; } =
     [
         new WorldPropertiesResolver(),
@@ -16,8 +20,6 @@ public static class Resolver
         new ConfigLibResolver(), //TODO make work with ConfigKit
         new ModResolver(),
         //TODO IMM resolver maybe?
-        //TODO conversion resolvers maybe?
-
     ];
 
     public static IPathResolver? Find(ReadOnlySpan<char> scheme)
@@ -51,10 +53,39 @@ public static class Resolver
 
     public static bool TryResolve(ReadOnlySpan<char> scheme, ReadOnlySpan<char> path, ICoreAPI api, out object? result)
     {
-        var resolver = Find(scheme);
-        if(resolver is not null) return resolver.TryResolvePath(path, api, out result);
+        if (path.IsEmpty)
+        {
+            result = null;
+            return false;
+        }
 
-        result = null;
+        var resolver = Find(scheme);
+        if (resolver is null)
+        {
+            result = null;
+            return false;
+        }
+
+        char? modifier = null;
+        if (Modifiers.Contains(path[0]))
+        {
+            modifier = path[0];
+            path = path[1..];
+        }
+
+        if (resolver.TryResolvePath(path, api, out result))
+        {
+            if(modifier is null) return true;
+            try
+            {
+                result = ApplyModifier(modifier.Value, result);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                api.Logger.Error($"[insanitylib] Failed to resolve path '{scheme}://{modifier}{path}', exception: {ex}");
+            }
+        }
         return false;
     }
 
@@ -79,6 +110,28 @@ public static class Resolver
                     token.Replace(resolvedToken);
                 }
                 break;
+        }
+    }
+
+    //TODO documentation
+    private static object? ApplyModifier(char modifier, object? value) => modifier switch
+    {
+        '!' => value.IsFalsy(),
+        //TODO IsTruthy?
+        '-' => Negate(value),
+        _ => throw new InvalidOperationException($"Unknown modifier '{modifier}'")
+    };
+
+    private static object? Negate(object? value)
+    {
+        if(value is null) return value;
+        try
+        {
+            return -(dynamic)value!;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Modifier '-' is not valid for {value.GetType()}", ex);
         }
     }
 }

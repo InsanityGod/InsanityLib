@@ -1,4 +1,5 @@
-﻿using InsanityLib.Extended.Json;
+﻿using InsanityLib.Extended.Enums;
+using InsanityLib.Extended.Json;
 using InsanityLib.PathResolvers;
 using InsanityLib.Util.Span;
 using Newtonsoft.Json;
@@ -106,10 +107,12 @@ public static class AssetExtensions
 
     private static bool TryToObject<T>(this JToken token, AssetLocation location, ILogger logger, [NotNullWhen(true)] out T? result)
     {
+        //TODO maybe see about doing this only once and just updating the domain
         var settings = new JsonSerializerSettings();
         settings.Converters.Add(new AssetLocationJsonParser(location.Domain));
         settings.Converters.Add(new DictKeyConverterHook());
         settings.Converters.Add(new VersionedConverter());
+        settings.Converters.Add(new ExtendedEnumJsonConverter());
         try
         {
             result = token.ToObject<T>(JsonSerializer.Create(settings));

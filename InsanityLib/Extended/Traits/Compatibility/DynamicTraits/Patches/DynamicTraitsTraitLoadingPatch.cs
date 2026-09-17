@@ -10,11 +10,11 @@ namespace InsanityLib.Extended.Traits.Compatibility.DynamicTraits.Patches;
 
 [HarmonyPatch]
 [HarmonyPatchCategory("feature:extendedtraits_dynamictraits")]
-public static class DynamicTraitsTraitLoadingPatch
+internal static class DynamicTraitsTraitLoadingPatch
 {
     [HarmonyPatch("DynamicClassesModSystem.DynamicClassesModSystem", "LoadOrCreateTraitsConfig")]
     [HarmonyPostfix]
-    public static void Postfix(ModSystem __instance, ICoreAPI api, object __result)
+    internal static void Postfix(ModSystem __instance, ICoreAPI api, object __result)
     {
         var insanityLib = api.ModLoader.GetModSystem<InsanityLibModSystem>();
         try

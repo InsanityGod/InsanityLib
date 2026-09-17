@@ -52,8 +52,10 @@ internal static class DynamicTraitsTraitLanguagePatch
                     sb.Append(", ");
                 }
                 else firstEntry = false;
+
                 //TODO add language strings for base game attributes
-                var langKey = $"charattribute-{key}"; //TODO domain support for custom attributes/stats
+                AssetLocationSpan domainAwareKey = key;
+                var langKey = $"{domainAwareKey.Domain}:charattribute-{domainAwareKey.Path}";
                 str =  Lang.Get(langKey, attr);
 
                 if(str != langKey && !string.IsNullOrEmpty(str)) sb.Append(str);

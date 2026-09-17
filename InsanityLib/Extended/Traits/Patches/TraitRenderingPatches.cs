@@ -115,7 +115,7 @@ public static class TraitRenderingPatches
             var titleKey = TranslateKey("traittitle-", trait);
             if (Lang.HasTranslation(titleKey))
             {
-                return Lang.Get($"insanitylib:trait-wrapper-{trait.Type}", Lang.Get(titleKey));
+                return Lang.Get($"insanitylib:trait-wrapper-{trait.Type.ToString().ToLower()}", Lang.Get(titleKey));
             }
         }
 
@@ -124,7 +124,8 @@ public static class TraitRenderingPatches
 
     private static bool TryAddAttributeStringAlternativeFormat(StringBuilder attributes, KeyValuePair<string, double> data)
     {
-        var lookup = $"charattribute-{data.Key}";
+        AssetLocationSpan location = data.Key;
+        var lookup = $"{location.Domain}:charattribute-{location.Path}";
 
         var result = Lang.GetUnformatted(lookup);
         if(result == lookup || string.IsNullOrEmpty(result)) return false;

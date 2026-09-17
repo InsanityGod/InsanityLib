@@ -15,9 +15,12 @@ using Vintagestory.GameContent;
 
 namespace InsanityLib.Extended.Traits;
 
+//TODO a way to globally disable trait systems per domain
+
 [AssetCategory("extendedtraits", true, EnumAppSide.Universal)]
 public class ExtendedTrait : ITraitSystemConstraint
 {
+    //TODO categories
 
     /// <summary>
     /// Identifier of the trait
@@ -102,7 +105,7 @@ public class ExtendedTrait : ITraitSystemConstraint
             return pair.Value.ValuePerLevel[LevelForTrait - 1];
         }
 
-        return pair.Value.Value;
+        return pair.Value.Value * LevelForTrait;
     });
 
     public string GetDisplayName() => Lang.Get($"{Code.Domain}:traittitle-{Code.Path}");

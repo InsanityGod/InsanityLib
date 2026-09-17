@@ -10,8 +10,6 @@ using InsanityLib.Extended.Transitions;
 using InsanityLib.Extensions;
 using InsanityLib.Util;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Vintagestory.API.Common;
@@ -41,6 +39,11 @@ public partial class InsanityLibModSystem : ModSystem
         if(AccessTools.Method("DynamicClassesModSystem.DynamicClassesModSystem:LoadOrCreateTraitsConfig") is not null)
         {
             TryPatchCategory(harmony, "feature:extendedtraits_dynamictraits", Mod.Logger);
+        }
+
+        if(AccessTools.TypeByName("XLib.XLeveling.XLeveling") is not null)
+        {
+            TryPatchCategory(harmony, "feature:extendedtraits_xlib", Mod.Logger);
         }
     }
 

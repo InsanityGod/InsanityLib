@@ -1,6 +1,7 @@
 ﻿using InsanityLib.Extended.Enums;
 using System;
 using System.Collections.Generic;
+using YamlDotNet.Core.Tokens;
 
 namespace InsanityLib.Extensions;
 
@@ -47,7 +48,12 @@ public static class ExtendedEnumExtensions
         throw new InvalidOperationException($"{typeof(TActual).FullName} is not an extended enum");
     }
 
-    public static int? TryParse(Type type, string strValue) => ExtendedEnum.EnumExtensions.GetValueOrDefault(type)?.FromString(strValue);
+    public static int? TryParse(Type type, string strValue)
+    {
+        if(Enum.TryParse(type, strValue, out var result)) return (int)result;
+        return ExtendedEnum.EnumExtensions.GetValueOrDefault(type)?.FromString(strValue);
+    }
+
 
     public static string? TryToString(Type type, int intValue) => ExtendedEnum.EnumExtensions.GetValueOrDefault(type)?.ToString(intValue);
 }

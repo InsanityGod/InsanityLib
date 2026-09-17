@@ -23,9 +23,14 @@ public partial class InsanityLibModSystem : ModSystem, ITraitSystemInterface
 
     private List<ITraitSystemInterface> TraitSystems { get; set; } = [];
 
-    public void AddExperience(ExtendedTrait trait, float experience)
+    public void AddExperience(ExtendedTrait trait, IPlayer player, float experience)
     {
-        //TODO
+        foreach(var traitSystem in TraitSystems)
+        {
+            if((traitSystem.ForSystem & trait.AppliedSystems) == 0) continue;
+
+            traitSystem.AddExperience(trait, player, experience);
+        }
     }
 
     public int GetEffectiveTraitLevel(ExtendedTrait trait, IPlayer player)
