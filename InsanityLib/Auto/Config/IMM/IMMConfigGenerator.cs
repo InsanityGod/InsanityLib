@@ -116,6 +116,32 @@ public static partial class IMMConfigGenerator
         return context.IMMConfig;
     }
 
+    public static ImmConfigBlock GenerateForType(ICoreAPI api, string relativeConfigPath, EnumAppSide side, Type type)
+    {
+        if(side == EnumAppSide.Universal) throw new InvalidOperationException("IMM configs need to be either Server or Client owned");
+
+        var docs = type.GetDocumentationContext()!;
+
+        var context = new IMMComposerContext
+        {
+            Api = api,
+            AutoConfig = null,
+            ContractResolver = JsonSerializer.CreateDefault().ContractResolver,
+            IMMConfig = new ImmConfigBlock
+            {
+                ConfigFile = relativeConfigPath,
+                ConfigSource = ImmConfigSource.ModConfig,
+                ConfigLabel = docs.GetDisplayName(),
+                Description = docs.GetDescription(),
+                ConfigSide = side == EnumAppSide.Server ? ImmConfigSide.Server : ImmConfigSide.Client
+            }
+        };
+
+        ClassComposer.WriteTopLevel(context, type);
+
+        return context.IMMConfig;
+    }
+
     public static IIMMComposer? FindComposer(IMMComposerContext context, MemberInfo member, out JsonContract contract, out bool requiresAdvanced)
     {
         var type = member.GetPrimaryType()!;

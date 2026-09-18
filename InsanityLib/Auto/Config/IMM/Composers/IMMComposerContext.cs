@@ -12,7 +12,7 @@ public sealed class IMMComposerContext
 {
     public required ImmConfigBlock IMMConfig { get; init; }
     public required ICoreAPI Api { get; init; }
-    public required IAutoConfig AutoConfig { get; init; }
+    public required IAutoConfig? AutoConfig { get; init; }
     public required IContractResolver ContractResolver { get; init; }
 
     public static bool IsNullable(MemberInfo member)
