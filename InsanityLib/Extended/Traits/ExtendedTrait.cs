@@ -15,7 +15,9 @@ using Vintagestory.GameContent;
 
 namespace InsanityLib.Extended.Traits;
 
+//TODO more configuration?:
 //TODO a way to globally disable trait systems per domain
+//TODO maybe have exlucivity / priority on what system to use?
 
 [AssetCategory("extendedtraits", true, EnumAppSide.Universal)]
 public class ExtendedTrait : ITraitSystemConstraint
@@ -34,7 +36,7 @@ public class ExtendedTrait : ITraitSystemConstraint
     /// <summary>
     /// Allows for specifying special types of traits that can be used for special handling in other systems (like XSkills specializations)
     /// </summary>
-    public ETraitSystem TraitSystems { get; set; } = ETraitSystem.All; //TODO maybe have exlucivity / priority on what system to use?
+    public ETraitSystem TraitSystems { get; set; } = ETraitSystem.All; 
 
     /// <summary>
     /// The trait systems which this trait has been registered to
@@ -164,7 +166,4 @@ public class ExtendedTrait : ITraitSystemConstraint
             yield return Lang.GetUnformatted($"{attr.Domain}:charattribute-{attr.Path}");
         }
     }
-
-    //TODO method for checking if it's applied to player (should return the level)
-    //TODO method for gaining experience
 }
