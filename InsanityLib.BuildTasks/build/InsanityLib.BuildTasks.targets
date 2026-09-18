@@ -1,0 +1,15 @@
+<Project>
+
+	<UsingTask TaskName="InsanityLib.BuildTasks.MinifyJson" AssemblyFile="$(MSBuildThisFileDirectory)..\tasks\InsanityLib.BuildTasks.dll" />
+
+	<Target Name="MinifyJson" AfterTargets="Build" Condition="'$(JsonMinifierPaths)' != ''">
+
+		<ItemGroup>
+			<JsonMinifierFiles Include="$(TargetDir)$(JsonMinifierPaths)" />
+		</ItemGroup>
+
+		<MinifyJson Files="@(JsonMinifierFiles)" />
+
+	</Target>
+
+</Project>

@@ -83,9 +83,8 @@
 		<Publicize Include="VintagestoryLib" />
 		<Publicize Include="Newtonsoft.Json" />
 	</ItemGroup>
-		
+	
 	<ItemGroup>
-
 		<PackageReference Include="TheInsanityGod.VintageStory.AutoConfigLib" Version="2.0.9" />
 		
 		<ProjectReference Include="..\InsanityLib.Generators\InsanityLib.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" Pack="true" />
@@ -97,8 +96,12 @@
 		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.dll" Pack="true" PackagePath="lib/net10.0" visible="false" />
 		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.xml" Pack="true" PackagePath="lib/net10.0" visible="false" />
 		
+		<None Include="..\InsanityLib.BuildTasks\bin\$(Configuration)\InsanityLib.BuildTasks.dll" Pack="true" PackagePath="tasks\" Visible="false" />
+		<None Include="build\TheInsanityGod.VintageStory.InsanityLib.targets" Pack="true" PackagePath="build\"/>
+		<None Include="..\InsanityLib.BuildTasks\build\InsanityLib.BuildTasks.targets" Pack="true" PackagePath="build\" Visible="false" />
+		
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-		<PackageReference Include="JsonPeek" Version="1.2.0" />
+		<PackageReference Include="JsonPeek" Version="1.2.0" IncludeAssets="all" PrivateAssets="none" />
 		<Reference Include="configlib">
 			<HintPath>..\..\Dep\configlib_1.4.1\configlib.dll</HintPath>
 			<Private>false</Private>
