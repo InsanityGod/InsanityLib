@@ -61,7 +61,7 @@ public static partial class IMMConfigGenerator
 
         foreach(var config in configs)
         {
-            if(IMM.Configuration.Any(c => c.ConfigFile == config.RelativePath)) continue;
+            IMM.Configuration.RemoveAll(c => c.ConfigFile == config.RelativePath);
 
             try
             {
@@ -75,6 +75,7 @@ public static partial class IMMConfigGenerator
 
         var settings = new JsonSerializerSettings
         {
+            DefaultValueHandling = DefaultValueHandling.Ignore, //TODO a lot of unnecesary values are still getting serialized (prob because IMM does not annotate them as default values)
             NullValueHandling = NullValueHandling.Ignore,
             Formatting = Formatting.None
         };
