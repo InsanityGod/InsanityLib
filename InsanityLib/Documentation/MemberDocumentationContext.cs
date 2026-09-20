@@ -100,13 +100,14 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
     {
         [typeof(RequiredAttribute)]          = 0,
     
-        [typeof(RangeAttribute)]             = 1,
-        [typeof(StringLengthAttribute)]      = 2,
-        [typeof(MinLengthAttribute)]         = 3,
-        [typeof(MaxLengthAttribute)]         = 4,
+        [typeof(AllowedValuesAttribute)]     = 1,
+        [typeof(RangeAttribute)]             = 2,
+        [typeof(StringLengthAttribute)]      = 3,
+        [typeof(MinLengthAttribute)]         = 4,
+        [typeof(MaxLengthAttribute)]         = 5,
 
-        [typeof(RegularExpressionAttribute)] = 5,
-        [typeof(CompareAttribute)]           = 6,
+        [typeof(RegularExpressionAttribute)] = 6,
+        [typeof(CompareAttribute)]           = 7,
     };
 
     public string GetExtendedDescription()
@@ -118,7 +119,7 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
 
         var validatorAttributes = Member.GetCustomAttributes<ValidationAttribute>().ToArray();
 
-        foreach(var attr in validatorAttributes.OrderBy(attr => MessageOrder[attr.GetType()]))
+        foreach(var attr in validatorAttributes.OrderBy(attr => MessageOrder.TryGetValue(attr.GetType(), out int result) ? result : int.MaxValue))
         {
             switch (attr)
             {
@@ -148,6 +149,10 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
 
                 case CompareAttribute compareAttr:
                     description.AppendLine( $"Compare: {compareAttr.OtherProperty} ({compareAttr.ErrorMessage})");
+                    break;
+                
+                case AllowedValuesAttribute allowedValuesAttr:
+                    description.AppendLine( $"Allowed Values: {string.Join(", ", allowedValuesAttr.Values)}");
                     break;
 
                 case IDocumentedAttribute documentedAttribute:

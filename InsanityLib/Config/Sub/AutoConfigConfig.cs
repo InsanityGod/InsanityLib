@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace InsanityLib.Config.Sub;
 
@@ -22,4 +23,5 @@ public class AutoConfigConfig
     /// (this for instances moves CollapseHeaders down to the bottom of the section)
     /// </summary>
     public bool AutoElementOrdering { get; set; } = true;
+
 }

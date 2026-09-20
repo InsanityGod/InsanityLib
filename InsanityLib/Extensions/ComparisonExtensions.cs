@@ -32,4 +32,20 @@ public static class ComparisonExtensions
 
         return true;
     }
+
+    public static bool IsFalsy(this object? value) => value switch
+    {
+        null => true,
+        bool b => !b,
+        string s => s.Length == 0,
+
+        int n => n == 0,
+        long n => n == 0,
+
+        float n => MathF.Abs(n) < float.Epsilon,
+        double n => Math.Abs(n) < double.Epsilon,
+        decimal n => n == 0,
+
+        _ => false
+    };
 }

@@ -131,7 +131,12 @@ public class EnumNameValueMapping
             }
         }
 
-        return builder.ToString();
+        var result = builder.ToString();
+        if(value == 0 && string.IsNullOrEmpty(result))
+        {
+            return "None";
+        }
+        return result;
     }
 
     public Type EnumType { get; }
@@ -141,4 +146,35 @@ public class EnumNameValueMapping
     public string[] StrValues { get; }
     public string[] Names { get; }
     public long[] NumericValues { get; }
+
+    public long[] GetAllEnumValues()
+    {
+        var values = Enum.GetValues(EnumType)
+            .Cast<object>()
+            .Select(Convert.ToInt64);
+
+        if (!IsEnumFlag) return [.. values];
+    
+        var flags = values
+            .Where(v => v != 0 && (v & (v - 1)) == 0)
+            .Distinct()
+            .ToArray();
+    
+        var result = new long[1 << flags.Length];
+    
+        for (var combination = 0; combination < result.Length; combination++)
+        {
+            long value = 0;
+    
+            for (var i = 0; i < flags.Length; i++)
+            {
+                if ((combination & (1 << i)) != 0)
+                    value |= flags[i];
+            }
+    
+            result[combination] = value;
+        }
+    
+        return result;
+    }
 }

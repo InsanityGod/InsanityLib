@@ -214,38 +214,43 @@ public class AutoConfigLib(ICoreAPI api, IAutoConfig autoConfig)
         };
     }
 
-    internal void RegisterToConfigLib(ICoreAPI api) => api.ModLoader.GetModSystem<ConfigLibModSystem>().RegisterCustomConfig(Config.RelativePath, (domain, buttons) =>
+    internal void RegisterToConfigLib(ICoreAPI api)
     {
-        var serverConfigOnClient = !ReflectionUtil.SideLoaded(EnumAppSide.Server) && Config.ServerSync;
-
-        ImGui.BeginDisabled(serverConfigOnClient);
-        if (serverConfigOnClient)
+        var configLib = api.ModLoader.GetModSystem<ConfigLibModSystem>();
+        configLib.RegisterCustomConfig(Config.RelativePath, (domain, buttons) =>
         {
-            ImGui.Text("Client side editing of server config is not supported yet");
-            ImGui.NewLine();
-        }
+            var serverConfigOnClient = !ReflectionUtil.SideLoaded(EnumAppSide.Server) && Config.ServerSync;
 
-        if (buttons.Save) Save();
-        if (buttons.Restore) Restore(true);
+            ImGui.BeginDisabled(serverConfigOnClient);
+            if (serverConfigOnClient)
+            {
+                ImGui.Text("Client side editing of server config is not supported yet");
+                ImGui.NewLine();
+            }
 
-        //TODO discard changes method
-        if (buttons.Defaults) Defaults();
-        if (buttons.Reload) Reload();
+            if (buttons.Save) Save();
+            if (buttons.Restore) Restore(true);
 
-        Render();
-        if (BlockingPopup is not null)
-        {
-            BlockingPopup.SafeRender();
-            if (!BlockingPopup.IsOpen) BlockingPopup = null;
-        }
+            //TODO discard changes method
+            if (buttons.Defaults) Defaults();
+            if (buttons.Reload) Reload();
 
-        ImGui.EndDisabled();
-        return new ControlButtons
-        {
-            Save = !serverConfigOnClient, //Only server can save for now
-            Restore = !serverConfigOnClient,
-            Defaults = !serverConfigOnClient,
-            Reload = false
-        };
-    });
+            Render();
+            if (BlockingPopup is not null)
+            {
+                BlockingPopup.SafeRender();
+                if (!BlockingPopup.IsOpen) BlockingPopup = null;
+            }
+
+            ImGui.EndDisabled();
+            return new ControlButtons
+            {
+                Save = !serverConfigOnClient, //Only server can save for now
+                Restore = !serverConfigOnClient,
+                Defaults = !serverConfigOnClient,
+                Reload = false
+            };
+        });
+        ((HashSet<string>)configLib.Domains).Add(Config.Owner.Info.ModID);
+    }
 }

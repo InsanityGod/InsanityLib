@@ -39,7 +39,7 @@
 			<Description>$(DescriptionFromJson)</Description>
 			<Authors>$(AuthorsFromJson)</Authors>
 			<Version>$(VersionFromJson)</Version>
-			<PackageVersion>2.0.5</PackageVersion>
+			<PackageVersion>2.1.0</PackageVersion>
 			
 			<HasInsanityLibDependency>*</HasInsanityLibDependency>
 		</PropertyGroup>
@@ -76,6 +76,13 @@
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all" ExcludeAssets="runtime" />
+		<Publicize Include="DynamicClassesModSystem" />
+		<Publicize Include="VintagestoryLib" />
+		<Publicize Include="Newtonsoft.Json" />
+	</ItemGroup>
 	
 	<ItemGroup>
 		<PackageReference Include="TheInsanityGod.VintageStory.AutoConfigLib" Version="2.0.9" />
@@ -89,22 +96,42 @@
 		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.dll" Pack="true" PackagePath="lib/net10.0" visible="false" />
 		<None Include="..\InsanityLib.Generators.Attributes\bin\$(Configuration)\InsanityLib.Generators.Attributes.xml" Pack="true" PackagePath="lib/net10.0" visible="false" />
 		
+		<None Include="..\InsanityLib.BuildTasks\bin\$(Configuration)\InsanityLib.BuildTasks.dll" Pack="true" PackagePath="tasks\" Visible="false" />
+		<None Include="build\TheInsanityGod.VintageStory.InsanityLib.targets" Pack="true" PackagePath="build\" />
+		<None Include="..\InsanityLib.BuildTasks\build\InsanityLib.BuildTasks.targets" Pack="true" PackagePath="build\" Visible="false" />
+		
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-		<PackageReference Include="JsonPeek" Version="1.2.0" />
+		<PackageReference Include="JsonPeek" Version="1.2.0" IncludeAssets="all" PrivateAssets="none" />
 		<Reference Include="configlib">
 			<HintPath>..\..\Dep\configlib_1.4.1\configlib.dll</HintPath>
 			<Private>false</Private>
+		</Reference>
+		<Reference Include="ConfigKit">
+			<HintPath>..\..\Dep\configkit_1.2.0\ConfigKit.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="integratedmodmanager">
+			<HintPath>..\..\Dep\integratedmodmanager\integratedmodmanager.dll</HintPath>
+			<Private>False</Private>
 		</Reference>
 		<Reference Include="ImGui.NET">
 			<HintPath>..\..\Dep\vsimgui_1.1.7\ImGui.NET.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
-		<Reference Include="VSImGui">
-			<HintPath>..\..\Dep\vsimgui_1.1.7\VSImGui.dll</HintPath>
+		<Reference Include="DynamicClassesModSystem">
+			<HintPath>..\..\Dep\sonitosrebirth_v1.0.3\DynamicClassesModSystem.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="xlib">
-			<HintPath>..\..\Dep\xlib_v0.8.16\xlib.dll</HintPath>
+			<HintPath>..\..\Dep\XLib Fork v1.0.35\xlib.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="xskills">
+			<HintPath>..\..\Dep\xSkills Fork v1.0.94\xskills.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+		<Reference Include="VSImGui">
+			<HintPath>..\..\Dep\vsimgui_1.1.7\VSImGui.dll</HintPath>
 			<Private>false</Private>
 		</Reference>
 		<Reference Include="VintagestoryAPI">
@@ -140,13 +167,16 @@
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<CompilerVisibleProperty Include="ModID" />
 		<CompilerVisibleProperty Include="HasInsanityLibDependency" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<Content Include="assets\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Content Include="modinfo.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Pack>false</Pack>
@@ -186,4 +216,6 @@
 		<!-- Create the zip -->
 		<ZipDirectory SourceDirectory="$(ModOutputDir)" DestinationFile="$(ZipFile)" />
 	</Target>
+
+	<ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

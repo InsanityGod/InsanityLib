@@ -1,0 +1,9 @@
+{
+
+  "trait-wrapper-positive": "<font color=\"#84ff84\">• {0} </font>",
+  "trait-wrapper-negative": "<font color=\"#ff8484\">• {0} </font>",
+  "trait-wrapper-mixed": "<font color=\"#ffff84\">• {0} </font>",
+
+  //character attributes //TODO
+  "game:charattribute-walkspeed": "{0:+0.##%;-0.##%;0%} walk speed"
+}

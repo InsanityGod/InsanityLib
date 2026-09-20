@@ -24,6 +24,8 @@ public interface IAutoConfig : ITypeAssociated
     /// </summary>
     public string RelativePath { get; }
 
+    public Mod Owner { get; }
+
     /// <summary>
     /// The loaded instance of the config
     /// </summary>
@@ -33,6 +35,13 @@ public interface IAutoConfig : ITypeAssociated
     /// Whether the config file should be synced from server to client
     /// </summary>
     bool ServerSync { get; }
+
+    /// <summary>
+    /// Handles registration to ConfigKit
+    /// </summary>
+    void RegisterToConfigKit(ICoreAPI api);
+
+    bool IIMConfigGenerated { get; internal set; }
 
     /// <summary>
     /// Loads the config or creates it if non existing

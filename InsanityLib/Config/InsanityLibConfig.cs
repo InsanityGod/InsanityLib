@@ -10,5 +10,4 @@ public class InsanityLibConfig
     public static InsanityLibConfig? Instance { get; set; }
     
     public AutoConfigConfig AutoConfig { get; set; } = new AutoConfigConfig();
-
 }
