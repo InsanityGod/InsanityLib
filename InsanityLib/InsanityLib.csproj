@@ -176,6 +176,7 @@
 	<ItemGroup>
 		<Content Include="assets\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>false</Pack>
 		</Content>
 		<Content Include="modinfo.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
