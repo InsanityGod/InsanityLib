@@ -65,7 +65,7 @@ public static partial class IMMConfigGenerator
 
             try
             {
-                IMM.Configuration.Add(Generate(api, config));
+                IMM.Configuration.Add(Generate(config));
             }
             catch(Exception ex)
             {
@@ -92,13 +92,12 @@ public static partial class IMMConfigGenerator
         else asset.Data = data;
     }
 
-    public static ImmConfigBlock Generate(ICoreAPI api, IAutoConfig config)
+    public static ImmConfigBlock Generate(IAutoConfig config)
     {
         var docs = config.AssociatedType.GetDocumentationContext()!;
 
         var context = new IMMComposerContext
         {
-            Api = api,
             AutoConfig = config,
             ContractResolver = JsonSerializer.CreateDefault().ContractResolver,
             IMMConfig = new ImmConfigBlock
@@ -116,7 +115,7 @@ public static partial class IMMConfigGenerator
         return context.IMMConfig;
     }
 
-    public static ImmConfigBlock GenerateForType(ICoreAPI api, string relativeConfigPath, EnumAppSide side, Type type)
+    public static ImmConfigBlock GenerateForType(string relativeConfigPath, EnumAppSide side, Type type)
     {
         if(side == EnumAppSide.Universal) throw new InvalidOperationException("IMM configs need to be either Server or Client owned");
 
@@ -124,7 +123,6 @@ public static partial class IMMConfigGenerator
 
         var context = new IMMComposerContext
         {
-            Api = api,
             AutoConfig = null,
             ContractResolver = JsonSerializer.CreateDefault().ContractResolver,
             IMMConfig = new ImmConfigBlock

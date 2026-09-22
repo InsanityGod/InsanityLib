@@ -4,14 +4,12 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Config.IMM.Composers;
 
 public sealed class IMMComposerContext
 {
     public required ImmConfigBlock IMMConfig { get; init; }
-    public required ICoreAPI Api { get; init; }
     public required IAutoConfig? AutoConfig { get; init; }
     public required IContractResolver ContractResolver { get; init; }
 

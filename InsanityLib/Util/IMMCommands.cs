@@ -58,7 +58,7 @@ public static class IMMCommands
         {
             if(AccessTools.TypeByName(typeByName) is not { } type) return TextCommandResult.Error($"Type '{typeByName}' not found");
             
-            var configEntry = IMMConfigGenerator.GenerateForType(capi, relativeConfigPath, side, type);
+            var configEntry = IMMConfigGenerator.GenerateForType(relativeConfigPath, side, type);
 
             FileInfo fileInfo = new(Path.Combine(GamePaths.DataPath, "Exports/IMM", typeByName, configName));
             GamePaths.EnsurePathExists(fileInfo.Directory!.FullName);
