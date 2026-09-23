@@ -19,7 +19,20 @@ internal static class DynamicTraitsTraitLoadingPatch
         var insanityLib = api.ModLoader.GetModSystem<InsanityLibModSystem>();
         try
         {
-            AddExtendedTraits(insanityLib, __result);
+            var addedTraitsByDomain = AddExtendedTraits(insanityLib, __result);
+
+            foreach((var domain, var traits) in addedTraitsByDomain)
+            {
+                var mod = api.ModLoader.GetMod(domain);
+                if(mod is null) continue; //Only create groups for known domains
+                
+                DynamicClassesModSystem.DynamicClassesModSystem.serverGroups.Add(new TraitGroupDto
+                {
+                    Title = mod.Info.Name,
+                    Codes = [.. traits.Select(trait => trait.Code.ToString())]
+                });
+            }
+            
         }
         catch(Exception ex)
         {
@@ -28,9 +41,9 @@ internal static class DynamicTraitsTraitLoadingPatch
     }
 
     //TODO think of a good way to handle configuration
-    private static void AddExtendedTraits(InsanityLibModSystem insanityLib, object traitsDictAsObj)
+    private static Dictionary<string, ExtendedTrait[]> AddExtendedTraits(InsanityLibModSystem insanityLib, object traitsDictAsObj)
     {
-        if(traitsDictAsObj is not Dictionary<string, TraitInfo> loadedTraits) return;
+        var loadedTraits = (Dictionary<string, TraitInfo>)traitsDictAsObj;
         
         var traitsByDomain = insanityLib.ExtendedTraits.Values
             .ForSystem(ETraitSystem.DynamicTraits)
@@ -57,7 +70,8 @@ internal static class DynamicTraitsTraitLoadingPatch
 
                 trait.AppliedSystems |= ETraitSystem.DynamicTraits;
             }
-
         }
+
+        return traitsByDomain;
     }
 }
