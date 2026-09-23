@@ -32,7 +32,6 @@ internal static class DynamicTraitsTraitLoadingPatch
                     Codes = [.. traits.Select(trait => trait.Code.ToString())]
                 });
             }
-            
         }
         catch(Exception ex)
         {

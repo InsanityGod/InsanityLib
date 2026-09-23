@@ -15,7 +15,7 @@ public static class CollectibleObjectExtensions
             var redirect = block.Attributes["PlacedByItem"].AsString();
             if (redirect is not null)
             {
-                CollectibleObject placedByItem = api.World.GetBlock(redirect);
+                CollectibleObject? placedByItem = api.World.GetBlock(redirect);
                 placedByItem ??= api.World.GetItem(redirect);
                 if (placedByItem is not null) return placedByItem;
                 
@@ -37,7 +37,7 @@ public static class CollectibleObjectExtensions
             var redirect = collectible.Attributes["PlacedBlock"].AsString();
             if (redirect is not null)
             {
-                Block block = api.World.GetBlock(redirect);
+                Block? block = api.World.GetBlock(redirect);
                 if (block is not null) return block;
                 
                 api.Logger.Error($"[WearAndTear] Invalid PlacedBlock redirect {collectible.Code} -> {redirect}");

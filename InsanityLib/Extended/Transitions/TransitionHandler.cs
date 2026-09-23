@@ -20,7 +20,7 @@ public class TransitionHandler : ITransitionHandler
 
     public virtual void AppendAppendPerishableInfoText(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, TransitionState state, bool nowSpoiling)
     {
-        var transitionRate = inSlot.Itemstack.Collectible.GetTransitionRateMul(world, inSlot, TransitionType);
+        var transitionRate = inSlot.Itemstack!.Collectible.GetTransitionRateMul(world, inSlot, TransitionType);
         float transitionLevel = state.TransitionLevel;
 		float hoursLeft = (state.TransitionHours - (state.TransitionedHours - state.FreshHoursLeft)) / transitionRate;
 

@@ -119,7 +119,7 @@ internal static class DisplayPatches
     [HarmonyPostfix]
     internal static void PerishableInfoCompact(ICoreAPI Api, ItemSlot contentSlot, ref string __result)
     {
-        TransitionState[] transitionStates = contentSlot.Itemstack.Collectible.UpdateAndGetTransitionStates(Api.World, contentSlot);
+        TransitionState[]? transitionStates = contentSlot.Itemstack?.Collectible.UpdateAndGetTransitionStates(Api.World, contentSlot);
         if(transitionStates is null) return;
         var builder = new StringBuilder(__result);
         builder.AppendLine();
