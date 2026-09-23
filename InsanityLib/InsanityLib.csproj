@@ -98,6 +98,7 @@
 		
 		<None Include="..\InsanityLib.BuildTasks\bin\$(Configuration)\InsanityLib.BuildTasks.dll" Pack="true" PackagePath="tasks\" Visible="false" />
 		<None Include="build\TheInsanityGod.VintageStory.InsanityLib.targets" Pack="true" PackagePath="build\" />
+		<None Include="build\TheInsanityGod.VintageStory.InsanityLib.props" Pack="true" PackagePath="build\" />
 		<None Include="..\InsanityLib.BuildTasks\build\InsanityLib.BuildTasks.targets" Pack="true" PackagePath="build\" Visible="false" />
 		
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />

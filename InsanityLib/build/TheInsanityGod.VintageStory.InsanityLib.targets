@@ -1,10 +1,5 @@
 <Project>
 
-	<PropertyGroup>
-		<ModInfoFile Condition="'$(ModInfoFile)' == ''">modinfo.json</ModInfoFile>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-	</PropertyGroup>
-
 	<Target Name="ReadModInfo" BeforeTargets="BeforeBuild">
 
 		<JsonPeek ContentPath="$(ModInfoFile)" Query="$.modid">
@@ -21,11 +16,6 @@
 		</PropertyGroup>
 
 	</Target>
-	
-	<ItemGroup>
-		<CompilerVisibleProperty Include="ModID" />
-		<CompilerVisibleProperty Include="HasInsanityLibDependency" />
-	</ItemGroup>
 	
 	<!-- Build tasks -->
 	<Import Project="$(MSBuildThisFileDirectory)InsanityLib.BuildTasks.targets" />

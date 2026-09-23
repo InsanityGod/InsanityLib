@@ -1,0 +1,12 @@
+<Project>
+	
+	<PropertyGroup>
+		<ModInfoFile Condition="'$(ModInfoFile)' == ''">modinfo.json</ModInfoFile>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<CompilerVisibleProperty Include="ModID" />
+		<CompilerVisibleProperty Include="HasInsanityLibDependency" />
+	</ItemGroup>
+</Project>
