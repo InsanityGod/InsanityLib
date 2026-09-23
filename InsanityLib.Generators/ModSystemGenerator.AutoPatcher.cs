@@ -12,9 +12,10 @@ public sealed partial class ModSystemGenerator
 
     private string[] GetOrFindModPatchCategories(GeneratorContext info) => ModPatchCategories ??= [.. 
         info.Compilation.GetSymbolsWithAttribute("HarmonyLib.HarmonyPatchCategory")
-        .Select(result => $"\"{result.Attribute.ConstructorArguments[0].Value.ToString().Replace("\"", "\"\"")}\"")
+        .Select(result => result.Attribute.ConstructorArguments[0].Value.ToString())
         .Where(category => !category.Contains(':') || category.StartsWith("mod:", StringComparison.OrdinalIgnoreCase))
         .Distinct()
+        .Select(result => $"\"{result.Replace("\"", "\"\"")}\"")
     ];
 
     public void GenerateStaticPatchCategoryList(IndentedTextWriter writer, GeneratorContext info)
@@ -67,12 +68,23 @@ public sealed partial class ModSystemGenerator
             writer.WriteLine("harmony.PatchAllUncategorized();");
 
             var categories = GetOrFindModPatchCategories(info);
+
             if(categories.Length > 0)
             {
+                var usesModPrefixes = categories.Any(category => category.Contains("mod:"));
+                if (usesModPrefixes) writer.WriteLine("const string modPrefix = \"mod:\";");
+                
                 using (new ForeachContext("var category", "ModPatchCategories").Use(writer))
-                using (new IfContext("api.ModLoader.IsModEnabled(category)", false).Use(writer))
                 {
-                    writer.WriteLine("TryPatchCategory(harmony, category, Mod.Logger);");
+                    if (usesModPrefixes)
+                    {
+                        writer.WriteLine("var mod = category;");
+                        writer.WriteLine("if(category.StartsWith(modPrefix)) mod = category.Substring(modPrefix.Length);");
+                    }
+                    using (new IfContext($"api.ModLoader.IsModEnabled({(usesModPrefixes ? "mod" : "category")})", false).Use(writer))
+                    {
+                        writer.WriteLine("TryPatchCategory(harmony, category, Mod.Logger);");
+                    }
                 }
             }
 
