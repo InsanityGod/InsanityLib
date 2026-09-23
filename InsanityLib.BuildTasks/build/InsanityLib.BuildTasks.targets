@@ -2,10 +2,22 @@
 
 	<UsingTask TaskName="InsanityLib.BuildTasks.MinifyJson" AssemblyFile="$(MSBuildThisFileDirectory)..\tasks\InsanityLib.BuildTasks.dll" />
 
+	<!-- Build -->
 	<Target Name="MinifyJson" AfterTargets="Build" Condition="'$(JsonMinifierPaths)' != ''">
 
 		<ItemGroup>
 			<JsonMinifierFiles Include="$(TargetDir)$(JsonMinifierPaths)" />
+		</ItemGroup>
+
+		<MinifyJson Files="@(JsonMinifierFiles)" />
+
+	</Target>
+
+	<!-- Publish -->
+	<Target Name="MinifyJsonAfterPublish" AfterTargets="Publish" Condition="'$(JsonMinifierPaths)' != ''">
+
+		<ItemGroup>
+			<JsonMinifierFiles Include="$(PublishDir)$(JsonMinifierPaths)" />
 		</ItemGroup>
 
 		<MinifyJson Files="@(JsonMinifierFiles)" />

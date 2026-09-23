@@ -39,7 +39,7 @@
 			<Description>$(DescriptionFromJson)</Description>
 			<Authors>$(AuthorsFromJson)</Authors>
 			<Version>$(VersionFromJson)</Version>
-			<PackageVersion>2.1.1</PackageVersion>
+			<PackageVersion>2.1.2</PackageVersion>
 			
 			<HasInsanityLibDependency>*</HasInsanityLibDependency>
 		</PropertyGroup>
