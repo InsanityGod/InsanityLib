@@ -16,12 +16,9 @@ on:
         type: string
         default: "master"
 
-    secrets:
-      DROPBOX_KEY:
-        required: true
-
 env:
   DROPBOX_FOLDER: "https://www.dropbox.com/scl/fo/q7u3idxz3edsytki8n6m4/h"
+  DROPBOX_KEY: "y14td00uvfhihpqhffuagmjtd"
   TRANSLATION_BRANCH: "automation/translation-update"
 
 jobs:
