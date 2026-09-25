@@ -37,8 +37,6 @@ jobs:
 
       - name: Download translations
         shell: bash
-        env:
-          DROPBOX_KEY: ${{ secrets.DROPBOX_KEY }}
         run: |
           URL="${DROPBOX_FOLDER}/${{ inputs.TRANSLATION_ZIP }}?rlkey=${DROPBOX_KEY}&e=1&dl=1"
 
