@@ -251,6 +251,5 @@ public class AutoConfigLib(ICoreAPI api, IAutoConfig autoConfig)
                 Reload = false
             };
         });
-        ((HashSet<string>)configLib.Domains).Add(Config.Owner.Info.ModID);
     }
 }

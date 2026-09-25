@@ -83,7 +83,6 @@ public sealed class AutoConfig<T> : IAutoConfig<T> where T : class, new()
         RegisteredToConfigKit &= api.Side;
         var configKit = api.ModLoader.GetModSystem<ConfigKitModSystem>();
         configKit.RegisterCustomManagedConfig(RelativePath, ConfigInstance!, RelativePath);
-        ((HashSet<string>)configKit.Domains).Add(Owner.Info.ModID);
     }
 
     public bool TryLoadConfig(ICoreAPI api, ILogger logger)
