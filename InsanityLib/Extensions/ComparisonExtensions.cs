@@ -48,4 +48,6 @@ public static class ComparisonExtensions
 
         _ => false
     };
+
+    public static bool IsTruthy(this object? value) => !value.IsFalsy();
 }
