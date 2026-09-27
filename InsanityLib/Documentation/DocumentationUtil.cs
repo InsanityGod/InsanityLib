@@ -8,7 +8,6 @@ public static class DocumentationUtil
 {
     public static AssemblyDocumentationContext GetDocumentationContext(this Assembly assembly) => AssemblyDocumentationContext.GetForAssembly(assembly);
 
-    
     public static MemberDocumentationContext? GetDocumentationContext(this MemberInfo member)
     {
         var type = member.DeclaringType ?? member as Type;
