@@ -32,8 +32,11 @@ public static class TagConverters
         bool renderChildred = false;
         string? path = null;
         object? resolved = null;
+        //TODO collapsible sections maybe?
+        //TODO maybe anchor/goto tag for in doc navigation
         switch (tagToken.Name)
         {
+            //TODO maybe add comparison logic?
             case "if":
                 
                 tagToken.Attributes?.TryGetValue("condition", out path);
@@ -52,6 +55,7 @@ public static class TagConverters
                 renderChildred = resolved.IsTruthy();
                 break;
 
+            //TODO `foreach`/`for` to handle arrays/dictionaries resolved by a path resolver
             case "value":
                 path = tagToken.ContentText.Trim();
                 if (string.IsNullOrEmpty(path))
@@ -96,6 +100,8 @@ public static class TagConverters
 
                 VtmlUtil.Richtextify(capi, tokens, ref elems, fontStack, didClickLink);
                 break;
+            
+            //TODO maybe one for writing documentation on an entire class (and maybe even subclass?)
             case "doc":
                 string? typeName = null;
                 string? memberName = null;
