@@ -39,9 +39,6 @@ public sealed partial class ModSystemGenerator
 
         if (info.HasInsanityLibDependency) return;
 
-        writer.WriteMultiLine("""
-        private T RegisterOrCollectConfigFile<T>(ICoreAPI api, string path, T result) where T : class, new() => AutoConfigLib.AutoConfigLibModSystem.RegisterOrCollectConfigFile<T>(api, path, result);
-        """);
         writer.WriteLine();
 
         using (new BlockContext("private T LoadConfig<T>(ICoreAPI api, string path, bool serverSynced) where T : class, new()").Use(writer))
@@ -75,7 +72,6 @@ public sealed partial class ModSystemGenerator
             }
 
             writer.WriteLine();
-            writer.WriteLine("""if(api.ModLoader.IsModEnabled("autoconfiglib")) return RegisterOrCollectConfigFile<T>(api, path, result);""");
             writer.WriteLine("return result;");
         }
 
