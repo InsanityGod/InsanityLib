@@ -92,6 +92,43 @@ public static partial class IMMConfigGenerator
         else asset.Data = data;
     }
 
+    public static void GenerateAndAppend(ICoreAPI api, Mod mod, Type type, string relativePath, EnumAppSide side)
+    {
+        var location = new AssetLocation(mod.Info.ModID, "config/imm.json");
+        var asset = api.Assets.TryGet(location);
+
+        var IMM = asset?.ToObject<ImmConfigDescriptor>() ?? new();
+        if(IMM.Configuration.Any(config => config.ConfigFile == relativePath)) return; //Already exists
+
+        try
+        {
+            var entry = GenerateForType(relativePath, side, type);
+            IMM.Configuration.Add(entry);
+
+            var settings = new JsonSerializerSettings
+            {
+                DefaultValueHandling = DefaultValueHandling.Ignore, //TODO a lot of unnecesary values are still getting serialized (prob because IMM does not annotate them as default values)
+                NullValueHandling = NullValueHandling.Ignore,
+                Formatting = Formatting.None
+            };
+
+            var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(IMM, settings));
+            if(asset is null)
+            {
+                api.Assets.Add(location, new Asset(location)
+                {
+                    IsPatched = true,
+                    Data = data
+                });
+            }
+            else asset.Data = data;
+        }
+        catch(Exception ex)
+        {
+            api.Logger.Error("[InsanityLib] Failed to generate IMM Config for '{0}' from '{1}', exception: {2}", relativePath, mod.Info.ModID, ex);
+        }
+    }
+
     public static ImmConfigBlock Generate(IAutoConfig config)
     {
         var docs = config.AssociatedType.GetDocumentationContext()!;
