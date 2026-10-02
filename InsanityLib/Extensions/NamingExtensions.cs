@@ -1,4 +1,5 @@
 ﻿using InsanityLib.Documentation;
+using InsanityLib.Extensions;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -60,9 +61,16 @@ public static partial class NamingExtensions
         _ => type.ToString().ToLower(),
     };
 
-    //TODO domain support
-    public static string GetLangKey(this MemberInfo member, EDocumentationType type = EDocumentationType.Name) => $"member{type.GetLangKey()}-{member.DeclaringType?.FullName}:{member.Name}".ToLower();
-    
+    //TODO make this more readables
+    public static string GetLangKey(this MemberInfo member, EDocumentationType docType = EDocumentationType.Name)
+    {
+        if(member is Type type)
+        {
+            return $"{type.Assembly.FindMod()?.Info.ModID ?? "game"}:member{docType.GetLangKey()}-{type.FullName}".ToLower();
+        }
+        return $"{member.DeclaringType?.Assembly.FindMod()?.Info.ModID ?? "game"}:member{docType.GetLangKey()}-{member.DeclaringType?.FullName}-{member.Name}".ToLower();
+    }
+
     public static string GetLangKey(this ParameterInfo parameter, EDocumentationType type = EDocumentationType.Name) => $"member{type.GetLangKey()}-{parameter.Member.DeclaringType?.FullName}:{parameter.Member.Name}.{parameter.Name}".ToLower();
 
     public static string GetHumanReadableName(this MemberInfo member)

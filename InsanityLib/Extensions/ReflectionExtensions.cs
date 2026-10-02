@@ -28,7 +28,7 @@ public static class ReflectionExtensions
             ?? assembly.FindMod(InsanityLibModSystem.GlobalServiceContainer.GetService<ICoreClientAPI>());
 
     public static Mod? FindMod(this Assembly assembly, ICoreAPI? api) => 
-        api?.ModLoader.Mods.FirstOrDefault(mod => mod.Systems.First()?.GetType().Assembly == assembly);
+        api?.ModLoader.Mods.FirstOrDefault(mod => mod.Systems.FirstOrDefault()?.GetType().Assembly == assembly);
 
     // Backing field name pattern: "<PropertyName>k__BackingField"
     public static bool IsBackingField(this MemberInfo field) => field.Name.StartsWith('<') && field.Name.Contains("k__BackingField");
@@ -373,4 +373,14 @@ public static class ReflectionExtensions
 
         return NullabilityState.Unknown;
     }
+
+    public static bool IsPublic(this MemberInfo member) => member switch
+    {
+        Type t => t.IsPublic || t.IsNestedPublic,
+        MethodBase m => m.IsPublic,
+        FieldInfo f  => f.IsPublic,
+        PropertyInfo p => (p.GetMethod?.IsPublic ?? false) || (p.SetMethod?.IsPublic ?? false),
+        EventInfo e => (e.AddMethod?.IsPublic ?? false) || (e.RemoveMethod?.IsPublic ?? false),
+        _ => false
+    };
 }

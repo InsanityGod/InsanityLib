@@ -81,6 +81,7 @@
 		<PackageReference Include="Krafs.Publicizer" Version="2.3.0" PrivateAssets="all" ExcludeAssets="runtime" />
 		<Publicize Include="DynamicClassesModSystem" />
 		<Publicize Include="VintagestoryLib" />
+		<Publicize Include="VintagestoryAPI" />
 		<Publicize Include="Newtonsoft.Json" />
 	</ItemGroup>
 	
