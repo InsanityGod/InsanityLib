@@ -19,7 +19,8 @@ public sealed class ArrayComposer : IIMMComposer
         ArgumentNullException.ThrowIfNull(advanced);
         var isNullable = IMMComposerContext.IsNullable(member);
         var arrayContract = (JsonArrayContract)contract;
-        var childType = arrayContract.CollectionItemType ?? arrayContract.ItemContract?.UnderlyingType ?? throw new InvalidOperationException("Could not determine collection item type");
+        //TODO nested dictionaries fail on this
+        var childType = arrayContract.CollectionItemType ?? throw new InvalidOperationException("Could not determine collection item type");
         var composer = IMMConfigGenerator.FindComposer(context, childType, out _, out _);
         if(composer is null)
         {
@@ -30,7 +31,7 @@ public sealed class ArrayComposer : IIMMComposer
         var entry = IMMConfigGenerator.AdvancedEntry(childType);
         entry.Key = string.Empty;
         entry.Label = string.Empty;
-        composer.Write(context, childType, arrayContract.ItemContract!, entry);
+        composer.Write(context, childType, context.ContractResolver.ResolveContract(childType), entry);
         if (!ClassComposer.IsValidEntry(entry))
         {
             advanced.Type = "Object"; // Automatically gets removed as it has no fields

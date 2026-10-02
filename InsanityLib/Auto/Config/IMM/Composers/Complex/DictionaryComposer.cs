@@ -20,7 +20,7 @@ public sealed class DictionaryComposer : IIMMComposer
         var isNullable = IMMComposerContext.IsNullable(member);
         var dictContract = (JsonDictionaryContract)contract;
 
-        var valType = dictContract.DictionaryValueType ?? dictContract.ItemContract?.UnderlyingType ?? throw new InvalidOperationException("Could not determine dictionary Key type");
+        var valType = dictContract.DictionaryValueType ?? throw new InvalidOperationException("Could not determine dictionary Key type");
         var valComposer = IMMConfigGenerator.FindComposer(context, valType, out _, out _);
         if(valComposer is null)
         {
@@ -31,7 +31,7 @@ public sealed class DictionaryComposer : IIMMComposer
         var valEntry = IMMConfigGenerator.AdvancedEntry(valType);
         valEntry.Key = string.Empty;
         valEntry.Label = string.Empty;
-        valComposer.Write(context, valType, dictContract.ItemContract!, valEntry);
+        valComposer.Write(context, valType, context.ContractResolver.ResolveContract(valType), valEntry);
 
         if (!ClassComposer.IsValidEntry(valEntry))
         {
