@@ -12,13 +12,13 @@ namespace InsanityLib.Auto.Config.IMM.Composers.Complex;
 public sealed class DropDownComposer : IIMMComposer
 {
 
-    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonContract contract, out bool requiresAdvanced)
+    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, out bool requiresAdvanced)
     {
         requiresAdvanced = IMMComposerContext.IsNullable(member);
         return member.GetCustomAttribute<AllowedValuesAttribute>() is not null;
     }
 
-    public void Write(IMMComposerContext context, MemberInfo member, JsonContract contract, ImmAdvancedSchema? advanced)
+    public void Write(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, ImmAdvancedSchema? advanced)
     {
         var isNullable = IMMComposerContext.IsNullable(member);
         if(isNullable) ArgumentNullException.ThrowIfNull(advanced);
@@ -40,7 +40,7 @@ public sealed class DropDownComposer : IIMMComposer
         }
         else
         {
-            var entry = IMMConfigGenerator.TopLevelEntry(member, "Dropdown");
+            var entry = IMMConfigGenerator.TopLevelEntry(property, member, "Dropdown");
             entry.Options = options;
             context.IMMConfig.Settings.Add(entry);
         }

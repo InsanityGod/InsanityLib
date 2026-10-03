@@ -1,7 +1,9 @@
-﻿using InsanityLib.Auto.Config.IMM.Composers;
+﻿using Cairo;
+using InsanityLib.Auto.Config.IMM.Composers;
 using InsanityLib.Auto.Config.IMM.Composers.Complex;
 using InsanityLib.Auto.Config.IMM.Composers.Simple;
 using InsanityLib.Documentation;
+using InsanityLib.Extended.Enums;
 using InsanityLib.Extensions;
 using InsanityLib.Util;
 using IntegratedModManager.Config;
@@ -178,13 +180,20 @@ public static partial class IMMConfigGenerator
         return context.IMMConfig;
     }
 
-    public static IIMMComposer? FindComposer(IMMComposerContext context, MemberInfo member, out JsonContract contract, out bool requiresAdvanced)
+    public static IIMMComposer? FindComposer(IMMComposerContext context, MemberInfo member, out JsonProperty? property, out JsonContract contract, out bool requiresAdvanced)
     {
         var type = member.GetPrimaryType()!;
-        contract = context.ContractResolver.ResolveContract(type);
-        foreach(var composer in Composers)
+        
+        if(member.DeclaringType is not null && context.ContractResolver.ResolveContract(member.DeclaringType!) is JsonObjectContract parentContract)
         {
-            if(composer.CanWriteType(context, member, contract, out requiresAdvanced))
+            property = parentContract.Properties.FirstOrDefault(prop => prop.UnderlyingName == member.Name);
+        }
+        else property = null;
+        contract = property?.PropertyContract ?? context.ContractResolver.ResolveContract(type);
+
+        foreach (var composer in Composers)
+        {
+            if(composer.CanWriteType(context, member, property, contract, out requiresAdvanced))
             {
                 return composer;
             }
@@ -194,10 +203,10 @@ public static partial class IMMConfigGenerator
         return null;
     }
 
-    public static ImmConfigEntry TopLevelEntry(MemberInfo member, string type)
+    public static ImmConfigEntry TopLevelEntry(JsonProperty? property, MemberInfo member, string type)
     {
         var docs = member.GetDocumentationContext();
-        var key = member.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? member.Name;
+        var key = property?.PropertyName ?? member.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? member.Name;
         var name = docs?.GetDisplayName() ?? member.Name.ToHumanReadable();
 
         return new ImmConfigEntry
@@ -209,10 +218,10 @@ public static partial class IMMConfigGenerator
         };
     }
 
-    public static ImmAdvancedSchema AdvancedEntry(MemberInfo member)
+    public static ImmAdvancedSchema AdvancedEntry(JsonProperty? property, MemberInfo member)
     {
         var docs = member.GetDocumentationContext();
-        var key = member.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? member.Name;
+        var key = property?.PropertyName ?? member.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? member.Name;
         var name = docs?.GetDisplayName() ?? member.Name.ToHumanReadable();
 
         JToken? defaultValue = null;
@@ -221,7 +230,24 @@ public static partial class IMMConfigGenerator
         {
             try
             {
-                defaultValue = defaultAttr.Value is null ? JValue.CreateNull() : JToken.FromObject(defaultAttr.Value.AutoConvert(member.GetPrimaryType())!);
+                if(defaultAttr.Value is null)
+                {
+                    defaultValue = null;
+                }
+                else if(property?.Converter is { } converter)
+                {
+                    using var writer = new JTokenWriter();
+                    var serializer = JsonSerializer.CreateDefault();
+
+                    converter.WriteJson(writer, defaultAttr.Value.AutoConvert(member.GetPrimaryType())!, serializer);
+                    defaultValue = writer.Token;
+                }
+                else
+                {
+                    defaultValue = JToken.FromObject(defaultAttr.Value.AutoConvert(member.GetPrimaryType())!);
+                }
+
+                //defaultValue = defaultAttr.Value is null ? JValue.CreateNull() : JToken.FromObject(defaultAttr.Value.AutoConvert(member.GetPrimaryType())!);
             }
             catch 
             {

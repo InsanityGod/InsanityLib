@@ -12,7 +12,7 @@ namespace InsanityLib.Auto.Config.IMM.Composers.Complex;
 
 public sealed class ClassComposer : IIMMComposer
 {
-    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonContract contract, out bool requiresAdvanced)
+    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, out bool requiresAdvanced)
     {
         requiresAdvanced = true;
         return contract.ContractType == JsonContractType.Object;
@@ -24,15 +24,15 @@ public sealed class ClassComposer : IIMMComposer
         {
             foreach(var member in group)
             {
-                if (IMMConfigGenerator.FindComposer(context, member, out var contract, out var requiresAdvanced) is not { } composer) continue;
+                if (IMMConfigGenerator.FindComposer(context, member, out var property, out var contract, out var requiresAdvanced) is not { } composer) continue;
 
                 ImmConfigEntry? entry = null;
                 if (requiresAdvanced)
                 {
-                    entry = IMMConfigGenerator.TopLevelEntry(member, "Advanced");
+                    entry = IMMConfigGenerator.TopLevelEntry(property, member, "Advanced");
                     entry.Advanced = new ImmAdvancedSchema();
                 }
-                composer.Write(context, member, contract, entry?.Advanced);
+                composer.Write(context, member, property, contract, entry?.Advanced);
 
                 if (IsValidEntry(entry))
                 {
@@ -42,7 +42,7 @@ public sealed class ClassComposer : IIMMComposer
         }
     }
 
-    public void Write(IMMComposerContext context, MemberInfo member, JsonContract contract, ImmAdvancedSchema? advanced)
+    public void Write(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, ImmAdvancedSchema? advanced)
     {
         ArgumentNullException.ThrowIfNull(advanced);
         advanced.Type = "Object";
@@ -51,10 +51,10 @@ public sealed class ClassComposer : IIMMComposer
         {
             foreach(var groupMember in group)
             {
-                if (IMMConfigGenerator.FindComposer(context, groupMember, out var childContract, out _) is not { } composer) continue;
+                if (IMMConfigGenerator.FindComposer(context, groupMember, out var childProperty, out var childContract, out _) is not { } composer) continue;
 
-                var entry = IMMConfigGenerator.AdvancedEntry(groupMember);
-                composer.Write(context, groupMember, childContract, entry);
+                var entry = IMMConfigGenerator.AdvancedEntry(childProperty, groupMember);
+                composer.Write(context, groupMember, childProperty, childContract, entry);
 
                 if (IsValidEntry(entry))
                 {

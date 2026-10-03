@@ -8,9 +8,9 @@ namespace InsanityLib.Auto.Config.IMM.Composers.Simple;
 public sealed class BoolComposer : IIMMComposer
 {
 
-    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonContract contract, out bool requiresAdvanced) => IMMComposerContext.GetNonNullableType(member, out requiresAdvanced) == typeof(bool);
+    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, out bool requiresAdvanced) => IMMComposerContext.GetNonNullableType(member, out requiresAdvanced) == typeof(bool);
 
-    public void Write(IMMComposerContext context, MemberInfo member, JsonContract contract, ImmAdvancedSchema? advanced)
+    public void Write(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, ImmAdvancedSchema? advanced)
     {
         var isNullable = IMMComposerContext.IsNullable(member);
         if(isNullable) ArgumentNullException.ThrowIfNull(advanced);
@@ -20,6 +20,6 @@ public sealed class BoolComposer : IIMMComposer
             advanced.Type = "Boolean";
             advanced.Nullable = isNullable;
         }
-        else context.IMMConfig.Settings.Add(IMMConfigGenerator.TopLevelEntry(member, "Boolean"));
+        else context.IMMConfig.Settings.Add(IMMConfigGenerator.TopLevelEntry(property, member, "Boolean"));
     }
 }

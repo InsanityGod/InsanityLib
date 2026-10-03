@@ -9,13 +9,13 @@ namespace InsanityLib.Auto.Config.IMM.Composers.Simple;
 
 public sealed class FloatingPointComposer : IIMMComposer
 {
-    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonContract contract, out bool requiresAdvanced)
+    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, out bool requiresAdvanced)
     {
         var type = IMMComposerContext.GetNonNullableType(member, out requiresAdvanced);
         return !type.IsEnum && (type.IsFloatingPoint() || type == typeof(decimal));
     }
 
-    public void Write(IMMComposerContext context, MemberInfo member, JsonContract contract, ImmAdvancedSchema? advanced)
+    public void Write(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, ImmAdvancedSchema? advanced)
     {
         var isNullable = IMMComposerContext.IsNullable(member);
         if(isNullable) ArgumentNullException.ThrowIfNull(advanced);
@@ -55,7 +55,7 @@ public sealed class FloatingPointComposer : IIMMComposer
         }
         else
         {
-            var entry = IMMConfigGenerator.TopLevelEntry(member, type);
+            var entry = IMMConfigGenerator.TopLevelEntry(property, member, type);
             if (isSlider) //These fields are not supported unless it's a slider...?
             {
                 entry.Min = min;

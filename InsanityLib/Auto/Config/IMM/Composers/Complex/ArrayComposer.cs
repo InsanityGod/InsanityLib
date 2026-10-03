@@ -8,30 +8,30 @@ namespace InsanityLib.Auto.Config.IMM.Composers.Complex;
 public sealed class ArrayComposer : IIMMComposer
 {
 
-    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonContract contract, out bool requiresAdvanced)
+    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, out bool requiresAdvanced)
     {
         requiresAdvanced = true;
         return contract.ContractType == JsonContractType.Array && contract is JsonArrayContract;
     }
 
-    public void Write(IMMComposerContext context, MemberInfo member, JsonContract contract, ImmAdvancedSchema? advanced)
+    public void Write(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, ImmAdvancedSchema? advanced)
     {
         ArgumentNullException.ThrowIfNull(advanced);
         var isNullable = IMMComposerContext.IsNullable(member);
         var arrayContract = (JsonArrayContract)contract;
         //TODO nested dictionaries fail on this
         var childType = arrayContract.CollectionItemType ?? throw new InvalidOperationException("Could not determine collection item type");
-        var composer = IMMConfigGenerator.FindComposer(context, childType, out _, out _);
+        var composer = IMMConfigGenerator.FindComposer(context, childType, out _, out _, out _);
         if(composer is null)
         {
             advanced.Type = "Object"; // Automatically gets removed as it has no fields
             return;
         }
         
-        var entry = IMMConfigGenerator.AdvancedEntry(childType);
+        var entry = IMMConfigGenerator.AdvancedEntry(null, childType);
         entry.Key = string.Empty;
         entry.Label = string.Empty;
-        composer.Write(context, childType, context.ContractResolver.ResolveContract(childType), entry);
+        composer.Write(context, childType, null, context.ContractResolver.ResolveContract(childType), entry);
         if (!ClassComposer.IsValidEntry(entry))
         {
             advanced.Type = "Object"; // Automatically gets removed as it has no fields

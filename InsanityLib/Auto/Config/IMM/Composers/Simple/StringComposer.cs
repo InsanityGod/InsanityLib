@@ -15,14 +15,14 @@ public sealed class StringComposer : IIMMComposer
         typeof(DateTime)
     ];
  
-    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonContract contract, out bool requiresAdvanced)
+    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, out bool requiresAdvanced)
     {
         var result = (contract.ContractType == JsonContractType.String || PrimitiveStringTypes.Contains(member.GetPrimaryType())); //TODO dropdown component
         requiresAdvanced = result && IMMComposerContext.IsNullable(member);
         return result;
     }
 
-    public void Write(IMMComposerContext context, MemberInfo member, JsonContract contract, ImmAdvancedSchema? advanced)
+    public void Write(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, ImmAdvancedSchema? advanced)
     {
         var isNullable = IMMComposerContext.IsNullable(member);
         if(isNullable) ArgumentNullException.ThrowIfNull(advanced);
@@ -32,6 +32,6 @@ public sealed class StringComposer : IIMMComposer
             advanced.Type = "String";
             advanced.Nullable = isNullable;
         }
-        else context.IMMConfig.Settings.Add(IMMConfigGenerator.TopLevelEntry(member, "String"));
+        else context.IMMConfig.Settings.Add(IMMConfigGenerator.TopLevelEntry(property, member, "String"));
     }
 }

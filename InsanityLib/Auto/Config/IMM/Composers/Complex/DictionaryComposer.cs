@@ -8,30 +8,30 @@ namespace InsanityLib.Auto.Config.IMM.Composers.Complex;
 public sealed class DictionaryComposer : IIMMComposer
 {
 
-    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonContract contract, out bool requiresAdvanced)
+    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, out bool requiresAdvanced)
     {
         requiresAdvanced = true;
         return contract.ContractType == JsonContractType.Dictionary && contract is JsonDictionaryContract;
     }
 
-    public void Write(IMMComposerContext context, MemberInfo member, JsonContract contract, ImmAdvancedSchema? advanced)
+    public void Write(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, ImmAdvancedSchema? advanced)
     {
         ArgumentNullException.ThrowIfNull(advanced);
         var isNullable = IMMComposerContext.IsNullable(member);
         var dictContract = (JsonDictionaryContract)contract;
 
         var valType = dictContract.DictionaryValueType ?? throw new InvalidOperationException("Could not determine dictionary Key type");
-        var valComposer = IMMConfigGenerator.FindComposer(context, valType, out _, out _);
+        var valComposer = IMMConfigGenerator.FindComposer(context, valType, out _, out _, out _);
         if(valComposer is null)
         {
             advanced.Type = "Object"; // Automatically gets removed as it has no fields
             return;
         }
         
-        var valEntry = IMMConfigGenerator.AdvancedEntry(valType);
+        var valEntry = IMMConfigGenerator.AdvancedEntry(null, valType);
         valEntry.Key = string.Empty;
         valEntry.Label = string.Empty;
-        valComposer.Write(context, valType, context.ContractResolver.ResolveContract(valType), valEntry);
+        valComposer.Write(context, valType, null, context.ContractResolver.ResolveContract(valType), valEntry);
 
         if (!ClassComposer.IsValidEntry(valEntry))
         {

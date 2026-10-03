@@ -12,20 +12,25 @@ namespace InsanityLib.Auto.Config.IMM.Composers.Simple;
 public sealed class EnumComposer : IIMMComposer
 {
 
-    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonContract contract, out bool requiresAdvanced) => IMMComposerContext.GetNonNullableType(member, out requiresAdvanced).IsEnum;
+    public bool CanWriteType(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, out bool requiresAdvanced) => IMMComposerContext.GetNonNullableType(member, out requiresAdvanced).IsEnum;
 
-    public void Write(IMMComposerContext context, MemberInfo member, JsonContract contract, ImmAdvancedSchema? advanced)
+    public void Write(IMMComposerContext context, MemberInfo member, JsonProperty? property, JsonContract contract, ImmAdvancedSchema? advanced)
     {
         var type = IMMComposerContext.GetNonNullableType(member, out var isNullable);
         if(isNullable) ArgumentNullException.ThrowIfNull(advanced);
-        
+
         var mapper = new EnumNameValueMapping(type);
         
         var serializer = JsonSerializer.CreateDefault();
-        if (context.UseExtendedEnumSyntax)
+        if((property?.Converter ?? contract.Converter) is { } converter)
+        {
+            serializer.Converters.Add(converter);
+        }
+        else if (context.UseExtendedEnumSyntax)
         {
             serializer.Converters.Add(new ExtendedEnumJsonConverter());
         }
+
         var options = mapper.GetAllEnumValues().Select(val => new ImmConfigOption
         {
             Label = mapper.GetDisplayString(val),
@@ -40,7 +45,7 @@ public sealed class EnumComposer : IIMMComposer
         }
         else
         {
-            var entry = IMMConfigGenerator.TopLevelEntry(member, "Dropdown");
+            var entry = IMMConfigGenerator.TopLevelEntry(property, member, "Dropdown");
             entry.Options = options;
             context.IMMConfig.Settings.Add(entry);
         }
