@@ -12,6 +12,7 @@ public sealed class IMMComposerContext
     public required ImmConfigBlock IMMConfig { get; init; }
     public required IAutoConfig? AutoConfig { get; init; }
     public required IContractResolver ContractResolver { get; init; }
+    public bool UseExtendedEnumSyntax { get; set; } = true;
 
     public static bool IsNullable(MemberInfo member)
     {

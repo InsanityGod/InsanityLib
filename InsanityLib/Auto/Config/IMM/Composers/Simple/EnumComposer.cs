@@ -22,7 +22,10 @@ public sealed class EnumComposer : IIMMComposer
         var mapper = new EnumNameValueMapping(type);
         
         var serializer = JsonSerializer.CreateDefault();
-        serializer.Converters.Add(new ExtendedEnumJsonConverter());
+        if (context.UseExtendedEnumSyntax)
+        {
+            serializer.Converters.Add(new ExtendedEnumJsonConverter());
+        }
         var options = mapper.GetAllEnumValues().Select(val => new ImmConfigOption
         {
             Label = mapper.GetDisplayString(val),

@@ -89,6 +89,7 @@ public sealed class ClassComposer : IIMMComposer
             || member.GetCustomAttribute<JsonIgnoreAttribute>() is not null
             || member.GetCustomAttribute<BrowsableAttribute>() is { Browsable: false }
             || member.GetCustomAttribute<ReadOnlyAttribute>() is { IsReadOnly: true }
+            || member.GetCustomAttribute<ObsoleteAttribute>() is not null
         ) return false;
 
         return true;

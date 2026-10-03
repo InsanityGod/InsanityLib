@@ -152,7 +152,7 @@ public static partial class IMMConfigGenerator
         return context.IMMConfig;
     }
 
-    public static ImmConfigBlock GenerateForType(string relativeConfigPath, EnumAppSide side, Type type)
+    public static ImmConfigBlock GenerateForType(string relativeConfigPath, EnumAppSide side, Type type, bool useExtendedEnumSyntax = false)
     {
         if(side == EnumAppSide.Universal) throw new InvalidOperationException("IMM configs need to be either Server or Client owned");
 
@@ -162,6 +162,7 @@ public static partial class IMMConfigGenerator
         {
             AutoConfig = null,
             ContractResolver = JsonSerializer.CreateDefault().ContractResolver,
+            UseExtendedEnumSyntax = useExtendedEnumSyntax,
             IMMConfig = new ImmConfigBlock
             {
                 ConfigFile = relativeConfigPath,
@@ -220,7 +221,7 @@ public static partial class IMMConfigGenerator
         {
             try
             {
-                defaultValue = defaultAttr.Value is null ? JValue.CreateNull() : JToken.FromObject(Convert.ChangeType(defaultAttr.Value, member.GetPrimaryType()!));
+                defaultValue = defaultAttr.Value is null ? JValue.CreateNull() : JToken.FromObject(defaultAttr.Value.AutoConvert(member.GetPrimaryType())!);
             }
             catch 
             {

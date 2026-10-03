@@ -22,8 +22,8 @@ public class EnumNameValueMapping
         Names = [.. Enum.GetNames(enumType).Select(NamingExtensions.ToHumanReadable)];
 
         NumericValues = [.. enumType.GetEnumValues()
-            .Cast<int>()
-            .Select(static x => (long)x)];
+            .Cast<object>()
+            .Select(Convert.ToInt64)];
 
         if (includeExtended && ExtendedEnum.EnumExtensions.TryGetValue(enumType, out var extension))
         {
@@ -53,8 +53,9 @@ public class EnumNameValueMapping
 
                 NumericValues = NumericValues.Append(
                     enumExtensionType.GetEnumValues()
-                    .Cast<int>()
-                    .Select(x => (long)x + offset)
+                    .Cast<object>()
+                    .Select(Convert.ToInt64)
+                    .Select(x => x + offset)
                 );
 
             }
