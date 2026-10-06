@@ -11,12 +11,12 @@ public class FloatComponent : ValueComponentBase<float>
     public float MaxPercentageValue { get; set; }
     public bool IsPercentage { get; set; }
     public bool UsePreciseInput { get; set; }
-    public string? FormatString { get; set;}
+    public string FormatString { get; set;}
 
     public FloatComponent(ImGuiContext context) : base(context)
     {
-        FormatString = context.Member!.GetCustomAttribute<DisplayFormatAttribute>()?.DataFormatString;
-        IsPercentage = FormatString?.ToLower() == "p";
+        FormatString = context.Member!.GetCustomAttribute<DisplayFormatAttribute>()?.DataFormatString ?? "%.7g";
+        IsPercentage = FormatString.Equals("p", System.StringComparison.CurrentCultureIgnoreCase);
         if (IsPercentage)
         {
             FormatString = "%.2f%%";
