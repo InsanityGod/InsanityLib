@@ -32,7 +32,12 @@ public sealed class EnumComposer : IIMMComposer
         }
         var enumValues = mapper.GetAllEnumValues();
 
-        if(enumValues.Length > 200) return; // IMM's validation for dropdowns becomes exponentially more expensive so numbers above this will cause significant load time
+        if(enumValues.Length > 200)
+        {
+            // IMM's validation for dropdowns becomes exponentially more expensive so numbers above this will cause significant load time
+            advanced?.Type = "Object"; // Automatically gets removed as it has no fields
+            return;
+        }
 
         var options = enumValues.Select(val => new ImmConfigOption
         {
