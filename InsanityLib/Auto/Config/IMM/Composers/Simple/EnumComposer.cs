@@ -30,8 +30,11 @@ public sealed class EnumComposer : IIMMComposer
         {
             serializer.Converters.Add(new ExtendedEnumJsonConverter());
         }
+        var enumValues = mapper.GetAllEnumValues();
 
-        var options = mapper.GetAllEnumValues().Select(val => new ImmConfigOption
+        if(enumValues.Length > 200) return; // IMM's validation for dropdowns becomes exponentially more expensive so numbers above this will cause significant load time
+
+        var options = enumValues.Select(val => new ImmConfigOption
         {
             Label = mapper.GetDisplayString(val),
             Value = JToken.FromObject(Enum.ToObject(type, val), serializer)
