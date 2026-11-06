@@ -11,7 +11,7 @@ using Vintagestory.API.Datastructures;
 
 namespace InsanityLib.Extended.Transitions;
 
-public class TransitionHandler<T> : TransitionHandler, ITransitionHandler<T> where T : TransitionAttributes, new()
+public abstract class TransitionHandler<T> : TransitionHandler, ITransitionHandler<T> where T : TransitionAttributes, new()
 {
     public T Attributes { get; init; } = new();
     
@@ -42,7 +42,9 @@ public class TransitionHandler<T> : TransitionHandler, ITransitionHandler<T> whe
 
 public class TransitionHandler : ITransitionHandler
 {
-    public required AssetLocation TransitionCode { get; init; }
+    #pragma warning disable CS8618
+    public AssetLocation TransitionCode { get; init; }
+    #pragma warning restore CS8618
 
     public EnumTransitionType TransitionType { get; init; }
 
