@@ -20,7 +20,11 @@ public static class Resolver
         new ConfigLibResolver(), //TODO make work with ConfigKit
         new ModResolver(),
         //TODO IMM resolver maybe?
+        //TODO maybe a resolver for other world information, like idk PlayerNames, WorldTime/WorldConfig settings, etc
     ];
+
+    //TODO maybe a context system?
+    //For instance the context would be a CollectibleObject not provided by the path itself, so you could do special things with from lets say the BlockDescription text
 
     public static IPathResolver? Find(ReadOnlySpan<char> scheme)
     {
@@ -113,7 +117,6 @@ public static class Resolver
         }
     }
 
-    //TODO documentation
     private static object? ApplyModifier(char modifier, object? value) => modifier switch
     {
         '!' => value.IsFalsy(),
