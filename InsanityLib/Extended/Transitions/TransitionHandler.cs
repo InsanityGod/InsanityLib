@@ -1,10 +1,44 @@
-﻿using System;
+﻿using InsanityLib.Constants;
+using InsanityLib.Extensions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Text;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
 
 namespace InsanityLib.Extended.Transitions;
+
+public abstract class TransitionHandler<T> : TransitionHandler, ITransitionHandler<T> where T : TransitionAttributes, new()
+{
+    public T Attributes { get; init; } = new();
+    
+    public virtual void LoadAttributes(JsonObject attributes, IWorldAccessor world)
+    {
+        if(attributes.token is not JToken token) return;
+
+        using JsonReader reader = token.CreateReader();
+        JsonSerializer.CreateDefault(new JsonSerializerSettings
+        {
+            ObjectCreationHandling = ObjectCreationHandling.Replace,
+            MissingMemberHandling = MissingMemberHandling.Error,
+            Error = (sender, args) =>
+            {
+                if(args.ErrorContext.Error.IsMissingMemberException())
+                {
+                    world.Logger.Warning(Logging.UnknownAttribute, TransitionCode.Domain, TransitionCode, args.ErrorContext.Error.Message);
+                    args.ErrorContext.Handled = true;
+                }
+            },
+        }).Populate(reader, Attributes);
+
+        attributes.Token?.Populate(Attributes);
+    }
+
+    public override float GetTransitionRateMul(IWorldAccessor world, ItemSlot inSlot, float currentResult) => base.GetTransitionRateMul(world, inSlot, currentResult) * Attributes.GlobalMultiplier;
+}
 
 public class TransitionHandler : ITransitionHandler
 {

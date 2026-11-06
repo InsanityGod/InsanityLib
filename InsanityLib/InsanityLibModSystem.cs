@@ -23,7 +23,7 @@ namespace InsanityLib;
 public partial class InsanityLibModSystem : ModSystem
 {
 
-    partial void OnTransitionTypeLoaded(ICoreAPI api, AssetLocation origin, TransitionType asset) => CustomTransition.ExtendedEnum.RegisterTransitionType(Mod.Logger, asset);
+    partial void OnTransitionTypeLoaded(ICoreAPI api, AssetLocation origin, TransitionType asset) => CustomTransition.ExtendedEnum.RegisterTransitionType(api.World, asset);
 
     public override void StartPre(ICoreAPI api)
     {
