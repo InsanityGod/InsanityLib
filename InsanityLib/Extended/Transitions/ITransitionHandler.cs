@@ -7,6 +7,8 @@ using Vintagestory.API.Datastructures;
 
 namespace InsanityLib.Extended.Transitions;
 
+public interface ITransitionHandler<out TAttributes> : ITransitionHandler, IAttributeProvider<TAttributes> where TAttributes : TransitionAttributes;
+
 public interface ITransitionHandler : IInitialize
 {
     float DefaultTransitionSpeedMul { get; }
@@ -28,10 +30,13 @@ public interface ITransitionHandler : IInitialize
         //Optional
     }
 
+    [Obsolete("Use overload with IWorldAccessor as extra parameter")]
     void LoadAttributes(JsonObject attributes)
     {
         //Optional
     }
+
+    void LoadAttributes(JsonObject attributes, IWorldAccessor world) => LoadAttributes(attributes);
 
     void PostOnTransitionNow(CollectibleObject collectible, ItemSlot slot, TransitionableProperties props, ref ItemStack result)
     {

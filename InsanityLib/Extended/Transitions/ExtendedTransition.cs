@@ -10,13 +10,13 @@ public sealed class ExtendedTransition() : ExtendedEnum(typeof(EnumTransitionTyp
 {
     private readonly Dictionary<EnumTransitionType, ITransitionHandler> HandlerLookup = [];
 
-    public void RegisterTransitionType(ILogger logger, TransitionType transitionType)
+    public void RegisterTransitionType(IWorldAccessor world, TransitionType transitionType)
     {
         if(OffsetLookup.ContainsKey(transitionType.Code.ToString())) return;
         
         if(!CustomTransition.ClassRegistry.TryGetValue(transitionType.Handler, out var registryEntry))
         {
-            logger.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"Unknown transitionHandler '{transitionType.Handler}'");
+            world.Logger.Error(Logging.ExecutionFailed, nameof(RegisterTransitionType), transitionType.Code, $"Unknown transitionHandler '{transitionType.Handler}'");
             return;
         }
 
@@ -27,17 +27,17 @@ public sealed class ExtendedTransition() : ExtendedEnum(typeof(EnumTransitionTyp
         }
         catch(Exception ex)
         {
-            logger.Error(ex);
+            world.Logger.Error(ex);
             return;
         }
 
         try
         {
-            if(transitionType.Attributes is not null) handler.LoadAttributes(transitionType.Attributes);
+            if(transitionType.Attributes is not null) handler.LoadAttributes(transitionType.Attributes, world);
         }
         catch(Exception ex)
         {
-            logger.Error(ex);
+            world.Logger.Error(ex);
             return;
         }
 
