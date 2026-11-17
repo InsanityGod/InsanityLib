@@ -55,14 +55,14 @@ public class MemberDocumentationContext(AssemblyDocumentationContext assemblyDoc
     {
         if(TryGetFromLang(EDocumentationType.Description, out var descriptionFromLang)) return descriptionFromLang;
 
+        var descriptionFromAttr = Member.GetCustomAttribute<DescriptionAttribute>()?.Description;
+        if(!string.IsNullOrWhiteSpace(descriptionFromAttr)) return Lang.Get(descriptionFromAttr);
+
         if (HasXmlDocumentation && MemberNode?.SelectSingleNode("summary") is XmlNode summaryNode)
         {
             var descriptionFromXml = summaryNode.InnerText;
             if(!string.IsNullOrWhiteSpace(descriptionFromXml)) return descriptionFromXml.CleanWhiteSpaces();
         }
-        
-        var descriptionFromAttr = Member.GetCustomAttribute<DescriptionAttribute>()?.Description;
-        if(!string.IsNullOrWhiteSpace(descriptionFromAttr)) return descriptionFromAttr.CleanWhiteSpaces();
 
         return string.Empty;
     }
