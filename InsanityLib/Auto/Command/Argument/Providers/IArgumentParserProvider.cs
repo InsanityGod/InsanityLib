@@ -8,18 +8,18 @@ namespace InsanityLib.Auto.Command.Argument.Providers;
 public interface IArgumentParserProvider<out T> : ICommandArgumentProvider<T>
 {
     //TODO maybe look into supporting non mandatetory parameters?
-    object? ICommandArgumentProvider.Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers)
+    object? ICommandArgumentProvider.Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers)
     {
         var parser = currentArgs.Parsers[consumedParsers++];
 
         return parser.IsMissing && !parser.IsMandatoryArg
-            ? DefaultArgumentProvider.Instance.Provide(serviceProvider, parameterInfo, currentArgs, ref consumedParsers)
+            ? DefaultArgumentProvider.Instance.Provide(serviceProvider, argumentInfo, currentArgs, ref consumedParsers)
             : parser.GetValue();
     }
 
-    void ICommandArgumentProvider.Configure(IServiceProvider serviceProvider, ParameterInfo parameterInfo, List<ICommandArgumentParser> argumentParsers) 
-        => argumentParsers.Add(GetParser(serviceProvider, parameterInfo));
+    void ICommandArgumentProvider.Configure(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, List<ICommandArgumentParser> argumentParsers) 
+        => argumentParsers.Add(GetParser(serviceProvider, argumentInfo));
 
-    ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo);
+    ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo);
 
 }

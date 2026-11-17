@@ -1,4 +1,4 @@
-﻿using InsanityLib.Extensions;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.Reflection;
@@ -11,5 +11,5 @@ public class PlayerUidNamesArgumentParserProvider : IArgumentParserProvider<Play
     
     public static readonly PlayerUidNamesArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => new PlayersArgParser(parameterInfo.GetHumanReadableName(), serviceProvider.GetService<ICoreAPI>(), !parameterInfo.HasDefaultValue);
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => new PlayersArgParser(argumentInfo.GetHumanReadableName(), serviceProvider.GetService<ICoreAPI>(), !argumentInfo.HasDefaultValue);
 }

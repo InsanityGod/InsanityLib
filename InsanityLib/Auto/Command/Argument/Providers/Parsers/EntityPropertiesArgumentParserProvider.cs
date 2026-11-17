@@ -1,4 +1,4 @@
-﻿using InsanityLib.Extensions;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.Reflection;
@@ -13,5 +13,5 @@ public class EntityPropertiesArgumentParserProvider : IArgumentParserProvider<En
     
     public static readonly EntityPropertiesArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => new EntityTypeArgParser(parameterInfo.GetHumanReadableName(), serviceProvider.GetService<ICoreAPI>(), !parameterInfo.HasDefaultValue);
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => new EntityTypeArgParser(argumentInfo.GetHumanReadableName(), serviceProvider.GetService<ICoreAPI>(), !argumentInfo.HasDefaultValue);
 }

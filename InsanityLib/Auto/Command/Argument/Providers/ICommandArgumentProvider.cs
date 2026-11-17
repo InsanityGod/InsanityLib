@@ -1,8 +1,9 @@
-﻿using InsanityLib.Auto.Cleanup;
+using InsanityLib.Auto.Cleanup;
 using InsanityLib.Auto.Command.Argument.Providers.Contextual;
 using InsanityLib.Auto.Command.Argument.Providers.Parsers;
 using InsanityLib.Auto.Command.Argument.Providers.Special;
 using InsanityLib.Exceptions;
+using InsanityLib.Extensions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,43 +16,43 @@ namespace InsanityLib.Auto.Command.Argument.Providers;
 public interface ICommandArgumentProvider<out T> : ICommandArgumentProvider
 {
     //TODO see if we can support convertable types
-    bool ICommandArgumentProvider.CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr) => paramInfo.ParameterType.IsAssignableFrom(typeof(T));
+    bool ICommandArgumentProvider.CanProvide(IArgumentInfo argumentInfo, CommandParameterAttribute? attr) => argumentInfo.Type.IsAssignableFrom(typeof(T));
 }
 
 public interface ICommandArgumentProvider
 {
-    bool CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr);
+    bool CanProvide(IArgumentInfo argumentInfo, CommandParameterAttribute? attr);
 
-    void Configure(IServiceProvider serviceProvider, ParameterInfo parameterInfo, List<ICommandArgumentParser> argumentParsers)
+    void Configure(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, List<ICommandArgumentParser> argumentParsers)
     {
         //Optional to implement
     }
 
-    object? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers);
+    object? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers);
 
     /// <summary>
     /// Find the argument provider for a given parameter.
     /// </summary>
-    public static ICommandArgumentProvider? Find(ParameterInfo paramInfo)
+    public static ICommandArgumentProvider? Find(IArgumentInfo argumentInfo)
     {
-        var attr = paramInfo.GetCustomAttribute<CommandParameterAttribute>();
+        var attr = argumentInfo.GetCustomAttribute<CommandParameterAttribute>();
             
         ICommandArgumentProvider? argumentProvider = null;
         switch (attr?.Provider)
         {
             case EParamProvider.ServiceProvider:
-                if (!ServiceArgumentProvider.Instance.CanProvide(paramInfo, attr)) break;
+                if (!ServiceArgumentProvider.Instance.CanProvide(argumentInfo, attr)) break;
 
                 argumentProvider = ServiceArgumentProvider.Instance;
                 break;
 
             case EParamProvider.ArgumentParser:
-                argumentProvider = ArgumentParserProviders.FirstOrDefault(provider => provider.CanProvide(paramInfo, attr));
+                argumentProvider = ArgumentParserProviders.FirstOrDefault(provider => provider.CanProvide(argumentInfo, attr));
                 break;
 
 
             case EParamProvider.ContextualProvider:
-                argumentProvider = ContextualArgumentProviders.FirstOrDefault(provider => provider.CanProvide(paramInfo, attr));
+                argumentProvider = ContextualArgumentProviders.FirstOrDefault(provider => provider.CanProvide(argumentInfo, attr));
                 break;
 
             case EParamProvider.DefaultValue:
@@ -59,17 +60,17 @@ public interface ICommandArgumentProvider
                 break;
 
             case null:
-                argumentProvider = ArgumentParserProviders.FirstOrDefault(provider => provider.CanProvide(paramInfo, attr));
+                argumentProvider = ArgumentParserProviders.FirstOrDefault(provider => provider.CanProvide(argumentInfo, attr));
                 if (argumentProvider is not null) break;
 
-                argumentProvider = ContextualArgumentProviders.FirstOrDefault(provider => provider.CanProvide(paramInfo, attr));
+                argumentProvider = ContextualArgumentProviders.FirstOrDefault(provider => provider.CanProvide(argumentInfo, attr));
                 if (argumentProvider is not null) break;
 
-                var defaultAttr = paramInfo.GetCustomAttribute<DefaultValueAttribute>();
+                var defaultAttr = argumentInfo.GetCustomAttribute<DefaultValueAttribute>();
                 if (defaultAttr is AutoDefaultValueAttribute) goto case EParamProvider.DefaultValue;
                 else if(defaultAttr is not null)
                 {
-                    if(defaultAttr.Value is null && ServiceArgumentProvider.Instance.CanProvide(paramInfo, attr))
+                    if(defaultAttr.Value is null && ServiceArgumentProvider.Instance.CanProvide(argumentInfo, attr))
                     {
                         goto case EParamProvider.ServiceProvider;
                     }
@@ -88,14 +89,14 @@ public interface ICommandArgumentProvider
     /// <exception cref="InvalidOperationException" />
     public static ICommandArgumentProvider[] Find(MethodBase method)
     {
-        var parameters = method.GetParameters();
+        var parameters = method.GetArgumentInfos();
         ICommandArgumentProvider[] providers = new ICommandArgumentProvider[parameters.Length];
 
         for (int i = 0; i < parameters.Length; i++)
         {
-            var paramInfo = parameters[i];
+            var argumentInfo = parameters[i];
             
-            providers[i] = Find(paramInfo) ?? throw new InvalidAttributeUsageException($"No valid argument provider exists for parameter '{paramInfo.ParameterType.FullName} {paramInfo.Name}'");
+            providers[i] = Find(argumentInfo) ?? throw new InvalidAttributeUsageException($"No valid argument provider exists for parameter '{argumentInfo.Type.FullName} {argumentInfo.DebugName}'");
         }
 
         return providers;

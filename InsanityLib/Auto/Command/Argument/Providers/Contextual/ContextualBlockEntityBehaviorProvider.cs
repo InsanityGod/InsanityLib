@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -10,8 +10,8 @@ public sealed class ContextualBlockEntityBehaviorProvider : IContextualArgumentP
     
     public static readonly ContextualBlockEntityBehaviorProvider Instance = new();
 
-    public bool CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr) => typeof(BlockEntityBehavior).IsAssignableFrom(paramInfo.ParameterType);
+    public bool CanProvide(IArgumentInfo argumentInfo, CommandParameterAttribute? attr) => typeof(BlockEntityBehavior).IsAssignableFrom(argumentInfo.Type);
 
-    public BlockEntityBehavior? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) => 
-        ContextualBlockEntityProvider.ProvideRaw(serviceProvider, parameterInfo, contextualSource)?.Behaviors.FirstOrDefault(parameterInfo.ParameterType.IsInstanceOfType);
+    public BlockEntityBehavior? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, EContextualSource contextualSource) => 
+        ContextualBlockEntityProvider.ProvideRaw(serviceProvider, argumentInfo, contextualSource)?.Behaviors.FirstOrDefault(argumentInfo.Type.IsInstanceOfType);
 }

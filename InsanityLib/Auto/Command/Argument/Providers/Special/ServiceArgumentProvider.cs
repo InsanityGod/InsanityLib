@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Vintagestory.API.Common;
 
@@ -9,7 +9,7 @@ public sealed class ServiceArgumentProvider : ICommandArgumentProvider
 
     public static readonly ServiceArgumentProvider Instance = new();
 
-    public bool CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr) => !paramInfo.ParameterType.IsValueType && paramInfo.ParameterType != typeof(string);
+    public bool CanProvide(IArgumentInfo argumentInfo, CommandParameterAttribute? attr) => !argumentInfo.Type.IsValueType && argumentInfo.Type != typeof(string);
 
-    public object? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers) => serviceProvider.GetService(parameterInfo.ParameterType);
+    public object? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers) => serviceProvider.GetService(argumentInfo.Type);
 }

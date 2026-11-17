@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util;
+using InsanityLib.Util;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -11,5 +11,5 @@ public class FloatArgumentParserProvider : IArgumentParserProvider<float>
     
     public static readonly FloatArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => new FloatArgParser(parameterInfo.GetHumanReadableName(), !parameterInfo.HasDefaultValue);
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => new FloatArgParser(argumentInfo.GetHumanReadableName(), !argumentInfo.HasDefaultValue);
 }

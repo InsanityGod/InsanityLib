@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Vintagestory.API.Common;
 
@@ -9,8 +9,8 @@ public sealed class ContextualItemSlotProvider : IContextualArgumentProvider<Ite
 
     public static readonly ContextualItemSlotProvider Instance = new();
 
-    public EContextualSource DefaultSource(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => EContextualSource.Caller;
+    public EContextualSource DefaultSource(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => EContextualSource.Caller;
 
-    public ItemSlot? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) => 
-        (ContextualEntityProvider.Instance.Provide(serviceProvider, parameterInfo, contextualSource) as EntityAgent)?.ActiveHandItemSlot;
+    public ItemSlot? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, EContextualSource contextualSource) => 
+        (ContextualEntityProvider.Instance.Provide(serviceProvider, argumentInfo, contextualSource) as EntityAgent)?.ActiveHandItemSlot;
 }

@@ -1,4 +1,4 @@
-﻿using InsanityLib.Auto.Command.Argument.Providers.Special;
+using InsanityLib.Auto.Command.Argument.Providers.Special;
 using InsanityLib.Extended.Enums;
 using InsanityLib.Extensions;
 using InsanityLib.Util;
@@ -13,31 +13,31 @@ public class EnumArgumentParserProvider : IArgumentParserProvider<Enum>
     
     public static readonly EnumArgumentParserProvider Instance = new();
 
-    public bool CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr) => paramInfo.ParameterType.IsEnum;
+    public bool CanProvide(IArgumentInfo argumentInfo, CommandParameterAttribute? attr) => argumentInfo.Type.IsEnum;
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo)
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo)
     {
         //TODO maybe just make a straight EnumArgParser that takes in the Type instead of doing this every time
 
-        var mapping = new EnumNameValueMapping(parameterInfo.ParameterType);
+        var mapping = new EnumNameValueMapping(argumentInfo.Type);
         
         return new WordRangeArgParser(
-            parameterInfo.GetHumanReadableName(),
-            !parameterInfo.HasDefaultValue,
+            argumentInfo.GetHumanReadableName(),
+            !argumentInfo.HasDefaultValue,
             
             mapping.Names
         );
     }
 
-    object? ICommandArgumentProvider.Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers)
+    object? ICommandArgumentProvider.Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers)
     {
         var parser = currentArgs.Parsers[consumedParsers++];
 
         var value = parser.IsMissing && !parser.IsMandatoryArg
-            ? DefaultArgumentProvider.Instance.Provide(serviceProvider, parameterInfo, currentArgs, ref consumedParsers)
+            ? DefaultArgumentProvider.Instance.Provide(serviceProvider, argumentInfo, currentArgs, ref consumedParsers)
             : parser.GetValue();
         if(value is not string strValue) return value;
 
-        return ExtendedEnumExtensions.TryParse(parameterInfo.ParameterType, strValue);
+        return ExtendedEnumExtensions.TryParse(argumentInfo.Type, strValue);
     }
 }

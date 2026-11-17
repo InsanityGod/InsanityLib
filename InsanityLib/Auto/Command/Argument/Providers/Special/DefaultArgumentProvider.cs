@@ -1,4 +1,4 @@
-﻿using InsanityLib.Auto.Cleanup;
+using InsanityLib.Auto.Cleanup;
 using InsanityLib.Extensions;
 using System;
 using System.ComponentModel;
@@ -12,11 +12,11 @@ public sealed class DefaultArgumentProvider : ICommandArgumentProvider
 
     public static readonly DefaultArgumentProvider Instance = new();
 
-    public bool CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr) => true;
+    public bool CanProvide(IArgumentInfo argumentInfo, CommandParameterAttribute? attr) => true;
 
-    public object? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers)
+    public object? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers)
     {
-        var defaultAttr = parameterInfo.GetCustomAttribute<DefaultValueAttribute>();
+        var defaultAttr = argumentInfo.GetCustomAttribute<DefaultValueAttribute>();
         
         if(defaultAttr is AutoDefaultValueAttribute autoDefaultAttr)
         {
@@ -24,6 +24,6 @@ public sealed class DefaultArgumentProvider : ICommandArgumentProvider
         }
         else if(defaultAttr is not null) return defaultAttr.Value;
 
-        return parameterInfo.HasDefaultValue ? parameterInfo.DefaultValue : parameterInfo.ParameterType.Default();
+        return argumentInfo.HasDefaultValue ? argumentInfo.DefaultValue : argumentInfo.Type.Default();
     }
 }

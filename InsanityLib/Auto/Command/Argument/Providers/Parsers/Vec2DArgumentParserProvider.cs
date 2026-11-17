@@ -1,4 +1,4 @@
-﻿using InsanityLib.Extensions;
+using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
 using System.Reflection;
@@ -13,5 +13,5 @@ public class Vec2DArgumentParserProvider : IArgumentParserProvider<Vec2i>
     
     public static readonly Vec2DArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => new WorldPosition2DArgParser(parameterInfo.GetHumanReadableName(), serviceProvider.GetService<ICoreAPI>(), !parameterInfo.HasDefaultValue);
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => new WorldPosition2DArgParser(argumentInfo.GetHumanReadableName(), serviceProvider.GetService<ICoreAPI>(), !argumentInfo.HasDefaultValue);
 }
