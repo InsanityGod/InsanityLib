@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util;
+using InsanityLib.Util;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -11,5 +11,5 @@ public class BoolArgumentParserProvider : IArgumentParserProvider<bool>
     
     public static readonly BoolArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => new BoolArgParser(parameterInfo.GetHumanReadableName(), "on", !parameterInfo.HasDefaultValue);
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => new BoolArgParser(argumentInfo.GetHumanReadableName(), "on", !argumentInfo.HasDefaultValue);
 }

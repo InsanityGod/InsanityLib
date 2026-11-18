@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using InsanityLib.Auto.Cleanup;
+using InsanityLib.Auto.Command.Argument;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -383,4 +384,16 @@ public static class ReflectionExtensions
         EventInfo e => (e.AddMethod?.IsPublic ?? false) || (e.RemoveMethod?.IsPublic ?? false),
         _ => false
     };
+
+    public static IArgumentInfo[] GetArgumentInfos(this MethodBase method)
+    {
+        var parameters = method.GetParameters();
+        IEnumerable<IArgumentInfo> args = parameters.Select(param => new ParameterArgumentInfo(param));
+        if (!method.IsStatic)
+        {
+            args = args.Prepend(new InstanceArgumentInfo(method.DeclaringType!));
+        }
+
+        return [.. args];
+    }
 }

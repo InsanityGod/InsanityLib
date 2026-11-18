@@ -1,6 +1,5 @@
 ﻿using InsanityLib.Extensions;
 using System;
-using System.Reflection;
 using Vintagestory.API.Common;
 
 namespace InsanityLib.Auto.Command.Argument.Providers.Contextual;
@@ -10,12 +9,12 @@ public sealed class ContextualBlockEntityProvider : IContextualArgumentProvider<
     
     public static readonly ContextualBlockEntityProvider Instance = new();
 
-    public BlockEntity? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) =>
-        ProvideRaw(serviceProvider, parameterInfo, contextualSource)?.As<BlockEntity>(parameterInfo.ParameterType);
+    public BlockEntity? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, EContextualSource contextualSource) =>
+        ProvideRaw(serviceProvider, argumentInfo, contextualSource)?.As<BlockEntity>(argumentInfo.Type);
 
-    public static BlockEntity? ProvideRaw(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource)
+    public static BlockEntity? ProvideRaw(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, EContextualSource contextualSource)
     {
-        var pos = ContextualBlockPosProvider.Instance.Provide(serviceProvider, parameterInfo, contextualSource);
+        var pos = ContextualBlockPosProvider.Instance.Provide(serviceProvider, argumentInfo, contextualSource);
         if (pos is null) return null;
         return serviceProvider.GetService<IWorldAccessor>()!.BlockAccessor.GetBlockEntity(pos);
     }

@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util;
+using InsanityLib.Util;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -11,5 +11,5 @@ public class DateTimeArgumentParserProvider : IArgumentParserProvider<DateTime>
     
     public static readonly DateTimeArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => new DatetimeArgParser(parameterInfo.GetHumanReadableName(), !parameterInfo.HasDefaultValue);
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => new DatetimeArgParser(argumentInfo.GetHumanReadableName(), !argumentInfo.HasDefaultValue);
 }

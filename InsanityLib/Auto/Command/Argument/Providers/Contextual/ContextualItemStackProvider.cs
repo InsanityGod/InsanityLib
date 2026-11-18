@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Vintagestory.API.Common;
 
@@ -9,8 +9,8 @@ public sealed class ContextualItemStackProvider : IContextualArgumentProvider<It
 
     public static readonly ContextualItemStackProvider Instance = new();
 
-    public EContextualSource DefaultSource(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => ContextualItemSlotProvider.Instance.DefaultSource(serviceProvider, parameterInfo);
+    public EContextualSource DefaultSource(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => ContextualItemSlotProvider.Instance.DefaultSource(serviceProvider, argumentInfo);
 
-    public ItemStack? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) => 
-        ContextualItemSlotProvider.Instance.Provide(serviceProvider, parameterInfo, contextualSource)?.Itemstack;
+    public ItemStack? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, EContextualSource contextualSource) => 
+        ContextualItemSlotProvider.Instance.Provide(serviceProvider, argumentInfo, contextualSource)?.Itemstack;
 }

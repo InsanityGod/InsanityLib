@@ -1,4 +1,4 @@
-﻿using InsanityLib.Extensions;
+using InsanityLib.Extensions;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -10,14 +10,14 @@ public sealed class ContextualCollectibleBehaviorProvider : IContextualArgumentP
     
     public static readonly ContextualCollectibleBehaviorProvider Instance = new();
 
-    public bool CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr) => typeof(CollectibleBehavior).IsAssignableFrom(paramInfo.ParameterType);
+    public bool CanProvide(IArgumentInfo argumentInfo, CommandParameterAttribute? attr) => typeof(CollectibleBehavior).IsAssignableFrom(argumentInfo.Type);
 
-    public EContextualSource DefaultSource(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => typeof(BlockBehavior).IsAssignableFrom(parameterInfo.ParameterType) ? EContextualSource.CallerTarget : EContextualSource.Caller;
+    public EContextualSource DefaultSource(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => typeof(BlockBehavior).IsAssignableFrom(argumentInfo.Type) ? EContextualSource.CallerTarget : EContextualSource.Caller;
 
-    public CollectibleBehavior? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) => (contextualSource switch
+    public CollectibleBehavior? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, EContextualSource contextualSource) => (contextualSource switch
     {
-        EContextualSource.Caller => ContextualCollectibleProvider.ProvideRaw(serviceProvider, parameterInfo, contextualSource, EnumItemClass.Item)?.GetBehavior(parameterInfo.ParameterType),
-        EContextualSource.CallerTarget => ContextualCollectibleProvider.ProvideRaw(serviceProvider, parameterInfo, contextualSource, EnumItemClass.Block)?.GetBehavior(parameterInfo.ParameterType),
+        EContextualSource.Caller => ContextualCollectibleProvider.ProvideRaw(serviceProvider, argumentInfo, contextualSource, EnumItemClass.Item)?.GetBehavior(argumentInfo.Type),
+        EContextualSource.CallerTarget => ContextualCollectibleProvider.ProvideRaw(serviceProvider, argumentInfo, contextualSource, EnumItemClass.Block)?.GetBehavior(argumentInfo.Type),
         _ => throw new NotSupportedException($"Unknown/Unsupported {nameof(EContextualSource)}: {contextualSource}"),
-    })?.As<CollectibleBehavior>(parameterInfo.ParameterType);
+    })?.As<CollectibleBehavior>(argumentInfo.Type);
 }

@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util;
+using InsanityLib.Util;
 using System;
 using System.Drawing;
 using System.Reflection;
@@ -12,5 +12,5 @@ public class ColorArgumentParserProvider : IArgumentParserProvider<Color>
     
     public static readonly ColorArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => new ColorArgParser(parameterInfo.GetHumanReadableName(), !parameterInfo.HasDefaultValue);
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => new ColorArgParser(argumentInfo.GetHumanReadableName(), !argumentInfo.HasDefaultValue);
 }

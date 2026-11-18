@@ -4,6 +4,8 @@
   "trait-wrapper-negative": "<font color=\"#ff8484\">• {0} </font>",
   "trait-wrapper-mixed": "<font color=\"#ffff84\">• {0} </font>",
 
+  "cmd-result-combination": "Executed command on {0} valid targets. {1} failed, {2} targets skipped.",
+
   //character attributes //TODO
   "game:charattribute-walkspeed": "{0:+0.##%;-0.##%;0%} walk speed"
 }

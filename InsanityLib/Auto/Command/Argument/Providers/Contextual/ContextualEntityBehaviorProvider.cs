@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -11,8 +11,8 @@ public sealed class ContextualEntityBehaviorProvider : IContextualArgumentProvid
     
     public static readonly ContextualEntityBehaviorProvider Instance = new();
 
-    public bool CanProvide(ParameterInfo paramInfo, CommandParameterAttribute? attr) => typeof(EntityBehavior).IsAssignableFrom(paramInfo.ParameterType);
+    public bool CanProvide(IArgumentInfo argumentInfo, CommandParameterAttribute? attr) => typeof(EntityBehavior).IsAssignableFrom(argumentInfo.Type);
 
-    public EntityBehavior? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) => 
-        ContextualEntityProvider.ProvideRaw(serviceProvider, parameterInfo, contextualSource)?.SidedProperties.Behaviors.FirstOrDefault(parameterInfo.ParameterType.IsInstanceOfType);
+    public EntityBehavior? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, EContextualSource contextualSource) => 
+        ContextualEntityProvider.ProvideRaw(serviceProvider, argumentInfo, contextualSource)?.SidedProperties.Behaviors.FirstOrDefault(argumentInfo.Type.IsInstanceOfType);
 }

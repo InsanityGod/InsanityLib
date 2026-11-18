@@ -1,15 +1,18 @@
-﻿using InsanityLib.Auto.Command.Argument.Providers;
+﻿using InsanityLib.Auto.Command.Argument;
+using InsanityLib.Auto.Command.Argument.Providers;
 using InsanityLib.Constants;
 using InsanityLib.Documentation;
 using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
 using Vintagestory.API.Common;
 
-namespace InsanityLib.Auto.Command;
+namespace InsanityLib.Auto.Command; //TODO alias support
 
 /// <summary>
 /// Represents an auto command.<br/> 
@@ -50,8 +53,8 @@ public sealed class AutoCommand(MethodBase method, string? path = null, bool req
             .WithDefaultConfiguration();
             
         if(!string.IsNullOrEmpty(RequiredPermission)) command.RequiresPrivilege(RequiredPermission);
-
-        var parameters = Method.GetParameters();
+        //TODO create abstraction over ParameterInfo and include `this` as entry
+        var parameters = Method.GetArgumentInfos();
         List<ICommandArgumentParser> argumentParsers = new(parameters.Length);
         for (int i = 0; i < parameters.Length; i++)
         {
@@ -83,42 +86,19 @@ public sealed class AutoCommand(MethodBase method, string? path = null, bool req
     {
         if (serviceType == typeof(AutoCommand) || serviceType == typeof(IServiceProvider)) return this;
         if (serviceType == typeof(IChatCommand)) return _chatCommand;
-        if (serviceType == typeof(TextCommandCallingArgs)) return CurrentArgs;
-        if (serviceType == typeof(Caller)) return CurrentArgs?.Caller;
-        if (typeof(IPlayer) == serviceType) return CurrentArgs?.Caller.Player;
+
 
         return ServiceProvider?.GetService(serviceType);
     }
 
-    private object?[] GetAndValidateArguments()
-    {
-        var parameterInfos = Method.GetParameters();
-        var parameters = new object?[parameterInfos.Length];
-        
-        int consumedParsers = 0;
-        for (int i = 0; i < parameterInfos.Length; i++)
-        {
-            var parameterInfo = parameterInfos[i];
-            var parameter =  Providers[i].Provide(this, parameterInfo, CurrentArgs!, ref consumedParsers);
-
-            parameterInfo.Validate(this, parameter);
-
-            parameters[i] = parameter;
-        }
-
-        return parameters;
-    }
-
     public TextCommandResult RunCommand(TextCommandCallingArgs args)
     {
+        var run = new AutoCommandRun(this, args);
+
         CurrentArgs = args;
         try
         {
-            object? instance = Method.IsStatic || Method.DeclaringType is null ? null : GetService(Method.DeclaringType);
-            var result = Method.Invoke(instance, GetAndValidateArguments());
-            
-            if (result is TextCommandResult textCommandResult) return textCommandResult;
-            return TextCommandResult.Success(result is null ? string.Empty : result.ToString(), result);
+            return run.Execute();
         }
         catch(ValidationException ex)
         {
@@ -133,5 +113,158 @@ public sealed class AutoCommand(MethodBase method, string? path = null, bool req
         {
             CurrentArgs = null;
         }
+    }
+}
+
+public sealed class AutoCommandRun(AutoCommand command, TextCommandCallingArgs args) : IServiceProvider
+{
+    public AutoCommand Command { get; } = command;
+
+    public TextCommandCallingArgs Args { get;  } = args;
+
+    public object? GetService(Type serviceType)
+    {
+        if (serviceType == typeof(AutoCommandRun) || serviceType == typeof(IServiceProvider)) return this;
+        if (serviceType == typeof(TextCommandCallingArgs)) return Args;
+        if (serviceType == typeof(Caller)) return Args.Caller;
+        if (typeof(IPlayer) == serviceType) return Args.Caller.Player;
+        
+        return Command.GetService(serviceType);
+    }
+
+    private List<object?> FilterValidArgs(IArgumentInfo argInfo, IEnumerable enumerable, out int failed)
+    {
+        var valid = new List<object?>();
+        failed = 0;
+        
+        foreach(var entry in enumerable)
+        {
+            try
+            {
+                argInfo.Validate(this, entry);
+                valid.Add(entry);
+            }
+            catch
+            {
+                failed++;
+            }
+        }
+
+        if(valid.Count == 0) throw new ValidationException($"argument '{argInfo.GetHumanReadableName()}' had zero matches"); 
+
+        return valid;
+    }
+
+    private static IEnumerable<object?[]> GetArgumentCombinations(object?[] args, bool[] argIsCollection)
+    {
+        var current = new object?[args.Length];
+    
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (argIsCollection[i]) continue;
+            
+            current[i] = args[i];
+        }
+
+        return Generate(0);
+    
+        IEnumerable<object?[]> Generate(int index)
+        {
+            if (index == args.Length)
+            {
+                yield return (object?[]) current.Clone();
+                yield break;
+            }
+    
+            if (!argIsCollection[index])
+            {
+                foreach (var result in Generate(index + 1)) yield return result;
+                yield break;
+            }
+    
+            foreach (var value in (IEnumerable)args[index]!)
+            {
+                current[index] = value;
+    
+                foreach (var result in Generate(index + 1)) yield return result;
+            }
+        }
+    }
+
+    public TextCommandResult Execute()
+    {
+        var method = Command.Method;
+        var argumentInfos = method.GetArgumentInfos();
+
+        var validatedArgs = new object?[argumentInfos.Length];
+        var argIsCollection = new bool [argumentInfos.Length];
+        var skippedCollectionItems = new int[argumentInfos.Length];
+
+        int consumedParsers = 0;
+        for (int i = 0; i < argumentInfos.Length; i++)
+        {
+            var argInfo = argumentInfos[i];
+            var parsedArg = Command.Providers[i].Provide(this, argInfo, Args!, ref consumedParsers);
+
+            if (!argInfo.Type.IsInstanceOfType(parsedArg))
+            {
+                if (typeof(IEnumerable<>).MakeGenericType(argInfo.Type).IsAssignableFrom(parsedArg?.GetType()))
+                {
+                    parsedArg = FilterValidArgs(argInfo, (IEnumerable)parsedArg, out skippedCollectionItems[i]);
+                    argIsCollection[i] = true;
+                }
+                else parsedArg = parsedArg.AutoConvert(argInfo.Type);
+            }
+            else argInfo.Validate(this, parsedArg);
+
+            validatedArgs[i] = parsedArg;
+        }
+
+        int combinationCount = 0;
+        int failedCount = 0;
+        object? lastResult = null;
+
+        foreach(var combination in GetArgumentCombinations(validatedArgs, argIsCollection))
+        {
+            combinationCount++;
+            try
+            {
+                var result = method.IsStatic ?
+                    method.Invoke(null, combination) :
+                    method.Invoke(combination[0], combination[1..]);
+
+                if (result is TextCommandResult textCommandResult)
+                {
+                    lastResult = textCommandResult;
+                    if(textCommandResult.Status == EnumCommandStatus.Error) failedCount++;
+                }
+                else lastResult = result;
+            }
+            catch (Exception ex)
+            {
+                failedCount++;
+
+                this.GetService<ILogger>()?.Error(Logging.ExternalExecutionFailed, method.FindModName(), nameof(AutoCommandRun), method.GetDebugDisplayName(), ex);
+                lastResult = TextCommandResult.Error(ex.InnerException?.Message);
+            }
+        }
+
+        if(combinationCount == 1)
+        {
+            if(lastResult is TextCommandResult lastTextCommandResult) return lastTextCommandResult;
+            return TextCommandResult.Success(lastResult is null ? string.Empty : lastResult.ToString(), lastResult);
+        }
+
+        return new TextCommandResult
+        {
+            Status = EnumCommandStatus.Success,
+            StatusMessage = "insanitylib:cmd-result-combination",
+            MessageParams = [
+                combinationCount,
+                failedCount,
+                skippedCollectionItems.Sum()
+            ]
+        };
+        
     }
 }

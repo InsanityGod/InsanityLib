@@ -1,4 +1,4 @@
-﻿using InsanityLib.Auto.Command.Argument.Providers.Special;
+using InsanityLib.Auto.Command.Argument.Providers.Special;
 using InsanityLib.Extensions;
 using InsanityLib.Util;
 using System;
@@ -13,14 +13,14 @@ public class BlockPosArgumentParserProvider : IArgumentParserProvider<BlockPos>
     
     public static readonly BlockPosArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => new WorldPositionArgParser(parameterInfo.GetHumanReadableName(), serviceProvider.GetService<ICoreAPI>(), !parameterInfo.HasDefaultValue);
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => new WorldPositionArgParser(argumentInfo.GetHumanReadableName(), serviceProvider.GetService<ICoreAPI>(), !argumentInfo.HasDefaultValue);
 
-    object? ICommandArgumentProvider.Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers)
+    object? ICommandArgumentProvider.Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, TextCommandCallingArgs currentArgs, ref int consumedParsers)
     {
         var parser = currentArgs.Parsers[consumedParsers++];
 
         return parser.IsMissing && !parser.IsMandatoryArg
-            ? DefaultArgumentProvider.Instance.Provide(serviceProvider, parameterInfo, currentArgs, ref consumedParsers)
+            ? DefaultArgumentProvider.Instance.Provide(serviceProvider, argumentInfo, currentArgs, ref consumedParsers)
             : ((Vec3d)parser.GetValue())?.AsBlockPos;
     }
 }

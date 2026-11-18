@@ -1,4 +1,4 @@
-﻿using InsanityLib.Extensions;
+using InsanityLib.Extensions;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -11,10 +11,10 @@ public sealed class ContextualBlockPosProvider : IContextualArgumentProvider<Blo
     
     public static readonly ContextualBlockPosProvider Instance = new();
 
-    public BlockPos? Provide(IServiceProvider serviceProvider, ParameterInfo parameterInfo, EContextualSource contextualSource) => contextualSource switch
+    public BlockPos? Provide(IServiceProvider serviceProvider, IArgumentInfo argumentInfo, EContextualSource contextualSource) => contextualSource switch
     {
         EContextualSource.Caller => serviceProvider.GetService<Caller>()!.Pos.PosRequired().AsBlockPos,
-        EContextualSource.CallerTarget =>  ContextualBlockSelectionProvider.Instance.Provide(serviceProvider, parameterInfo, EContextualSource.Caller)?.Position,
+        EContextualSource.CallerTarget =>  ContextualBlockSelectionProvider.Instance.Provide(serviceProvider, argumentInfo, EContextualSource.Caller)?.Position,
         _ => throw new NotSupportedException($"Unknown/Unsupported {nameof(EContextualSource)}: {contextualSource}"),
     };
 }

@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util;
+using InsanityLib.Util;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -13,19 +13,19 @@ public class StringArgumentParserProvider : IArgumentParserProvider<string>
     
     public static readonly StringArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo)
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo)
     {
-        var allowedValuesAttr = parameterInfo.GetCustomAttribute<AllowedValuesAttribute>();
+        var allowedValuesAttr = argumentInfo.GetCustomAttribute<AllowedValuesAttribute>();
 
         if(allowedValuesAttr is not null)
         {
             return new WordRangeArgParser(
-                parameterInfo.GetHumanReadableName(),
-                !parameterInfo.HasDefaultValue,
+                argumentInfo.GetHumanReadableName(),
+                !argumentInfo.HasDefaultValue,
                 [.. allowedValuesAttr.Values.Select(obj => obj!.ToString())]
             );
         }
 
-        return new WordArgParser(parameterInfo.GetHumanReadableName(), !parameterInfo.HasDefaultValue);
+        return new WordArgParser(argumentInfo.GetHumanReadableName(), !argumentInfo.HasDefaultValue);
     }
 }

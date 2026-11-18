@@ -1,4 +1,4 @@
-﻿using InsanityLib.Util;
+using InsanityLib.Util;
 using System;
 using System.Reflection;
 using Vintagestory.API.Common;
@@ -11,5 +11,5 @@ public class IntArgumentParserProvider : IArgumentParserProvider<int>
     
     public static readonly IntArgumentParserProvider Instance = new();
 
-    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, ParameterInfo parameterInfo) => new IntArgParser(parameterInfo.GetHumanReadableName(), default, !parameterInfo.HasDefaultValue);
+    public ICommandArgumentParser GetParser(IServiceProvider serviceProvider, IArgumentInfo argumentInfo) => new IntArgParser(argumentInfo.GetHumanReadableName(), default, !argumentInfo.HasDefaultValue);
 }
