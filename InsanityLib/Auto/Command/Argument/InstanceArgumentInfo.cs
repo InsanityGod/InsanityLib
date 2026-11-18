@@ -16,7 +16,7 @@ public sealed class InstanceArgumentInfo(Type type) : IArgumentInfo
 
     public string DebugName => "instance/this";
 
-    public string GetHumanReadableName() => type.GetHumanReadableName();
+    public string GetHumanReadableName() => "Target";
 
     public T? GetCustomAttribute<T>(bool inherit = true) where T : Attribute => null; //Not relevant for argument info
 

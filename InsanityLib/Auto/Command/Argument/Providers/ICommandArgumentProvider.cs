@@ -109,6 +109,7 @@ public interface ICommandArgumentProvider
         BlockPosArgumentParserProvider.Instance,
         Vec3DArgumentParserProvider.Instance,
         Vec2DArgumentParserProvider.Instance,
+        EntityBehaviorsArgumentParserProvider.Instance,
         EntitiesArgumentParserProvider.Instance,
         EntityPropertiesArgumentParserProvider.Instance,
         OnlinePlayerArgumentParserProvider.Instance,

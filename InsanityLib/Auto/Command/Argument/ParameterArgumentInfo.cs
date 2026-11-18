@@ -15,7 +15,7 @@ public sealed class ParameterArgumentInfo(ParameterInfo info) : IArgumentInfo
 
     public Type Type => info.ParameterType;
 
-    public string DebugName => info.Name;
+    public string DebugName => info.Name!;
 
     public string GetHumanReadableName() => info.GetHumanReadableName();
 
